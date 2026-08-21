@@ -57,10 +57,6 @@ function akIcon(name, cls) {
     body + '</svg>';
 }
 
-function akAssetPath(path) {
-  return window.location.pathname.includes('/admin/') ? '../' + path : path;
-}
-
 function akQueryParam(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
@@ -94,7 +90,7 @@ function akHeaderHTML(active) {
   '</div></div>' +
   '<header class="site-header"><div class="container">' +
     '<a class="brand" href="index.html">' +
-      '<img class="logo-img" src="' + akAssetPath('assets/img/logo.png') + '" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+      '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
     '</a>' +
     '<ul class="main-nav">' +
       dropdown('tienda', 'TIENDA', [
@@ -161,7 +157,7 @@ function akFooterHTML() {
     '<div class="footer-grid">' +
       '<div class="footer-brand">' +
         '<a class="brand" href="index.html" style="margin-bottom:12px">' +
-          '<img class="logo-img" src="' + akAssetPath('assets/img/logo.png') + '" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+          '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
         '</a>' +
         '<p>Tu tienda y taller especializado en electrónica automotriz. Soluciones profesionales, rápidas y garantizadas.</p>' +
         '<div class="footer-social">' +

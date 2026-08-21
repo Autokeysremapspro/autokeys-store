@@ -30,6 +30,8 @@
 <script src="assets/js/catalog.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
 <script>
   let payMethod = 'tarjeta';
 
@@ -79,18 +81,18 @@
         '<div class="cart-panel">' +
           '<h3>DATOS DEL CLIENTE</h3>' +
           '<div class="field-row">' +
-            '<div class="field"><label>Nombre *</label><input type="text" placeholder="Tu nombre"></div>' +
-            '<div class="field"><label>Apellidos *</label><input type="text" placeholder="Tus apellidos"></div>' +
-            '<div class="field full"><label>Email *</label><input type="email" placeholder="tu@email.com"></div>' +
-            '<div class="field full"><label>Teléfono *</label><input type="tel" placeholder="+34 600 123 456"></div>' +
+            '<div class="field"><label>Nombre *</label><input type="text" id="f-nombre" placeholder="Tu nombre" required></div>' +
+            '<div class="field"><label>Apellidos *</label><input type="text" id="f-apellidos" placeholder="Tus apellidos" required></div>' +
+            '<div class="field full"><label>Email *</label><input type="email" id="f-email" placeholder="tu@email.com" required></div>' +
+            '<div class="field full"><label>Teléfono *</label><input type="tel" id="f-telefono" placeholder="+34 600 123 456" required></div>' +
           '</div>' +
           '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
           '<div class="field-row">' +
-            '<div class="field full"><label>Dirección *</label><input type="text" placeholder="Calle, número"></div>' +
-            '<div class="field"><label>Código postal *</label><input type="text" placeholder="28001"></div>' +
-            '<div class="field"><label>Ciudad *</label><input type="text" placeholder="Madrid"></div>' +
-            '<div class="field"><label>País *</label><select><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
-            '<div class="field"><label>Provincia *</label><input type="text" placeholder="Madrid"></div>' +
+            '<div class="field full"><label>Dirección *</label><input type="text" id="f-direccion" placeholder="Calle, número" required></div>' +
+            '<div class="field"><label>Código postal *</label><input type="text" id="f-cp" placeholder="28001" required></div>' +
+            '<div class="field"><label>Ciudad *</label><input type="text" id="f-ciudad" placeholder="Madrid" required></div>' +
+            '<div class="field"><label>País *</label><select id="f-pais"><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
+            '<div class="field"><label>Provincia *</label><input type="text" id="f-provincia" placeholder="Madrid" required></div>' +
           '</div>' +
           '<h3 style="margin-top:22px">MÉTODO DE PAGO</h3>' +
           '<div id="pay-methods">' +
@@ -98,18 +100,18 @@
             payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
             payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
           '</div>' +
-          '<div class="notice">' + akIcon('lock') + 'El cobro se procesa mediante SumUp. La pasarela de pago se activará en la siguiente fase del proyecto.</div>' +
+          '<div class="notice">' + akIcon('lock') + 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago (próximamente a través de SumUp).</div>' +
           '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
           '<div class="field-row">' +
-            '<div class="field"><label>NIF / CIF *</label><input type="text" placeholder="12345678Z"></div>' +
-            '<div class="field"><label>Razón social (opcional)</label><input type="text" placeholder="Autokeys Soluciones S.L."></div>' +
+            '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" placeholder="12345678Z"></div>' +
+            '<div class="field"><label>Razón social (opcional)</label><input type="text" id="f-razon" placeholder="Autokeys Soluciones S.L."></div>' +
           '</div>' +
-          '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá automáticamente tras la confirmación del pedido.</p>' +
+          '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
           '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
-            '<div><div style="font-size:11px;color:var(--muted)">TOTAL A PAGAR</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
-            '<button class="btn btn-primary" id="finish-btn">Finalizar pedido' + akIcon('arrowRight') + '</button>' +
+            '<div><div style="font-size:11px;color:var(--muted)">TOTAL ESTIMADO</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
+            '<button class="btn btn-primary" id="finish-btn">Enviar pedido' + akIcon('arrowRight') + '</button>' +
           '</div>' +
-          '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Transacción segura. Al finalizar aceptas nuestros términos y condiciones.</p>' +
+          '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Tus datos se transmiten de forma segura. Al enviar aceptas nuestros términos y condiciones.</p>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -167,9 +169,102 @@
       el.classList.add('selected');
       el.querySelector('input').checked = true;
     }));
-    document.getElementById('finish-btn').addEventListener('click', () => {
-      akToast('Checkout en modo demo: la pasarela de pago SumUp se conectará en la siguiente fase');
-    });
+    document.getElementById('finish-btn').addEventListener('click', submitOrder);
+  }
+
+  function fieldVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  async function submitOrder() {
+    const required = [
+      ['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos'], ['f-email', 'Email'], ['f-telefono', 'Teléfono'],
+      ['f-direccion', 'Dirección'], ['f-cp', 'Código postal'], ['f-ciudad', 'Ciudad'], ['f-provincia', 'Provincia'],
+    ];
+    const missing = required.find(([id]) => !fieldVal(id));
+    if (missing) {
+      akToast('Falta un campo obligatorio: ' + missing[1]);
+      document.getElementById(missing[0]).focus();
+      return;
+    }
+    const email = fieldVal('f-email');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      akToast('Revisa el formato del email');
+      document.getElementById('f-email').focus();
+      return;
+    }
+
+    const btn = document.getElementById('finish-btn');
+    btn.disabled = true;
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = 'Enviando...';
+
+    const lines = akCartLines();
+    const subtotal = akCartSubtotal();
+    const ivaPortion = subtotal - subtotal / 1.21;
+    const total = subtotal;
+    const pedidoId = crypto.randomUUID();
+    const numero = 'WEB-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+
+    const pedido = {
+      id: pedidoId,
+      numero,
+      nombre: fieldVal('f-nombre'),
+      apellidos: fieldVal('f-apellidos'),
+      email,
+      telefono: fieldVal('f-telefono'),
+      direccion: fieldVal('f-direccion'),
+      codigo_postal: fieldVal('f-cp'),
+      ciudad: fieldVal('f-ciudad'),
+      provincia: fieldVal('f-provincia'),
+      pais: fieldVal('f-pais') || 'España',
+      nif_cif: fieldVal('f-nif') || null,
+      razon_social: fieldVal('f-razon') || null,
+      metodo_pago: payMethod,
+      subtotal,
+      envio: 0,
+      iva_importe: ivaPortion,
+      total,
+    };
+
+    try {
+      const client = akSupabase();
+      const { error: pedidoError } = await client.from('tienda_pedidos').insert(pedido);
+      if (pedidoError) throw pedidoError;
+
+      const lineas = lines.map((l) => ({
+        pedido_id: pedidoId,
+        producto_id: l.product.id,
+        producto_nombre: l.product.name,
+        categoria: l.product.category,
+        variante_id: l.variant.id,
+        variante_nombre: l.variant.name,
+        cantidad: l.qty,
+        precio_unitario: l.variant.price,
+      }));
+      const { error: lineasError } = await client.from('tienda_pedido_lineas').insert(lineas);
+      if (lineasError) console.error('No se pudieron guardar las líneas del pedido:', lineasError);
+
+      akCartSave([]);
+      showConfirmation(numero, total);
+    } catch (err) {
+      console.error(err);
+      akToast('No hemos podido enviar el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.');
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+
+  function showConfirmation(numero, total) {
+    document.querySelectorAll('.cstep').forEach((s, i) => s.classList.toggle('active', i === 3));
+    document.getElementById('cart-root').innerHTML =
+      '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+      '<h3>¡Pedido recibido!</h3>' +
+      '<p>Tu solicitud <b style="color:#fff">#' + numero + '</b> por ' + akFormatPrice(total) + ' ha sido registrada.<br>' +
+      'Nuestro equipo te contactará en breve para confirmar los detalles y el pago.</p>' +
+      '<a class="btn btn-primary" style="margin-top:16px" href="index.html">Volver al inicio</a>' +
+      '</div></div>';
   }
 </script>
 </body>
