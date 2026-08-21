@@ -169,7 +169,7 @@
     if (prevEmpty) prevEmpty.remove();
     grid.innerHTML = list.map((p) =>
       '<article class="product-card">' +
-        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + '<span class="ph">' + akIcon(p.icon) + '</span></div>' +
+        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
           '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
           '<h3>' + p.name + '</h3>' +

@@ -70,16 +70,19 @@
           '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
         '</div>' +
         '<div class="gallery" style="margin-top:20px">' +
-          '<div class="gallery-main hex-overlay">' +
-            '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
-            '<span class="ph">' + akIcon(product.icon) + '</span>' +
-            '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
-          '</div>' +
-          '<div class="thumbs">' +
-            '<div class="thumb active">' + akIcon(product.icon) + '</div>' +
-            '<div class="thumb">' + akIcon('module') + '</div>' +
-            '<div class="thumb">' + akIcon('programmer') + '</div>' +
-          '</div>' +
+          (product.image ?
+            '<div class="gallery-main hex-overlay"><img class="gm-photo" src="' + product.image + '" alt="' + product.name + '"></div>' :
+            '<div class="gallery-main hex-overlay">' +
+              '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
+              '<span class="ph">' + akIcon(product.icon) + '</span>' +
+              '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
+            '</div>' +
+            '<div class="thumbs">' +
+              '<div class="thumb active">' + akIcon(product.icon) + '</div>' +
+              '<div class="thumb">' + akIcon('module') + '</div>' +
+              '<div class="thumb">' + akIcon('programmer') + '</div>' +
+            '</div>'
+          ) +
         '</div>' +
       '</div>' +
       '<aside class="buybox metal-frame" id="buybox"></aside>' +

@@ -65,7 +65,7 @@
       </div>
     </div>
     <div class="hero-media hex-overlay">
-      <div class="ph" data-icon="ecu"></div>
+      <img class="hero-photo" src="assets/img/hero-taller.jpg" alt="Autokeys Remaps Pro — electrónica, reprogramación y soluciones" width="1536" height="1024">
       <div class="hero-tag"><span data-icon="programmer"></span><span><b>Servicio técnico especializado</b><span>Más de 10 años de experiencia</span></span></div>
     </div>
   </section>
@@ -130,7 +130,7 @@
     const top = [...CATALOG].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
     document.getElementById('destacados-grid').innerHTML = top.map((p) =>
       '<article class="product-card">' +
-        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + '<span class="ph">' + akIcon(p.icon) + '</span></div>' +
+        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
           '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
           '<h3>' + p.name + '</h3>' +
