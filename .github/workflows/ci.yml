@@ -40,8 +40,12 @@ jobs:
           done
           echo "Todos los .js son sintácticamente válidos."
 
-      - name: Comprobar la función serverless del sitemap
-        run: node -c api/sitemap.js
+      - name: Comprobar sintaxis de las funciones serverless (api/)
+        run: |
+          for f in api/*.js; do
+            node -c "$f" || exit 1
+          done
+          echo "Todas las funciones de api/ son sintácticamente válidas."
 
       - name: Comprobar que vercel.json y robots.txt son consistentes
         run: |

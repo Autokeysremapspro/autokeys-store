@@ -59,8 +59,51 @@
       }
     } catch (e) { /* supabase not reachable — treat as guest */ }
     await akCatalogReady();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pago') === 'retorno' && params.get('pedido')) {
+      showPaymentReturn(params.get('pedido'));
+      return;
+    }
     render();
   });
+
+  async function showPaymentReturn(pedidoId) {
+    document.querySelectorAll('.cstep').forEach((s, i) => s.classList.toggle('active', i === 3));
+    document.getElementById('cart-root').innerHTML =
+      '<div class="section"><div class="empty-state">' + akIcon('clock') + '<h3>Comprobando tu pago…</h3></div></div>';
+
+    let pedido = null;
+    for (let i = 0; i < 6; i++) {
+      const { data } = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
+      pedido = data;
+      if (!pedido || pedido.pago_estado !== 'pendiente') break;
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+
+    if (!pedido) {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>Pedido recibido</h3><p>No hemos podido comprobar el estado del pago, pero tu pedido ha quedado registrado. Te contactaremos para confirmarlo.</p></div></div>';
+      return;
+    }
+
+    if (pedido.pago_estado === 'pagado') {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>¡Pago confirmado!</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> por ' + akFormatPrice(Number(pedido.total)) + ' está pagado. Empezamos a prepararlo.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="cuenta.html">Ver mis pedidos</a></div></div>';
+    } else if (pedido.pago_estado === 'fallido') {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('close') +
+        '<h3>El pago no se ha completado</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado, pero el pago no llegó a procesarse. Puedes escribirnos por WhatsApp para intentarlo de otra forma.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="https://wa.me/34632982646" target="_blank" rel="noopener">Contactar por WhatsApp</a></div></div>';
+    } else {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>Pedido recibido</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado. Estamos confirmando el pago — te avisaremos en cuanto se complete.</p></div></div>';
+    }
+  }
 
   function render() {
     const lines = akCartLines();
@@ -200,7 +243,7 @@
         payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
         payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
       '</div>' +
-      '<div class="notice">' + akIcon('lock') + 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago (próximamente a través de SumUp).</div>' +
+      '<div class="notice" id="pay-notice">' + akIcon('lock') + '<span id="pay-notice-text">' + pagoNoticeTexto() + '</span></div>' +
       '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
       '<div class="field-row">' +
         '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" value="' + esc(p.nif_cif) + '" placeholder="12345678Z"></div>' +
@@ -209,7 +252,7 @@
       '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
       '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
         '<div><div style="font-size:11px;color:var(--muted)">TOTAL ESTIMADO</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
-        '<button class="btn btn-primary" id="finish-btn">Enviar pedido' + akIcon('arrowRight') + '</button>' +
+        '<button class="btn btn-primary" id="finish-btn">' + finishBtnTexto() + akIcon('arrowRight') + '</button>' +
       '</div>' +
       '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Tus datos se transmiten de forma segura. Al enviar aceptas nuestros términos y condiciones.</p>' +
     '</div>';
@@ -240,6 +283,16 @@
           '<div class="field"><label>Matrícula</label><input type="text" id="nv-matricula" placeholder="1234ABC"></div>' +
         '</div>'
         : '');
+  }
+
+  function pagoNoticeTexto() {
+    return payMethod === 'tarjeta'
+      ? 'Con tarjeta pagas ahora mismo de forma segura a través de SumUp.'
+      : 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago.';
+  }
+
+  function finishBtnTexto() {
+    return payMethod === 'tarjeta' ? 'Pagar ahora' : 'Enviar pedido';
   }
 
   function esc(v) {
@@ -296,6 +349,10 @@
       document.querySelectorAll('[data-pay]').forEach((x) => x.classList.remove('selected'));
       el.classList.add('selected');
       el.querySelector('input').checked = true;
+      const noticeText = document.getElementById('pay-notice-text');
+      if (noticeText) noticeText.textContent = pagoNoticeTexto();
+      const finishBtn = document.getElementById('finish-btn');
+      if (finishBtn) finishBtn.innerHTML = finishBtnTexto() + akIcon('arrowRight');
     }));
     document.getElementById('finish-btn').addEventListener('click', submitOrder);
     const vehiculoSelect = document.getElementById('f-vehiculo');
@@ -422,6 +479,23 @@
 
       akCartSave([]);
       appliedCupon = null;
+
+      if (payMethod === 'tarjeta') {
+        try {
+          const pagoRes = await fetch('/api/crear-pago', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pedido_id: pedidoId }),
+          });
+          const pagoData = await pagoRes.json();
+          if (pagoRes.ok && pagoData.hosted_checkout_url) {
+            window.location.href = pagoData.hosted_checkout_url;
+            return;
+          }
+        } catch (e) {
+          console.error('No se pudo iniciar el pago online:', e);
+        }
+      }
       showConfirmation(numero, total);
     } catch (err) {
       console.error(err);
