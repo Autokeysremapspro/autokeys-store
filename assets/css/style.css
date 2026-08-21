@@ -326,6 +326,8 @@ img{max-width:100%;display:block}
   font-size:11px;text-align:center;color:#5f5f66;
 }
 .contact-list li{display:flex;align-items:center;gap:9px}
+.contact-list li a{display:flex;align-items:center;gap:9px;color:inherit}
+.contact-list li a:hover{color:#fff}
 .contact-list svg{width:15px;height:15px;color:var(--red);flex:none}
 
 /* ---------- Sidebar filters (tienda) ---------- */

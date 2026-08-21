@@ -185,8 +185,9 @@ function akFooterHTML() {
         '<li><a href="#" data-action="mock">Política de privacidad</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
-        '<li>' + akIcon('phone') + '<span>+34 624 84 52 36</span></li>' +
-        '<li>' + akIcon('mail') + '<span>info@autokeys.es</span></li>' +
+        '<li><a href="tel:+34953852778">' + akIcon('phone') + '<span>+34 953 85 27 78</span></a></li>' +
+        '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
+        '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es</span></a></li>' +
         '<li>' + akIcon('mapPin') + '<span>España</span></li>' +
         '<li>' + akIcon('clock') + '<span>Lun - Dom · 09:00 - 20:00</span></li>' +
       '</ul></div>' +
