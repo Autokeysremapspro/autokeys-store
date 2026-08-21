@@ -48,6 +48,8 @@ const AK_ICONS = {
   trendDown: '<polyline points="3,7 9,13 13,9 21,18"/><polyline points="15,18 21,18 21,12"/>',
   grid: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
   menu: '<line x1="3.5" y1="6.5" x2="20.5" y2="6.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="3.5" y1="17.5" x2="20.5" y2="17.5"/>',
+  camera: '<path d="M4 8h3.2L9 5.5h6L16.8 8H20a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 20H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="14" r="3.6"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 0 1 5.3.8c0 1.8-2.6 2-2.6 3.8"/><circle cx="12" cy="17.2" r="0.6" fill="currentColor" stroke="none"/>',
 };
 
 function akIcon(name, cls) {

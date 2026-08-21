@@ -36,6 +36,7 @@
 <script src="assets/js/catalog.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/product-forms.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script>
@@ -44,6 +45,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     document.title = product.name + ' — Autokeys Remaps Pro Store';
+    akTfInit(product);
     const cat = akFindCategory(product.category);
 
     document.getElementById('breadcrumb').innerHTML =
@@ -112,19 +114,10 @@
           '</label>'
         ).join('') +
       '</div>' +
-      (product.isSoftware
-        ? '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. DATOS PARA LA LICENCIA</div>' +
-          '<div class="field-row">' +
-            '<div class="field full"><label>Email de contacto</label><input type="email" placeholder="tu@email.com"></div>' +
-            '<div class="field full"><label>Notas (opcional)</label><textarea placeholder="Equipo, versión u otra información relevante"></textarea></div>' +
-          '</div>'
-        : '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
-          '<div class="field-row">' +
-            '<div class="field"><label>Referencia / Nº de pieza</label><input type="text" placeholder="Ej. 0 281 034 123"></div>' +
-            '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
-            '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
-          '</div>') +
-      '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px">' + akIcon('cart') + 'Añadir al carrito</button>' +
+      '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. FICHA TÉCNICA</div>' +
+      '<div id="tf-configurator"></div>' +
+      '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px"></button>' +
+      '<button type="button" class="tf-save-draft" id="tf-save-draft-btn">Guardar y continuar después</button>' +
       '<ul class="buybox-trust">' +
         '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
         '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
@@ -139,10 +132,61 @@
       document.getElementById('price-big').textContent = akFormatPrice(selectedVariant.price);
     }));
 
-    document.getElementById('add-cart-btn').addEventListener('click', () => {
-      akCartAdd(product.id, selectedVariant.id, 1);
-      akToast(product.name + ' añadido al carrito');
+    akTfMountConfigurator();
+
+    document.getElementById('tf-save-draft-btn').addEventListener('click', () => {
+      akTfSaveDraft(product);
+      akToast('Borrador guardado. Puedes continuar más tarde.');
     });
+
+    document.getElementById('add-cart-btn').addEventListener('click', handleAddToCart);
+  }
+
+  function akTfMountConfigurator() {
+    const root = document.getElementById('tf-configurator');
+    root.innerHTML = akTfRenderConfigurator(product);
+    akTfWire(root, product, akTfMountConfigurator);
+    akTfApplyValues(root);
+    updateCtaLabel();
+  }
+
+  function updateCtaLabel() {
+    const btn = document.getElementById('add-cart-btn');
+    if (!btn) return;
+    btn.innerHTML = akTfIsCompatMode()
+      ? akIcon('help') + 'Solicitar revisión de compatibilidad'
+      : akIcon('cart') + 'Añadir al carrito';
+  }
+
+  async function handleAddToCart() {
+    const v = akTfValidate();
+    if (!v.ok) {
+      akToast(v.message);
+      if (v.focusId) {
+        const el = document.querySelector('[data-tf="' + v.focusId + '"]') || document.querySelector('[data-tf-wrap="' + v.focusId + '"]');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const btn = document.getElementById('add-cart-btn');
+    btn.disabled = true;
+    btn.innerHTML = 'Guardando...';
+
+    let fotos = [];
+    try { fotos = await akTfUploadPhotos(); } catch (e) { console.error(e); }
+
+    const meta = akTfCollectData(product);
+    meta.fotos = fotos;
+    const wasCompat = meta.compatibilidad;
+
+    akCartAdd(product.id, selectedVariant.id, 1, meta);
+    akTfClearDraft(product);
+    akTfInit(product);
+    akTfMountConfigurator();
+    btn.disabled = false;
+
+    akToast(wasCompat ? 'Solicitud de revisión de compatibilidad añadida al carrito' : product.name + ' añadido al carrito');
   }
 
   function renderTrustStrip() {

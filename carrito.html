@@ -156,6 +156,11 @@
       '<div class="ci-body">' +
         '<b>' + l.product.name + '</b>' +
         '<p>' + l.variant.name + '</p>' +
+        (l.meta ? '<p style="color:var(--red);font-size:10.5px;font-weight:800;display:flex;align-items:center;gap:5px">' +
+          akIcon(l.meta.compatibilidad ? 'help' : 'checkCircle') +
+          (l.meta.compatibilidad ? 'Revisión de compatibilidad solicitada' : 'Ficha técnica completada') +
+          (l.meta.urgente ? ' · Urgente' : '') +
+        '</p>' : '') +
         '<div class="qty-row"><div class="qty-ctrl">' +
           '<button data-qty="down" data-idx="' + l.index + '">' + akIcon('minus') + '</button>' +
           '<span>' + l.qty + '</span>' +
@@ -274,6 +279,11 @@
         variante_nombre: l.variant.name,
         cantidad: l.qty,
         precio_unitario: l.variant.price,
+        configuracion_tecnica: l.meta ? l.meta.campos || {} : null,
+        fotos: l.meta ? (l.meta.fotos || []) : [],
+        urgente: l.meta ? !!l.meta.urgente : false,
+        es_revision_compatibilidad: l.meta ? !!l.meta.compatibilidad : false,
+        observaciones: l.meta ? (l.meta.observaciones || null) : null,
       }));
       const { error: lineasError } = await client.from('tienda_pedido_lineas').insert(lineas);
       if (lineasError) console.error('No se pudieron guardar las líneas del pedido:', lineasError);

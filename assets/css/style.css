@@ -29,7 +29,8 @@ svg{width:20px;height:20px;flex:none;display:block}
    containers so 1fr tracks can actually shrink and wrap their text. */
 .cat-grid>*,.product-grid>*,.steps>*,.info-grid>*,.feature-strip>*,.footer-grid>*,
 .main-nav>li,.hero-badges>*,.oauth-row>*,.help-row>*,.filter-group label,
-.detail>*,.feature-check>*,.cart-layout>*,.faq>*,.store-layout>*,.field-row>*{min-width:0}
+.detail>*,.feature-check>*,.cart-layout>*,.faq>*,.store-layout>*,.field-row>*,
+.yn-toggle>*,.tf-multiselect>*{min-width:0}
 html{background:var(--bg);scroll-behavior:smooth}
 body{
   margin:0;
@@ -410,6 +411,33 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .buybox-trust{display:flex;flex-direction:column;gap:8px;margin-top:16px;font-size:11px;color:var(--muted2)}
 .buybox-trust li{display:flex;align-items:center;gap:8px}
 .buybox-trust svg{width:15px;height:15px;color:var(--red);flex:none}
+
+/* ---------- Technical configurator ---------- */
+.tf-group-title{margin-top:22px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.tf-group-title .req-note{font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;font-size:10px}
+.yn-toggle{display:flex;gap:8px}
+.yn-toggle button{flex:1;min-width:0;border:1px solid #34343a;background:var(--panel3);color:var(--text);border-radius:9px;padding:10px 6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;overflow-wrap:break-word}
+.yn-toggle button.selected{border-color:var(--red);background:#1a1113;color:#fff}
+.tf-multiselect{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.tf-chip{border:1px solid #34343a;background:var(--panel3);border-radius:20px;padding:8px 13px;font-size:11.5px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+.tf-chip.selected{border-color:var(--red);background:#1a1113;color:#fff}
+.tf-chip input{accent-color:var(--red);margin:0}
+.tf-photos-zone{border:1.5px dashed #34343a;border-radius:12px;padding:18px;text-align:center;cursor:pointer;margin-top:10px;color:var(--muted2);font-size:12px}
+.tf-photos-zone:hover{border-color:var(--red);color:#fff}
+.tf-photos-zone svg{width:22px;height:22px;color:var(--red);margin-bottom:6px}
+.tf-photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tf-photo-thumb{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line);flex:none}
+.tf-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.tf-photo-thumb button{position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:#000c;border:0;color:#fff;font-size:10px;line-height:1;cursor:pointer;padding:0}
+.tf-note{background:var(--panel3);border:1px solid #34343a;border-radius:10px;padding:11px 13px;font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:8px}
+.tf-compat-toggle{margin-top:20px;padding:12px;border:1px dashed #34343a;border-radius:10px;font-size:11.5px;color:var(--muted2);cursor:pointer;text-align:center;transition:border-color .15s,color .15s}
+.tf-compat-toggle:hover{border-color:var(--red);color:#fff}
+.tf-compat-toggle.active{border-color:var(--red);border-style:solid;background:#1a1113;color:#fff}
+.tf-draft-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel3);border:1px solid #34343a;border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--muted2);margin-top:14px}
+.tf-draft-banner button{background:none;border:0;color:var(--red);font-weight:800;font-size:11.5px;cursor:pointer;padding:0;font-family:inherit}
+.tf-save-draft{background:none;border:0;color:var(--muted2);font-size:11px;text-decoration:underline;cursor:pointer;margin-top:12px;padding:0;font-family:inherit;display:block}
+.tf-save-draft:hover{color:#fff}
+[data-tf-hidden]{display:none !important}
 
 .info-grid{padding:0 6vw 60px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .info-grid.cols-6{grid-template-columns:repeat(6,1fr)}
