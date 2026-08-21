@@ -149,7 +149,8 @@ img{max-width:100%;display:block}
   opacity:0;visibility:hidden;transform:translateY(6px);transition:.15s ease;z-index:60;
 }
 .main-nav>li:hover .dropdown{opacity:1;visibility:visible;transform:translateY(4px)}
-.dropdown a{display:block;padding:9px 12px;border-radius:8px;font-size:13px;color:#d4d4da}
+.dropdown a{display:flex;align-items:center;gap:6px;padding:9px 12px;border-radius:8px;font-size:13px;color:#d4d4da}
+.dropdown a svg.ext{width:12px;height:12px;margin-left:auto;transform:rotate(-45deg);color:var(--muted)}
 .dropdown a:hover{background:#1f1f24;color:#fff}
 
 .search-form{

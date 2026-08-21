@@ -79,7 +79,7 @@ function akHeaderHTML(active) {
   const dropdown = (id, label, items) =>
     '<li class="' + (active === id ? 'active' : '') + '">' +
       '<button type="button">' + label + akIcon('chevDown', 'chev') + '</button>' +
-      '<div class="dropdown">' + items.map((i) => '<a href="' + i.href + '">' + i.label + '</a>').join('') + '</div>' +
+      '<div class="dropdown">' + items.map((i) => '<a href="' + i.href + '"' + (i.external ? ' target="_blank" rel="noopener"' : '') + '>' + i.label + (i.external ? akIcon('arrowRight', 'ext') : '') + '</a>').join('') + '</div>' +
     '</li>';
 
   return '' +
@@ -123,8 +123,8 @@ function akHeaderHTML(active) {
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
         { href: 'producto.html?id=edc15-multimap-suite', label: 'EDC15 Multimap Suite' },
-        { href: 'producto.html?id=file-service-online', label: 'File Service' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
+        { href: 'https://akcloud.com', label: 'File Service (AK Cloud)', external: true },
       ]) +
       navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
