@@ -122,7 +122,6 @@ function akHeaderHTML(active) {
       ]) +
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
-        { href: 'producto.html?id=edc15-multimap-suite', label: 'EDC15 Multimap Suite' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
         { href: 'https://akcloud.com', label: 'File Service (AK Cloud)', external: true },
       ]) +
