@@ -156,7 +156,13 @@
     btn.disabled = true;
     const { data, error } = await akSupabase().auth.signUp({
       email, password: pass,
-      options: { data: { nombre } },
+      options: {
+        data: { nombre },
+        // El proyecto de Supabase es compartido con otros productos (AK Cloud);
+        // sin esto, el enlace del email de confirmación cae al Site URL global
+        // del proyecto en vez de volver a la tienda.
+        emailRedirectTo: window.location.origin + '/login.html',
+      },
     });
     btn.disabled = false;
     if (error) {
@@ -179,7 +185,9 @@
     const emailInput = document.getElementById('login-email');
     const email = emailInput ? emailInput.value.trim() : '';
     if (!email) { akToast('Escribe tu email arriba y vuelve a pulsar el enlace'); return; }
-    const { error } = await akSupabase().auth.resetPasswordForEmail(email);
+    const { error } = await akSupabase().auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/login.html',
+    });
     akToast(error ? 'No se pudo enviar el correo de recuperación' : 'Te hemos enviado un enlace para restablecer tu contraseña');
   }
 
