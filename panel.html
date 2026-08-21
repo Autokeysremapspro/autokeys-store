@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel interno — Autokeys Remaps Pro Store</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
+<style>
+  .panel-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 6vw;border-bottom:1px solid var(--line-soft)}
+  .panel-topbar .logo-img{height:34px}
+  .panel-gate{min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+  .panel-gate p{color:var(--muted);max-width:420px}
+  .modal-overlay{position:fixed;inset:0;background:#000c;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;z-index:200}
+  .modal-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:760px;width:100%;margin-bottom:40px}
+  .modal-box h2{margin:0 0 4px;font-size:19px}
+  .modal-close{float:right;background:none;border:0;color:var(--muted2);cursor:pointer}
+  .repeater-row{display:grid;grid-template-columns:1fr 1fr 1fr 100px 34px;gap:8px;margin-bottom:8px;align-items:center}
+  .repeater-row>*{min-width:0}
+  .repeater-row input,.repeater-row textarea{width:100%;box-sizing:border-box;background:var(--panel3);border:1px solid #34343a;border-radius:8px;padding:9px;font-size:12.5px;outline:0;font-family:inherit}
+  .repeater-row button{background:none;border:1px solid #34343a;border-radius:8px;color:var(--muted2);cursor:pointer;padding:8px}
+  .panel-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .panel-toolbar select,.panel-toolbar input{background:var(--panel3);border:1px solid #34343a;border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--text)}
+  .img-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(--line)}
+  .prod-image-preview{width:120px;height:90px;border-radius:10px;object-fit:cover;border:1px solid var(--line);margin-top:8px;display:block}
+  .tf-summary-row{display:flex;gap:8px;font-size:12px;padding:6px 0;border-top:1px solid var(--line-soft)}
+  .tf-summary-row:first-child{border-top:0}
+  .tf-summary-row b{color:var(--muted2);min-width:160px;flex:none}
+  .table-scroll{overflow-x:auto}
+  @media(max-width:640px){.repeater-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="panel-topbar">
+  <img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="140" height="56">
+  <div style="display:flex;align-items:center;gap:16px">
+    <span style="font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:1px">PANEL INTERNO</span>
+    <button type="button" class="btn btn-secondary btn-sm" id="logout-btn" style="display:none">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="panel-gate" id="panel-gate">
+  <p>Comprobando acceso...</p>
+</div>
+
+<div class="account-layout" id="panel-root" style="display:none">
+  <aside class="account-nav">
+    <div class="an-title">GESTIÓN</div>
+    <button data-tab="pedidos" class="active">Pedidos</button>
+    <button data-tab="productos">Productos</button>
+  </aside>
+  <div id="panel-content"></div>
+</div>
+
+<div id="modal-root"></div>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script>
+  let CURRENT_USER = null;
+  let PEDIDOS = [];
+  let PRODUCTOS = [];
+  let activeTab = 'pedidos';
+
+  const ESTADO_LABEL = {
+    pendiente: ['Pendiente de revisión', 'warn'],
+    contactado: ['Te hemos contactado', 'info'],
+    convertido: ['En marcha', 'ok'],
+    cancelado: ['Cancelado', 'muted'],
+  };
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const ok = await akRequireStaff();
+    if (!ok) return;
+    document.getElementById('panel-gate').style.display = 'none';
+    document.getElementById('panel-root').style.display = 'grid';
+    document.getElementById('logout-btn').style.display = 'inline-flex';
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await akSupabase().auth.signOut();
+      window.location.href = 'index.html';
+    });
+    document.querySelectorAll('.account-nav button[data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+    await Promise.all([loadPedidos(), loadProductos()]);
+    setTab('pedidos');
+  });
+
+  async function akRequireStaff() {
+    const gate = document.getElementById('panel-gate');
+    try {
+      const { data: { user } } = await akSupabase().auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html?redirect=panel.html';
+        return false;
+      }
+      const { data: perfil, error } = await akSupabase().from('tienda_clientes').select('es_staff, nombre').eq('id', user.id).maybeSingle();
+      if (error || !perfil || !perfil.es_staff) {
+        gate.innerHTML = '<div><h2>Acceso restringido</h2><p>Esta cuenta no tiene permisos de acceso al panel interno. Si crees que es un error, contacta con el administrador de la tienda.</p><a class="btn btn-primary" href="index.html" style="margin-top:12px">Volver al inicio</a></div>';
+        return false;
+      }
+      CURRENT_USER = user;
+      return true;
+    } catch (e) {
+      gate.innerHTML = '<p>No hemos podido comprobar tu acceso. Recarga la página o inténtalo de nuevo en unos minutos.</p>';
+      return false;
+    }
+  }
+
+  function setTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.account-nav button[data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+    if (tab === 'pedidos') renderPedidosTab();
+    if (tab === 'productos') renderProductosTab();
+  }
+
+  /* ---------- Pedidos ---------- */
+
+  async function loadPedidos() {
+    const { data, error } = await akSupabase()
+      .from('tienda_pedidos')
+      .select('*, tienda_pedido_lineas(*)')
+      .order('created_at', { ascending: false });
+    if (error) { console.error(error); akToast('No se pudieron cargar los pedidos'); return; }
+    PEDIDOS = data || [];
+  }
+
+  function pill(estadoKey) {
+    const [label, cls] = ESTADO_LABEL[estadoKey] || [estadoKey || '—', 'muted'];
+    return '<span class="status-pill ' + cls + '">' + label + '</span>';
+  }
+
+  function renderPedidosTab() {
+    const root = document.getElementById('panel-content');
+    root.innerHTML =
+      '<div class="acc-welcome"><div><h1>Pedidos web</h1><p>' + PEDIDOS.length + ' pedidos recibidos desde la tienda online.</p></div></div>' +
+      '<div class="panel-toolbar">' +
+        '<select id="filtro-estado"><option value="">Todos los estados</option>' +
+          Object.keys(ESTADO_LABEL).map((k) => '<option value="' + k + '">' + ESTADO_LABEL[k][0] + '</option>').join('') +
+        '</select>' +
+        '<input type="text" id="filtro-busqueda" placeholder="Buscar por número o email...">' +
+      '</div>' +
+      '<div class="cart-panel table-scroll"><table class="data-table" id="pedidos-table"><thead><tr>' +
+        '<th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th></th>' +
+      '</tr></thead><tbody id="pedidos-tbody"></tbody></table></div>';
+
+    renderPedidosRows(PEDIDOS);
+    document.getElementById('filtro-estado').addEventListener('change', applyPedidosFilter);
+    document.getElementById('filtro-busqueda').addEventListener('input', applyPedidosFilter);
+  }
+
+  function applyPedidosFilter() {
+    const estado = document.getElementById('filtro-estado').value;
+    const q = document.getElementById('filtro-busqueda').value.trim().toLowerCase();
+    const filtered = PEDIDOS.filter((p) =>
+      (!estado || p.estado === estado) &&
+      (!q || p.numero.toLowerCase().includes(q) || (p.email || '').toLowerCase().includes(q))
+    );
+    renderPedidosRows(filtered);
+  }
+
+  function renderPedidosRows(list) {
+    const tbody = document.getElementById('pedidos-tbody');
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:30px">No hay pedidos que coincidan.</td></tr>';
+      return;
+    }
+    const urgente = (p) => (p.tienda_pedido_lineas || []).some((l) => l.urgente);
+    tbody.innerHTML = list.map((p) =>
+      '<tr>' +
+        '<td>#' + p.numero + (urgente(p) ? ' <span class="status-pill warn">Urgente</span>' : '') + '</td>' +
+        '<td>' + new Date(p.created_at).toLocaleDateString('es-ES') + '</td>' +
+        '<td>' + esc(p.nombre) + ' ' + esc(p.apellidos) + '<br><span style="color:var(--muted);font-size:11px">' + esc(p.email) + '</span></td>' +
+        '<td>' + akFormatPrice(p.total) + '</td>' +
+        '<td>' + pill(p.estado) + '</td>' +
+        '<td><button class="btn btn-secondary btn-sm" data-ver-pedido="' + p.id + '">Ver</button></td>' +
+      '</tr>'
+    ).join('');
+    tbody.querySelectorAll('[data-ver-pedido]').forEach((btn) => btn.addEventListener('click', () => openPedidoModal(btn.dataset.verPedido)));
+  }
+
+  function openPedidoModal(id) {
+    const p = PEDIDOS.find((x) => x.id === id);
+    if (!p) return;
+    const lineas = p.tienda_pedido_lineas || [];
+    const html =
+      '<div class="modal-overlay" id="pedido-modal">' +
+        '<div class="modal-box">' +
+          '<button class="modal-close" data-close-modal>' + akIcon('close') + '</button>' +
+          '<h2>Pedido #' + p.numero + '</h2>' +
+          '<p style="color:var(--muted);font-size:12px;margin:0 0 16px">' + new Date(p.created_at).toLocaleString('es-ES') + '</p>' +
+
+          '<div class="tf-group-title">CLIENTE</div>' +
+          '<div class="tf-summary-row"><b>Nombre</b><span>' + esc(p.nombre) + ' ' + esc(p.apellidos) + '</span></div>' +
+          '<div class="tf-summary-row"><b>Email</b><span>' + esc(p.email) + '</span></div>' +
+          '<div class="tf-summary-row"><b>Teléfono</b><span>' + esc(p.telefono) + '</span></div>' +
+          '<div class="tf-summary-row"><b>Dirección</b><span>' + esc(p.direccion) + ', ' + esc(p.codigo_postal) + ' ' + esc(p.ciudad) + ', ' + esc(p.provincia) + ', ' + esc(p.pais) + '</span></div>' +
+          (p.nif_cif ? '<div class="tf-summary-row"><b>NIF/CIF</b><span>' + esc(p.nif_cif) + (p.razon_social ? ' — ' + esc(p.razon_social) : '') + '</span></div>' : '') +
+          '<div class="tf-summary-row"><b>Método de pago</b><span>' + esc(p.metodo_pago) + '</span></div>' +
+          '<div class="tf-summary-row"><b>Total</b><span>' + akFormatPrice(p.total) + '</span></div>' +
+
+          '<div class="tf-group-title">ESTADO</div>' +
+          '<select id="estado-select" style="width:100%;background:var(--panel3);border:1px solid #34343a;border-radius:9px;padding:11px;color:var(--text)">' +
+            Object.keys(ESTADO_LABEL).map((k) => '<option value="' + k + '" ' + (k === p.estado ? 'selected' : '') + '>' + ESTADO_LABEL[k][0] + '</option>').join('') +
+          '</select>' +
+
+          '<div class="tf-group-title">LÍNEAS DEL PEDIDO (' + lineas.length + ')</div>' +
+          lineas.map((l) => renderLineaDetalle(l)).join('') +
+
+          '<button class="btn btn-primary btn-block" id="guardar-estado-btn" style="margin-top:20px">Guardar cambios</button>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('modal-root').innerHTML = html;
+    document.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+    document.getElementById('pedido-modal').addEventListener('click', (e) => { if (e.target.id === 'pedido-modal') closeModal(); });
+    document.getElementById('guardar-estado-btn').addEventListener('click', () => guardarEstadoPedido(p.id));
+  }
+
+  function renderLineaDetalle(l) {
+    const campos = l.configuracion_tecnica || {};
+    const camposHtml = Object.keys(campos).filter((k) => campos[k] && (!Array.isArray(campos[k]) || campos[k].length)).map((k) =>
+      '<div class="tf-summary-row"><b>' + esc(k) + '</b><span>' + esc(Array.isArray(campos[k]) ? campos[k].join(', ') : campos[k]) + '</span></div>'
+    ).join('');
+    const fotos = l.fotos || [];
+    return '<div class="cart-panel" style="margin-bottom:12px">' +
+      '<h3 style="font-size:13px">' + esc(l.producto_nombre) + ' — ' + esc(l.variante_nombre) +
+        (l.urgente ? ' <span class="status-pill warn">Urgente</span>' : '') +
+        (l.es_revision_compatibilidad ? ' <span class="status-pill info">Revisión compatibilidad</span>' : '') +
+        '<span style="font-weight:800;font-size:13px">' + akFormatPrice(l.precio_unitario * l.cantidad) + '</span>' +
+      '</h3>' +
+      (camposHtml || '<p style="color:var(--muted);font-size:12px;margin:0">Sin ficha técnica adicional.</p>') +
+      (l.observaciones ? '<div class="tf-summary-row"><b>Observaciones</b><span>' + esc(l.observaciones) + '</span></div>' : '') +
+      (fotos.length ? '<div class="tf-photo-grid">' + fotos.map((url) => '<a href="' + esc(url) + '" target="_blank" rel="noopener"><img class="tf-photo-thumb" src="' + esc(url) + '"></a>').join('') + '</div>' : '') +
+    '</div>';
+  }
+
+  async function guardarEstadoPedido(id) {
+    const nuevoEstado = document.getElementById('estado-select').value;
+    const btn = document.getElementById('guardar-estado-btn');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+    const { error } = await akSupabase().from('tienda_pedidos').update({ estado: nuevoEstado }).eq('id', id);
+    if (error) {
+      akToast('No se pudo actualizar el estado');
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+      return;
+    }
+    const p = PEDIDOS.find((x) => x.id === id);
+    if (p) p.estado = nuevoEstado;
+    akToast('Estado actualizado');
+    closeModal();
+    renderPedidosTab();
+  }
+
+  /* ---------- Productos ---------- */
+
+  async function loadProductos() {
+    const { data, error } = await akSupabase()
+      .from('tienda_productos')
+      .select('*, tienda_producto_variantes(*)')
+      .order('popularity', { ascending: false });
+    if (error) { console.error(error); akToast('No se pudieron cargar los productos'); return; }
+    PRODUCTOS = data || [];
+  }
+
+  function renderProductosTab() {
+    const root = document.getElementById('panel-content');
+    root.innerHTML =
+      '<div class="acc-welcome"><div><h1>Catálogo</h1><p>' + PRODUCTOS.length + ' productos y servicios en la tienda.</p></div>' +
+        '<button class="btn btn-primary" id="nuevo-producto-btn">' + akIcon('plus') + 'Nuevo producto</button>' +
+      '</div>' +
+      '<div class="cart-panel table-scroll"><table class="data-table"><thead><tr>' +
+        '<th></th><th>Nombre</th><th>Categoría</th><th>Desde</th><th>Activo</th><th></th>' +
+      '</tr></thead><tbody id="productos-tbody"></tbody></table></div>';
+
+    document.getElementById('productos-tbody').innerHTML = PRODUCTOS.map((p) =>
+      '<tr>' +
+        '<td>' + (p.image ? '<img class="img-thumb" src="' + esc(p.image) + '">' : '<span class="ph-box" style="width:44px;height:44px">' + akIcon(p.icon || 'box') + '</span>') + '</td>' +
+        '<td><b>' + esc(p.name) + '</b><br><span style="color:var(--muted);font-size:11px">' + esc(p.id) + '</span></td>' +
+        '<td>' + esc(p.category) + '</td>' +
+        '<td>' + akFormatPrice(p.price_from) + '</td>' +
+        '<td>' + (p.activo ? '<span class="status-pill ok">Activo</span>' : '<span class="status-pill muted">Oculto</span>') + '</td>' +
+        '<td style="display:flex;gap:6px">' +
+          '<button class="btn btn-secondary btn-sm" data-editar="' + p.id + '">Editar</button>' +
+          '<button class="btn btn-secondary btn-sm" data-eliminar="' + p.id + '">Eliminar</button>' +
+        '</td>' +
+      '</tr>'
+    ).join('');
+
+    document.getElementById('nuevo-producto-btn').addEventListener('click', () => openProductoModal(null));
+    document.querySelectorAll('[data-editar]').forEach((btn) => btn.addEventListener('click', () => openProductoModal(btn.dataset.editar)));
+    document.querySelectorAll('[data-eliminar]').forEach((btn) => btn.addEventListener('click', () => eliminarProducto(btn.dataset.eliminar)));
+  }
+
+  let variantesState = [];
+
+  function openProductoModal(id) {
+    const p = id ? PRODUCTOS.find((x) => x.id === id) : null;
+    variantesState = p ? (p.tienda_producto_variantes || []).map((v) => ({ variant_id: v.variant_id, name: v.name, descripcion: v.descripcion, price: v.price })) : [{ variant_id: 'estandar', name: '', descripcion: '', price: '' }];
+
+    const arrToText = (a) => (a || []).join('\n');
+
+    const html =
+      '<div class="modal-overlay" id="producto-modal">' +
+        '<div class="modal-box">' +
+          '<button class="modal-close" data-close-modal>' + akIcon('close') + '</button>' +
+          '<h2>' + (p ? 'Editar producto' : 'Nuevo producto') + '</h2>' +
+
+          '<div class="field-row" style="grid-template-columns:1fr 1fr;margin-top:14px">' +
+            '<div class="field"><label>ID (slug, solo al crear) *</label><input type="text" id="f-id" value="' + esc(p ? p.id : '') + '" ' + (p ? 'disabled' : '') + ' placeholder="mi-servicio-nuevo"></div>' +
+            '<div class="field"><label>Nombre *</label><input type="text" id="f-name" value="' + esc(p ? p.name : '') + '"></div>' +
+            '<div class="field"><label>Categoría *</label><select id="f-category">' + CATEGORIES.map((c) => '<option value="' + c.id + '" ' + (p && p.category === c.id ? 'selected' : '') + '>' + c.label + '</option>').join('') + '</select></div>' +
+            '<div class="field"><label>Marca</label><select id="f-brand">' + BRANDS.map((b) => '<option value="' + b.id + '" ' + (p && p.brand === b.id ? 'selected' : '') + '>' + b.label + '</option>').join('') + '</select></div>' +
+            '<div class="field"><label>Tipo de servicio</label><select id="f-type">' + SERVICE_TYPES.map((t) => '<option value="' + t.id + '" ' + (p && p.type === t.id ? 'selected' : '') + '>' + t.label + '</option>').join('') + '</select></div>' +
+            '<div class="field"><label>Icono</label><input type="text" id="f-icon" value="' + esc(p ? p.icon : 'box') + '" placeholder="ecu, key, module, box..."></div>' +
+            '<div class="field"><label>Etiqueta / badge</label><input type="text" id="f-badge" value="' + esc(p ? p.badge : '') + '"></div>' +
+            '<div class="field"><label>Popularidad (0-100)</label><input type="number" id="f-popularity" value="' + (p ? p.popularity : 50) + '"></div>' +
+            '<div class="field"><label>Disponibilidad</label><select id="f-stock"><option value="stock" ' + (p && p.stock === 'stock' ? 'selected' : '') + '>En stock</option><option value="envio" ' + (p && p.stock === 'envio' ? 'selected' : '') + '>Por envío</option><option value="encargo" ' + (p && p.stock === 'encargo' ? 'selected' : '') + '>Por encargo</option></select></div>' +
+            '<div class="field"><label>Desde (precio de referencia)</label><input type="number" id="f-price-from" value="' + (p ? p.price_from : '') + '"></div>' +
+          '</div>' +
+
+          '<div class="field-row" style="grid-template-columns:1fr 1fr;margin-top:10px">' +
+            '<div class="field"><label><input type="checkbox" id="f-is-product" ' + (p && p.is_product ? 'checked' : '') + '> Es un producto físico (no servicio)</label></div>' +
+            '<div class="field"><label><input type="checkbox" id="f-is-software" ' + (p && p.is_software ? 'checked' : '') + '> Es software/licencia</label></div>' +
+            '<div class="field"><label><input type="checkbox" id="f-activo" ' + (!p || p.activo ? 'checked' : '') + '> Visible en la tienda</label></div>' +
+          '</div>' +
+
+          '<div class="tf-group-title">IMAGEN</div>' +
+          (p && p.image ? '<img class="prod-image-preview" id="f-image-preview" src="' + esc(p.image) + '">' : '<img class="prod-image-preview" id="f-image-preview" style="display:none">') +
+          '<input type="hidden" id="f-image" value="' + esc(p ? p.image : '') + '">' +
+          '<input type="file" id="f-image-input" accept="image/*" style="margin-top:8px">' +
+
+          '<div class="tf-group-title">DESCRIPCIONES</div>' +
+          '<div class="field-row" style="grid-template-columns:1fr">' +
+            '<div class="field"><label>Descripción corta</label><textarea id="f-short-desc">' + esc(p ? p.shortDesc || p.short_desc : '') + '</textarea></div>' +
+            '<div class="field"><label>Descripción larga</label><textarea id="f-long-desc" style="min-height:100px">' + esc(p ? p.longDesc || p.long_desc : '') + '</textarea></div>' +
+            '<div class="field"><label>Características (una por línea)</label><textarea id="f-features">' + esc(arrToText(p ? p.features : [])) + '</textarea></div>' +
+            '<div class="field"><label>Palabras clave de búsqueda (una por línea)</label><textarea id="f-keywords">' + esc(arrToText(p ? p.keywords : [])) + '</textarea></div>' +
+          '</div>' +
+
+          '<div class="tf-group-title">VARIANTES / OPCIONES DE PRECIO</div>' +
+          '<div id="variantes-list"></div>' +
+          '<button type="button" class="btn btn-secondary btn-sm" id="add-variante-btn">' + akIcon('plus') + 'Añadir variante</button>' +
+
+          '<button class="btn btn-primary btn-block" id="guardar-producto-btn" style="margin-top:20px">Guardar producto</button>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('modal-root').innerHTML = html;
+    document.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+    document.getElementById('producto-modal').addEventListener('click', (e) => { if (e.target.id === 'producto-modal') closeModal(); });
+    document.getElementById('f-image-input').addEventListener('change', (e) => subirImagenProducto(e.target.files[0]));
+    document.getElementById('add-variante-btn').addEventListener('click', () => { variantesState.push({ variant_id: '', name: '', descripcion: '', price: '' }); renderVariantesList(); });
+    renderVariantesList();
+    document.getElementById('guardar-producto-btn').addEventListener('click', () => guardarProducto(p ? p.id : null));
+  }
+
+  function renderVariantesList() {
+    const list = document.getElementById('variantes-list');
+    list.innerHTML = variantesState.map((v, i) =>
+      '<div class="repeater-row">' +
+        '<input type="text" data-v="variant_id" data-i="' + i + '" placeholder="id (estandar)" value="' + esc(v.variant_id) + '">' +
+        '<input type="text" data-v="name" data-i="' + i + '" placeholder="Nombre" value="' + esc(v.name) + '">' +
+        '<input type="text" data-v="descripcion" data-i="' + i + '" placeholder="Descripción" value="' + esc(v.descripcion) + '">' +
+        '<input type="number" data-v="price" data-i="' + i + '" placeholder="Precio" value="' + esc(v.price) + '">' +
+        '<button type="button" data-remove-variante="' + i + '">' + akIcon('close') + '</button>' +
+      '</div>'
+    ).join('');
+    list.querySelectorAll('[data-v]').forEach((input) => input.addEventListener('input', () => {
+      variantesState[Number(input.dataset.i)][input.dataset.v] = input.value;
+    }));
+    list.querySelectorAll('[data-remove-variante]').forEach((btn) => btn.addEventListener('click', () => {
+      variantesState.splice(Number(btn.dataset.removeVariante), 1);
+      renderVariantesList();
+    }));
+  }
+
+  async function subirImagenProducto(file) {
+    if (!file) return;
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = crypto.randomUUID() + '.' + ext;
+      const { error } = await akSupabase().storage.from('producto-imagenes').upload(path, file, { upsert: false });
+      if (error) throw error;
+      const { data } = akSupabase().storage.from('producto-imagenes').getPublicUrl(path);
+      document.getElementById('f-image').value = data.publicUrl;
+      const preview = document.getElementById('f-image-preview');
+      preview.src = data.publicUrl;
+      preview.style.display = 'block';
+      akToast('Imagen subida');
+    } catch (e) {
+      console.error(e);
+      akToast('No se pudo subir la imagen');
+    }
+  }
+
+  function textToArr(text) {
+    return text.split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+
+  async function guardarProducto(existingId) {
+    const id = existingId || document.getElementById('f-id').value.trim();
+    if (!id || !document.getElementById('f-name').value.trim()) {
+      akToast('Faltan campos obligatorios: ID y Nombre');
+      return;
+    }
+    const producto = {
+      id,
+      name: document.getElementById('f-name').value.trim(),
+      category: document.getElementById('f-category').value,
+      brand: document.getElementById('f-brand').value,
+      type: document.getElementById('f-type').value,
+      icon: document.getElementById('f-icon').value.trim() || 'box',
+      badge: document.getElementById('f-badge').value.trim() || null,
+      image: document.getElementById('f-image').value || null,
+      popularity: Number(document.getElementById('f-popularity').value) || 50,
+      stock: document.getElementById('f-stock').value,
+      price_from: Number(document.getElementById('f-price-from').value) || null,
+      is_product: document.getElementById('f-is-product').checked,
+      is_software: document.getElementById('f-is-software').checked,
+      activo: document.getElementById('f-activo').checked,
+      short_desc: document.getElementById('f-short-desc').value.trim() || null,
+      long_desc: document.getElementById('f-long-desc').value.trim() || null,
+      features: textToArr(document.getElementById('f-features').value),
+      keywords: textToArr(document.getElementById('f-keywords').value),
+    };
+
+    const btn = document.getElementById('guardar-producto-btn');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const { error: prodError } = await akSupabase().from('tienda_productos').upsert(producto);
+    if (prodError) {
+      console.error(prodError);
+      akToast('No se pudo guardar el producto');
+      btn.disabled = false;
+      btn.textContent = 'Guardar producto';
+      return;
+    }
+
+    await akSupabase().from('tienda_producto_variantes').delete().eq('producto_id', id);
+    const variantesValidas = variantesState.filter((v) => v.variant_id && v.name && v.price !== '');
+    if (variantesValidas.length) {
+      const { error: varError } = await akSupabase().from('tienda_producto_variantes').insert(
+        variantesValidas.map((v, i) => ({ producto_id: id, variant_id: v.variant_id, name: v.name, descripcion: v.descripcion || null, price: Number(v.price), orden: i }))
+      );
+      if (varError) console.error('No se pudieron guardar las variantes:', varError);
+    }
+
+    akToast('Producto guardado');
+    closeModal();
+    await loadProductos();
+    renderProductosTab();
+  }
+
+  async function eliminarProducto(id) {
+    if (!confirm('¿Seguro que quieres eliminar este producto? Esta acción no se puede deshacer.')) return;
+    const { error } = await akSupabase().from('tienda_productos').delete().eq('id', id);
+    if (error) { console.error(error); akToast('No se pudo eliminar el producto'); return; }
+    akToast('Producto eliminado');
+    await loadProductos();
+    renderProductosTab();
+  }
+
+  /* ---------- Utils ---------- */
+
+  function closeModal() {
+    document.getElementById('modal-root').innerHTML = '';
+  }
+
+  function esc(v) {
+    return v === null || v === undefined ? '' : String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+</script>
+</body>
+</html>

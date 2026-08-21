@@ -30,7 +30,7 @@ svg{width:20px;height:20px;flex:none;display:block}
 .cat-grid>*,.product-grid>*,.steps>*,.info-grid>*,.feature-strip>*,.footer-grid>*,
 .main-nav>li,.hero-badges>*,.oauth-row>*,.help-row>*,.filter-group label,
 .detail>*,.feature-check>*,.cart-layout>*,.faq>*,.store-layout>*,.field-row>*,
-.yn-toggle>*,.tf-multiselect>*{min-width:0}
+.yn-toggle>*,.tf-multiselect>*,.account-layout>*{min-width:0}
 html{background:var(--bg);scroll-behavior:smooth}
 body{
   margin:0;
