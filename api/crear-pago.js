@@ -1,4 +1,5 @@
-const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
+const { pagosConfigurados, createHostedCheckout, getPedido, updatePedido } = require('../lib/sumup-server');
+
 const SITE_URL = 'https://www.autokeys.es';
 
 async function readJsonBody(req) {
@@ -18,10 +19,9 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { SUMUP_API_KEY, SUMUP_MERCHANT_CODE, SUPABASE_SERVICE_ROLE_KEY } = process.env;
-  if (!SUMUP_API_KEY || !SUMUP_MERCHANT_CODE || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!pagosConfigurados()) {
     // Pagos online todavía no configurados en este despliegue: el checkout
-    // debe caer de vuelta al flujo de "solicitud" existente (sin bloquear al cliente).
+    // cae de vuelta al flujo de "solicitud" existente sin bloquear al cliente.
     res.status(503).json({ error: 'pagos_no_configurados' });
     return;
   }
@@ -33,20 +33,10 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const supabaseHeaders = {
-    apikey: SUPABASE_SERVICE_ROLE_KEY,
-    Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-  };
-
   try {
     // El importe y el número de pedido se leen del servidor, nunca del
     // cuerpo de la petición del cliente — evita que alguien manipule el total a pagar.
-    const pedidoRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/tienda_pedidos?id=eq.${encodeURIComponent(pedidoId)}&select=id,numero,total,pago_estado`,
-      { headers: supabaseHeaders }
-    );
-    if (!pedidoRes.ok) throw new Error('No se pudo leer el pedido en Supabase');
-    const [pedido] = await pedidoRes.json();
+    const pedido = await getPedido(pedidoId);
     if (!pedido) {
       res.status(404).json({ error: 'pedido_no_encontrado' });
       return;
@@ -56,34 +46,23 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const sumupRes = await fetch('https://api.sumup.com/v0.1/checkouts', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${SUMUP_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        checkout_reference: pedido.numero,
-        amount: Number(pedido.total),
-        currency: 'EUR',
-        merchant_code: SUMUP_MERCHANT_CODE,
-        description: `Pedido ${pedido.numero} — Autokeys Remaps Pro Store`,
-        redirect_url: `${SITE_URL}/carrito.html?pedido=${pedido.id}&pago=retorno`,
-        return_url: `${SITE_URL}/api/sumup-webhook`,
-        hosted_checkout: { enabled: true },
-      }),
+    const checkout = await createHostedCheckout({
+      checkoutReference: pedido.numero,
+      amount: pedido.total,
+      description: `Pedido ${pedido.numero} — Autokeys Remaps Pro Store`,
+      redirectUrl: `${SITE_URL}/carrito.html?pedido=${pedido.id}&pago=retorno`,
+      returnUrl: `${SITE_URL}/api/sumup-webhook`,
     });
-    const sumupData = await sumupRes.json();
-    if (!sumupRes.ok || !sumupData.hosted_checkout_url) {
-      console.error('SumUp crear checkout error:', sumupRes.status, sumupData);
+
+    if (!checkout?.id || !checkout?.hosted_checkout_url) {
+      console.error('SumUp no devolvió la URL del checkout alojado:', checkout);
       res.status(502).json({ error: 'sumup_error' });
       return;
     }
 
-    await fetch(`${SUPABASE_URL}/rest/v1/tienda_pedidos?id=eq.${encodeURIComponent(pedido.id)}`, {
-      method: 'PATCH',
-      headers: { ...supabaseHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ pago_referencia: sumupData.id }),
-    });
+    await updatePedido(pedido.id, { pago_referencia: checkout.id });
 
-    res.status(200).json({ hosted_checkout_url: sumupData.hosted_checkout_url });
+    res.status(200).json({ hosted_checkout_url: checkout.hosted_checkout_url });
   } catch (err) {
     console.error('crear-pago error:', err);
     res.status(500).json({ error: 'error_interno' });

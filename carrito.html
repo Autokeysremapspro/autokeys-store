@@ -73,13 +73,17 @@
     document.getElementById('cart-root').innerHTML =
       '<div class="section"><div class="empty-state">' + akIcon('clock') + '<h3>Comprobando tu pago…</h3></div></div>';
 
-    let pedido = null;
-    for (let i = 0; i < 6; i++) {
-      const { data } = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
-      pedido = data;
-      if (!pedido || pedido.pago_estado !== 'pendiente') break;
-      await new Promise((r) => setTimeout(r, 1500));
+    try {
+      await fetch('/api/confirmar-pago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pedido_id: pedidoId }),
+      });
+    } catch (e) {
+      console.error('No se pudo confirmar el pago activamente, se muestra el último estado conocido:', e);
     }
+
+    const { data: pedido } = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
 
     if (!pedido) {
       document.getElementById('cart-root').innerHTML =
