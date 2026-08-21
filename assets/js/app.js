@@ -61,6 +61,12 @@ function akQueryParam(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
 
+function akEscapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
 /* Fills every <span data-icon="name" data-icon-class="..."></span> found in
    static page markup — used for icons written directly in HTML (hero, etc.)
    rather than built from a JS template string. */
@@ -123,7 +129,7 @@ function akHeaderHTML(active) {
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
-        { href: 'https://akcloud.com', label: 'File Service (AK Cloud)', external: true },
+        { href: 'https://akcloud.es', label: 'File Service (AK Cloud)', external: true },
       ]) +
       navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +

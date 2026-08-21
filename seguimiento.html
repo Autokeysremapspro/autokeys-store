@@ -153,7 +153,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('bc-order').textContent = 'Pedido #' + id;
     document.getElementById('order-title').textContent = 'Seguimiento de pedido';
-    document.getElementById('order-sub').innerHTML = 'Pedido <b style="color:#fff">#' + id + '</b> · Realizado el ' + order.fecha;
+    document.getElementById('order-sub').innerHTML = 'Pedido <b style="color:#fff">#' + akEscapeHtml(id) + '</b> · Realizado el ' + akEscapeHtml(order.fecha);
 
     const currentStep = STEPS[order.stepIndex];
     document.getElementById('ts-current').innerHTML = akIcon(order.stepIndex >= 5 ? 'checkCircle' : 'clock') + (order.stepIndex >= 5 ? 'ENVIADO' : currentStep.label.toUpperCase());
@@ -165,7 +165,7 @@
     document.getElementById('order-icon').innerHTML = akIcon(order.icon);
     document.getElementById('order-cat').textContent = order.categoria.toUpperCase();
     document.getElementById('order-name').textContent = order.servicio + ' — ' + order.producto;
-    document.getElementById('order-ref').innerHTML = 'Referencia: <b style="color:#fff">' + order.ref + '</b> · Vehículo: ' + order.vehiculo + '<br>Problema reportado: ' + order.problema;
+    document.getElementById('order-ref').innerHTML = 'Referencia: <b style="color:#fff">' + akEscapeHtml(order.ref) + '</b> · Vehículo: ' + akEscapeHtml(order.vehiculo) + '<br>Problema reportado: ' + akEscapeHtml(order.problema);
 
     document.getElementById('timeline').innerHTML = STEPS.map((s, i) => {
       const cls = i < order.stepIndex ? 'done' : i === order.stepIndex ? 'current' : '';
@@ -174,7 +174,7 @@
 
     document.getElementById('note-text').textContent = order.nota;
     document.getElementById('files-list').innerHTML = order.files.length
-      ? order.files.map((f) => '<div class="file-row">' + akIcon('file') + '<span>' + f + '</span><a href="#" data-action="mock">' + akIcon('arrowRight') + '</a></div>').join('')
+      ? order.files.map((f) => '<div class="file-row">' + akIcon('file') + '<span>' + akEscapeHtml(f) + '</span><a href="#" data-action="mock">' + akIcon('arrowRight') + '</a></div>').join('')
       : '<p style="color:var(--muted);font-size:12px;margin:0">Aún no hay archivos disponibles.</p>';
     document.getElementById('invoice-list').innerHTML = order.invoiceNum
       ? '<div class="file-row">' + akIcon('file') + '<span>Factura #' + order.invoiceNum + '.pdf</span><a href="#" data-action="mock">' + akIcon('arrowRight') + '</a></div>'
