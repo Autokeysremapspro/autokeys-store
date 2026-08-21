@@ -64,9 +64,8 @@
         <div class="hero-badge"><span data-icon="headset"></span><span><b>Soporte experto</b><span>7 días a la semana</span></span></div>
       </div>
     </div>
-    <div class="hero-media hex-overlay">
+    <div class="hero-media">
       <img class="hero-photo" src="assets/img/hero-taller.jpg" alt="Autokeys Remaps Pro — electrónica, reprogramación y soluciones" width="1536" height="1024">
-      <div class="hero-tag"><span data-icon="programmer"></span><span><b>Servicio técnico especializado</b><span>Más de 10 años de experiencia</span></span></div>
     </div>
   </section>
 
@@ -105,7 +104,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await akCatalogReady();
     // category grid
     const catIcons = {
       'recuperacion-ecu': 'ecu', 'inmovilizadores': 'key', 'modulos': 'module',

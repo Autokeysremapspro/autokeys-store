@@ -68,7 +68,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script>
-  const MAX_PRICE = Math.max(...CATALOG.map((p) => p.priceFrom)) + 1;
+  let MAX_PRICE = 1;
 
   const state = {
     cats: new Set(),
@@ -188,7 +188,10 @@
     renderGrid();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await akCatalogReady();
+    MAX_PRICE = Math.max(1, ...CATALOG.map((p) => p.priceFrom)) + 1;
+    state.maxPrice = MAX_PRICE;
     initFromURL();
     render();
 
