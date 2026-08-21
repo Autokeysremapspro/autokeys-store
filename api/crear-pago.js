@@ -1,6 +1,6 @@
 const { pagosConfigurados, createHostedCheckout, getPedido, updatePedido } = require('../lib/sumup-server');
 
-const SITE_URL = 'https://www.autokeys.es';
+const SITE_URL = 'https://www.autokeysremapspro.es';
 
 async function readJsonBody(req) {
   if (req.body && typeof req.body === 'object') return req.body;
