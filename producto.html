@@ -39,10 +39,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-config.js"></script>
 <script>
-  const product = akFindProduct(akQueryParam('id')) || CATALOG[0];
-  let selectedVariant = product.variants[0];
+  let product, selectedVariant;
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await akCatalogReady();
+    product = akFindProduct(akQueryParam('id')) || CATALOG[0];
+    if (!product) {
+      document.getElementById('detail-root').innerHTML =
+        '<div class="empty-state">' + akIcon('search') + '<h3>No se pudo cargar el catálogo</h3><p>Inténtalo de nuevo en unos segundos.</p></div>';
+      akFillIcons();
+      return;
+    }
+    selectedVariant = product.variants[0];
+
     document.title = product.name + ' — Autokeys Remaps Pro Store';
     const cat = akFindCategory(product.category);
 

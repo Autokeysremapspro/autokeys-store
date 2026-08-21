@@ -46,6 +46,7 @@
         PERFIL = perfil;
       }
     } catch (e) { /* supabase not reachable — treat as guest */ }
+    await akCatalogReady();
     render();
   });
 
