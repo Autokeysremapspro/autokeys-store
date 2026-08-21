@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi cuenta — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Panel de cliente Autokeys Remaps Pro Store: pedidos, servicios, vehículos, facturas y tickets de soporte.">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header id="site-header" data-active="cuenta"></header>
+
+<nav class="breadcrumb">
+  <a href="index.html">Inicio</a><span data-icon="chevRight"></span><span class="current">Mi cuenta</span>
+</nav>
+
+<div class="notice" style="margin:18px 6vw 0">
+  <span data-icon="award"></span>
+  Estás viendo una demo del panel de cliente con datos de ejemplo — se conectará a pedidos reales cuando esté listo el backend.
+</div>
+
+<div class="account-layout">
+  <aside class="account-nav" id="account-nav"></aside>
+  <div id="account-content"></div>
+</div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const NAV_ITEMS = [
+    { id: 'resumen', label: 'Resumen', icon: 'diag' },
+    { id: 'pedidos', label: 'Mis pedidos', icon: 'box' },
+    { id: 'servicios', label: 'Mis servicios', icon: 'programmer' },
+    { id: 'vehiculos', label: 'Mis vehículos', icon: 'car' },
+    { id: 'facturas', label: 'Facturas', icon: 'file' },
+    { id: 'tickets', label: 'Tickets', icon: 'ticket' },
+    { id: 'favoritos', label: 'Favoritos', icon: 'shield' },
+    { id: 'direcciones', label: 'Direcciones', icon: 'mapPin' },
+    { id: 'perfil', label: 'Perfil', icon: 'user' },
+  ];
+
+  const PEDIDOS = [
+    { id: 'AK-2024-1258', servicio: 'Bosch EDC17CP54', desc: 'Recuperación de centralita', fecha: '24/05/2024', estado: 'entregado', icon: 'ecu', total: 349 },
+    { id: 'AK-2024-1251', servicio: 'Clonación ECU', desc: 'Clonación de centralitas', fecha: '20/05/2024', estado: 'proceso', icon: 'ecu', total: 249 },
+    { id: 'AK-2024-1245', servicio: 'BMW FEM / BDC', desc: 'Reparación y clonación', fecha: '15/05/2024', estado: 'entregado', icon: 'module', total: 349 },
+    { id: 'AK-2024-1238', servicio: 'Mercedes EZS / ELV', desc: 'Reparación de unidades', fecha: '10/05/2024', estado: 'entregado', icon: 'module', total: 299 },
+    { id: 'AK-2024-1220', servicio: 'Airbag / SRS', desc: 'Borrado de crash-data', fecha: '02/05/2024', estado: 'diagnostico', icon: 'shield', total: 129 },
+  ];
+
+  const SERVICIOS_ACTIVOS = [
+    { nombre: 'Programación llave BMW', detalle: 'BMW Serie 3 F30 — 2015', desde: '20/05/2024', estado: 'ok', icon: 'key' },
+    { nombre: 'Reparación ECU', detalle: 'VW Golf 7 — 2016 2.0 TDI', desde: '18/05/2024', estado: 'ok', icon: 'ecu' },
+    { nombre: 'Clonación inmovilizador', detalle: 'Audi A4 B8 — 2012', desde: '15/05/2024', estado: 'warn', icon: 'key' },
+    { nombre: 'Reparación BSI', detalle: 'Peugeot 308 — 2014', desde: '12/05/2024', estado: 'ok', icon: 'module' },
+  ];
+
+  const VEHICULOS = [
+    { nombre: 'BMW Serie 3', modelo: 'F30 320d', matricula: '1234 JKL', principal: true },
+    { nombre: 'Audi A4', modelo: 'B8 2.0 TDI', matricula: '5678 MNO', principal: false },
+    { nombre: 'Volkswagen Golf 7', modelo: '2.0 TDI', matricula: '9101 PQR', principal: false },
+  ];
+
+  const FACTURAS = [
+    { num: 'FAC-2024-0587', fecha: '24/05/2024', total: 350, estado: 'ok' },
+    { num: 'FAC-2024-0574', fecha: '20/05/2024', total: 180, estado: 'ok' },
+    { num: 'FAC-2024-0561', fecha: '15/05/2024', total: 420, estado: 'ok' },
+    { num: 'FAC-2024-0549', fecha: '10/05/2024', total: 299, estado: 'ok' },
+  ];
+
+  const TICKETS = [
+    { num: '#TKT-2024-0897', asunto: 'Consulta sobre clonación ECU', fecha: '24/05/2024', estado: 'info' },
+    { num: '#TKT-2024-0891', asunto: 'Estado de reparación BSI', fecha: '20/05/2024', estado: 'warn' },
+    { num: '#TKT-2024-0883', asunto: 'Duda sobre programación', fecha: '15/05/2024', estado: 'muted' },
+  ];
+
+  const FAVORITOS_IDS = ['clonacion-ecu-general', 'recuperacion-bosch-edc17cp54', 'llaves-copia-programacion', 'airbag-srs-reparacion'];
+
+  const ESTADO_LABEL = {
+    recibido: ['Pedido recibido', 'muted'], pendiente: ['Módulo pendiente', 'muted'], modulo_recibido: ['Módulo recibido', 'info'],
+    diagnostico: ['Diagnóstico', 'info'], proceso: ['En reparación', 'warn'], programacion: ['Programación', 'warn'],
+    pruebas: ['Pruebas', 'warn'], listo: ['Listo', 'ok'], enviado: ['Enviado', 'info'], entregado: ['Entregado', 'ok'],
+    ok: ['Activo', 'ok'], warn: ['En proceso', 'warn'], info: ['Abierto', 'info'], muted: ['Cerrado', 'muted'],
+  };
+
+  function pill(estadoKey) {
+    const [label, cls] = ESTADO_LABEL[estadoKey] || [estadoKey, 'muted'];
+    return '<span class="status-pill ' + cls + '">' + label + '</span>';
+  }
+
+  let activeTab = 'resumen';
+
+  function renderNav() {
+    document.getElementById('account-nav').innerHTML =
+      '<div class="an-title">PANEL CLIENTE</div>' +
+      NAV_ITEMS.map((n) => '<button data-tab="' + n.id + '" class="' + (activeTab === n.id ? 'active' : '') + '">' + akIcon(n.icon) + n.label + '</button>').join('');
+  }
+
+  function renderResumen() {
+    return '' +
+    '<div class="acc-welcome">' +
+      '<div><h1>Bienvenido, Carlos</h1><p>Aquí tienes un resumen de tu actividad y servicios.</p></div>' +
+      '<div class="acc-meta">' +
+        '<div style="font-size:11px;color:var(--muted)">Cliente desde<br><b style="color:#fff;font-size:13px">15/03/2022</b></div>' +
+        '<div class="acc-badge-premium">' + akIcon('award') + '<span><b>CLIENTE PREMIUM</b><span>Nivel 2</span></span></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="stat-grid">' +
+      statCard('box', 'Pedidos realizados', PEDIDOS.length + '', 'pedidos', 'Ver todos') +
+      statCard('programmer', 'Servicios activos', SERVICIOS_ACTIVOS.length + '', 'servicios', 'Ver servicios') +
+      statCard('car', 'Vehículos guardados', VEHICULOS.length + '', 'vehiculos', 'Ver vehículos') +
+      statCard('file', 'Facturas disponibles', FACTURAS.length + '', 'facturas', 'Ver facturas') +
+      statCard('ticket', 'Tickets abiertos', TICKETS.filter((t) => t.estado !== 'muted').length + '', 'tickets', 'Ver tickets') +
+    '</div>' +
+    '<div class="dash-grid">' +
+      '<div class="dash-panel"><h3>Pedidos recientes<a href="#" data-tab="pedidos">Ver todos</a></h3>' +
+        PEDIDOS.slice(0, 4).map((p) => '<div class="dp-row"><span class="ph-box">' + akIcon(p.icon) + '</span><div class="dp-body"><b>' + p.servicio + '</b><span>' + p.desc + ' · ' + p.fecha + '</span></div>' + pill(p.estado) + '</div>').join('') +
+      '</div>' +
+      '<div class="dash-panel"><h3>Servicios activos<a href="#" data-tab="servicios">Ver todos</a></h3>' +
+        SERVICIOS_ACTIVOS.slice(0, 4).map((s) => '<div class="dp-row"><span class="ph-box">' + akIcon(s.icon) + '</span><div class="dp-body"><b>' + s.nombre + '</b><span>' + s.detalle + ' · Desde ' + s.desde + '</span></div>' + pill(s.estado) + '</div>').join('') +
+      '</div>' +
+      '<div class="dash-panel"><h3>Mis vehículos<a href="#" data-tab="vehiculos">Ver todos</a></h3>' +
+        VEHICULOS.slice(0, 3).map((v) => '<div class="dp-row"><span class="ph-box">' + akIcon('car') + '</span><div class="dp-body"><b>' + v.nombre + '</b><span>' + v.modelo + ' · ' + v.matricula + '</span></div></div>').join('') +
+      '</div>' +
+      '<div class="dash-panel"><h3>Facturas recientes<a href="#" data-tab="facturas">Ver todas</a></h3>' +
+        FACTURAS.slice(0, 3).map((f) => '<div class="dp-row"><span class="ph-box">' + akIcon('file') + '</span><div class="dp-body"><b>Factura #' + f.num + '</b><span>' + f.fecha + ' · ' + akFormatPrice(f.total) + '</span></div>' + pill('ok') + '</div>').join('') +
+      '</div>' +
+      '<div class="dash-panel"><h3>Tickets de soporte<a href="#" data-tab="tickets">Ver todos</a></h3>' +
+        TICKETS.map((t) => '<div class="dp-row"><span class="ph-box">' + akIcon('ticket') + '</span><div class="dp-body"><b>' + t.num + '</b><span>' + t.asunto + ' · ' + t.fecha + '</span></div>' + pill(t.estado) + '</div>').join('') +
+      '</div>' +
+      '<div class="dash-panel"><h3>Servicios favoritos<a href="#" data-tab="favoritos">Ver catálogo</a></h3>' +
+        FAVORITOS_IDS.slice(0, 3).map((id) => { const p = akFindProduct(id); return '<div class="dp-row"><span class="ph-box">' + akIcon(p.icon) + '</span><div class="dp-body"><b>' + p.name + '</b><span>Desde ' + akFormatPrice(p.priceFrom) + '</span></div></div>'; }).join('') +
+      '</div>' +
+    '</div>' +
+    '<div class="quick-actions">' +
+      '<a href="tienda.html">' + akIcon('cart') + '<span>Nuevo pedido<br><span class="sub">Realizar compra</span></span></a>' +
+      '<a href="tienda.html?cat=reparacion-envio">' + akIcon('truck') + '<span>Solicitar servicio<br><span class="sub">Enviar centralita</span></span></a>' +
+      '<button type="button" data-action="mock">' + akIcon('ticket') + '<span>Nuevo ticket<br><span class="sub">Contactar soporte</span></span></button>' +
+      '<button type="button" data-action="mock">' + akIcon('car') + '<span>Añadir vehículo<br><span class="sub">Guardar vehículo</span></span></button>' +
+      '<button type="button" data-action="mock">' + akIcon('file') + '<span>Descargar presupuestos<br><span class="sub">Ver presupuestos</span></span></button>' +
+    '</div>';
+  }
+
+  function statCard(icon, label, value, tab, cta) {
+    return '<div class="stat-card"><div class="sc-top">' + akIcon(icon) + label + '</div><b>' + value + '</b><a href="#" data-tab="' + tab + '">' + cta + akIcon('arrowRight') + '</a></div>';
+  }
+
+  function renderPedidos() {
+    return panelHeader('Mis pedidos', 'Historial completo de pedidos y su estado actual.') +
+      '<div class="cart-panel"><table class="data-table"><thead><tr><th>Pedido</th><th>Servicio</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>' +
+      PEDIDOS.map((p) => '<tr><td>#' + p.id + '</td><td>' + p.servicio + '</td><td>' + p.fecha + '</td><td>' + akFormatPrice(p.total) + '</td><td>' + pill(p.estado) + '</td><td><a class="link-red" href="seguimiento.html?id=' + p.id + '">Seguimiento' + akIcon('arrowRight') + '</a></td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+
+  function renderServicios() {
+    return panelHeader('Mis servicios', 'Servicios actualmente en curso o recientemente finalizados.') +
+      '<div class="dash-grid" style="grid-template-columns:1fr 1fr">' +
+      SERVICIOS_ACTIVOS.map((s) => '<div class="dash-panel"><div class="dp-row" style="border-top:0"><span class="ph-box">' + akIcon(s.icon) + '</span><div class="dp-body"><b>' + s.nombre + '</b><span>' + s.detalle + ' · Desde ' + s.desde + '</span></div>' + pill(s.estado) + '</div></div>').join('') +
+      '</div>';
+  }
+
+  function renderVehiculos() {
+    return panelHeader('Mis vehículos', 'Vehículos guardados para agilizar tus próximos pedidos.') +
+      '<div class="dash-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">' +
+      VEHICULOS.map((v) => '<div class="vehicle-card"><div class="vc-top"><span class="ph-box">' + akIcon('car') + '</span><span><b>' + v.nombre + '</b><span>' + v.modelo + '</span></span></div><div class="vc-plate"><span class="tagp">' + v.matricula + '</span>' + (v.principal ? '<span>Principal</span>' : '') + '</div></div>').join('') +
+      '</div><button class="btn btn-secondary" data-action="mock">' + akIcon('plus') + 'Añadir vehículo</button>';
+  }
+
+  function renderFacturas() {
+    return panelHeader('Facturas', 'Descarga tus facturas emitidas para cada pedido.') +
+      '<div class="cart-panel"><table class="data-table"><thead><tr><th>Factura</th><th>Fecha</th><th>Importe</th><th>Estado</th><th></th></tr></thead><tbody>' +
+      FACTURAS.map((f) => '<tr><td>#' + f.num + '</td><td>' + f.fecha + '</td><td>' + akFormatPrice(f.total) + '</td><td>' + pill('ok') + '</td><td><button class="link-red" style="background:none;border:0" data-action="mock">' + akIcon('file') + 'Descargar</button></td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+
+  function renderTickets() {
+    return panelHeader('Tickets de soporte', 'Consulta el estado de tus incidencias o abre una nueva.') +
+      '<div class="cart-panel" style="margin-bottom:16px">' +
+      TICKETS.map((t) => '<div class="dp-row"><span class="ph-box">' + akIcon('ticket') + '</span><div class="dp-body"><b>' + t.num + ' — ' + t.asunto + '</b><span>' + t.fecha + '</span></div>' + pill(t.estado) + '</div>').join('') +
+      '</div><button class="btn btn-primary" data-action="mock">' + akIcon('plus') + 'Nuevo ticket</button>';
+  }
+
+  function renderFavoritos() {
+    return panelHeader('Favoritos', 'Servicios que has guardado para pedirlos más rápido.') +
+      '<div class="product-grid cols-4">' +
+      FAVORITOS_IDS.map((id) => { const p = akFindProduct(id); return '' +
+        '<article class="product-card"><div class="product-media hex-overlay"><span class="ph">' + akIcon(p.icon) + '</span></div>' +
+        '<div class="product-body"><div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div><h3>' + p.name + '</h3>' +
+        '<div class="product-price-row"><div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
+        '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">Pedir</a></div></div></article>'; }).join('') +
+      '</div>';
+  }
+
+  function renderDirecciones() {
+    return panelHeader('Direcciones', 'Direcciones de envío y facturación guardadas.') +
+      '<div class="dash-grid" style="grid-template-columns:1fr 1fr">' +
+      '<div class="dash-panel"><h3>Dirección principal<span class="status-pill ok">Predeterminada</span></h3>' +
+      '<p style="color:var(--muted2);font-size:13px;line-height:1.7;margin:0">Carlos Martínez<br>Calle Innovación, 12<br>28001 Madrid, España<br>+34 600 123 456</p></div>' +
+      '</div><button class="btn btn-secondary" style="margin-top:16px" data-action="mock">' + akIcon('plus') + 'Añadir dirección</button>';
+  }
+
+  function renderPerfil() {
+    return panelHeader('Perfil y seguridad', 'Datos de tu cuenta.') +
+      '<div class="cart-panel" style="max-width:520px">' +
+      '<div class="field-row">' +
+        '<div class="field"><label>Nombre</label><input type="text" value="Carlos"></div>' +
+        '<div class="field"><label>Apellidos</label><input type="text" value="Martínez"></div>' +
+        '<div class="field full"><label>Email</label><input type="email" value="carlos@email.com"></div>' +
+        '<div class="field full"><label>Teléfono</label><input type="tel" value="+34 600 123 456"></div>' +
+      '</div>' +
+      '<button class="btn btn-primary" style="margin-top:16px" data-action="mock">Guardar cambios</button>' +
+      '</div>';
+  }
+
+  function panelHeader(title, desc) {
+    return '<div style="margin-bottom:20px"><h1 style="font-size:22px;margin:0 0 6px">' + title + '</h1><p style="color:var(--muted);font-size:13px;margin:0">' + desc + '</p></div>';
+  }
+
+  const RENDERERS = {
+    resumen: renderResumen, pedidos: renderPedidos, servicios: renderServicios, vehiculos: renderVehiculos,
+    facturas: renderFacturas, tickets: renderTickets, favoritos: renderFavoritos, direcciones: renderDirecciones, perfil: renderPerfil,
+  };
+
+  function render() {
+    renderNav();
+    document.getElementById('account-content').innerHTML = RENDERERS[activeTab]();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const hashTab = (window.location.hash || '').replace('#', '');
+    if (RENDERERS[hashTab]) activeTab = hashTab;
+    render();
+    document.body.addEventListener('click', (e) => {
+      const tabBtn = e.target.closest('[data-tab]');
+      if (tabBtn) {
+        e.preventDefault();
+        activeTab = tabBtn.dataset.tab;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      if (e.target.closest('[data-action="mock"]')) {
+        akToast('Esta acción estará disponible cuando conectemos el backend del panel de cliente');
+      }
+    });
+  });
+</script>
+</body>
+</html>

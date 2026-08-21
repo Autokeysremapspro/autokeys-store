@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seguimiento de pedido — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Sigue el estado de tu reparación en tiempo real: diagnóstico, reparación, pruebas y envío.">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header id="site-header" data-active="cuenta"></header>
+
+<nav class="breadcrumb">
+  <a href="index.html">Inicio</a><span data-icon="chevRight"></span>
+  <a href="cuenta.html">Mi cuenta</a><span data-icon="chevRight"></span>
+  <a href="cuenta.html#pedidos" data-tab-hint="pedidos">Mis pedidos</a><span data-icon="chevRight"></span>
+  <span class="current" id="bc-order">Pedido</span>
+</nav>
+
+<div class="section" style="padding-bottom:0">
+  <a class="link-red" href="cuenta.html" id="back-link"><span data-icon="chevLeft"></span>Volver a mis pedidos</a>
+  <div class="eyebrow" style="margin-top:18px">SEGUIMIENTO DE PEDIDO</div>
+  <h2 id="order-title" style="margin-bottom:2px">Pedido</h2>
+  <p class="section-desc" id="order-sub"></p>
+</div>
+
+<div class="track-layout" style="margin-top:24px">
+  <div>
+    <div class="track-status">
+      <div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">ESTADO ACTUAL</div>
+        <div class="ts-current" id="ts-current"></div>
+        <p style="color:var(--muted);font-size:12.5px;margin:8px 0 0" id="ts-desc"></p>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--muted)">Actualizado<br><b style="color:#fff;font-size:12.5px" id="ts-updated"></b></div>
+    </div>
+
+    <div class="cart-panel" style="margin-bottom:20px">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <span class="ph-box" style="width:64px;height:64px" id="order-icon"></span>
+        <div style="flex:1;min-width:220px">
+          <div class="product-cat" id="order-cat"></div>
+          <h3 style="margin:6px 0" id="order-name"></h3>
+          <p style="color:var(--muted);font-size:12px;margin:0" id="order-ref"></p>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:18px">PROGRESO DE LA REPARACIÓN</div>
+      <div class="track-timeline" id="timeline"></div>
+    </div>
+
+    <div class="dash-grid" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="track-note"><h4><span data-icon="award"></span>NOTAS DEL TÉCNICO</h4><p id="note-text"></p></div>
+      <div class="track-note"><h4><span data-icon="file"></span>ARCHIVOS Y REFERENCIAS</h4><div id="files-list"></div></div>
+      <div class="track-note"><h4><span data-icon="file"></span>FACTURA Y DOCUMENTOS</h4><div id="invoice-list"></div></div>
+    </div>
+
+    <div class="notice" style="margin-top:20px">
+      <span data-icon="headset"></span>
+      <span>¿Necesitas ayuda con tu pedido? Nuestro equipo está disponible.</span>
+    </div>
+    <div class="help-mini">
+      <a href="#"><span data-icon="whatsapp"></span><b>Soporte por WhatsApp</b><span style="color:var(--muted)">Respuesta inmediata</span></a>
+      <a href="#"><span data-icon="phone"></span><b>Llamada telefónica</b><span style="color:var(--muted)">Lun-Dom · 09:00-20:00</span></a>
+      <a href="#"><span data-icon="mail"></span><b>Correo electrónico</b><span style="color:var(--muted)">info@autokeys.es</span></a>
+      <a href="cuenta.html"><span data-icon="ticket"></span><b>Abrir ticket de soporte</b><span style="color:var(--muted)">Desde tu cuenta</span></a>
+    </div>
+  </div>
+
+  <aside>
+    <div class="ship-box" id="ship-box"></div>
+    <div class="ship-box">
+      <h4><span data-icon="file"></span>RESUMEN DEL PEDIDO</h4>
+      <div class="totals" id="order-totals"></div>
+    </div>
+  </aside>
+</div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const STEPS = [
+    { id: 'recibido', label: 'Pedido recibido', icon: 'checkCircle' },
+    { id: 'modulo_recibido', label: 'Módulo recibido', icon: 'box' },
+    { id: 'diagnostico', label: 'Diagnóstico', icon: 'diag' },
+    { id: 'reparacion', label: 'Reparación', icon: 'programmer' },
+    { id: 'pruebas', label: 'Pruebas', icon: 'shield' },
+    { id: 'enviado', label: 'Enviado', icon: 'truck' },
+  ];
+
+  const ORDERS = {
+    'AK-2024-1258': {
+      servicio: 'Reparación ECU', producto: 'Bosch EDC17C46', categoria: 'ECU / UCE',
+      ref: '0281036030', vehiculo: 'VW Passat 2.0 TDI (2014)', problema: 'No arranca, comunicación perdida',
+      icon: 'ecu', stepIndex: 5, shipStatus: 'entregado', updated: '20/05/2024 · 09:15',
+      subtotal: 279, envio: 19.9, fecha: '15/05/2024 a las 10:42h',
+      nota: 'Se detectó fallo en regulador de tensión interno (fuente 5V). Se reemplazaron componentes dañados y se verificaron líneas de comunicación. Unidad responde correctamente en banco. No se requiere programación adicional. — Técnico: Carlos M.',
+      files: ['Foto unidad recibida.jpg', 'Informe diagnóstico.pdf', 'Pruebas en banco.jpg'],
+      invoiceNum: 'FAC-2024-05873', carrier: 'SEUR Express', tracking: '123456789012',
+      origen: 'Autokeys Remaps Pro Store — Pinto, Madrid (España)', destino: '08015 Barcelona (España)', eta: '21/05/2024 antes de las 18:00h',
+    },
+    'AK-2024-1251': {
+      servicio: 'Clonación ECU', producto: 'Bosch EDC17', categoria: 'Clonación ECU',
+      ref: '0281014567', vehiculo: 'SEAT León 1.6 TDI (2013)', problema: 'Centralita dañada, sustitución por unidad donante',
+      icon: 'ecu', stepIndex: 3, shipStatus: null, updated: '21/05/2024 · 12:30',
+      subtotal: 249, envio: 0, fecha: '19/05/2024 a las 09:20h',
+      nota: 'Datos leídos correctamente de la unidad original. En proceso de transferencia a la unidad donante. Pendiente de pruebas finales.',
+      files: ['Foto centralitas.jpg'],
+      invoiceNum: null, carrier: null, tracking: null, origen: '', destino: '', eta: '',
+    },
+    'AK-2024-1245': {
+      servicio: 'BMW FEM / BDC', producto: 'BMW FEM — Serie 1 F20', categoria: 'BMW FEM / BDC',
+      ref: 'FEM-8956231', vehiculo: 'BMW 118d F20 (2015)', problema: 'Módulo bloqueado tras batería a 0V',
+      icon: 'module', stepIndex: 5, shipStatus: 'entregado', updated: '16/05/2024 · 17:40',
+      subtotal: 349, envio: 0, fecha: '12/05/2024 a las 08:05h',
+      nota: 'Módulo reparado y codificación sincronizada con DME. Pruebas de arranque correctas.',
+      files: ['Informe FEM.pdf'],
+      invoiceNum: 'FAC-2024-1245', carrier: 'MRW', tracking: '556677889',
+      origen: 'Autokeys Remaps Pro Store — Pinto, Madrid (España)', destino: 'Valencia (España)', eta: '17/05/2024',
+    },
+    'AK-2024-1238': {
+      servicio: 'Mercedes EZS / ELV', producto: 'Mercedes EZS W204', categoria: 'Mercedes EZS / ELV',
+      ref: 'EZS-204447', vehiculo: 'Mercedes C220 CDI (2012)', problema: 'Columna de dirección bloqueada',
+      icon: 'module', stepIndex: 5, shipStatus: 'entregado', updated: '11/05/2024 · 15:10',
+      subtotal: 299, envio: 0, fecha: '08/05/2024 a las 11:00h',
+      nota: 'EZS reparada y sincronizada con ELV. Verificado arranque completo en banco de pruebas.',
+      files: ['Informe EZS.pdf'],
+      invoiceNum: 'FAC-2024-1238', carrier: 'Correos Express', tracking: '998877665',
+      origen: 'Autokeys Remaps Pro Store — Pinto, Madrid (España)', destino: 'Sevilla (España)', eta: '12/05/2024',
+    },
+    'AK-2024-1220': {
+      servicio: 'Airbag / SRS', producto: 'Módulo SRS Bosch', categoria: 'Airbag / SRS',
+      ref: 'SRS-33210', vehiculo: 'Renault Mégane 1.5 dCi (2016)', problema: 'Testigo airbag encendido tras golpe leve',
+      icon: 'shield', stepIndex: 2, shipStatus: null, updated: '03/05/2024 · 10:00',
+      subtotal: 129, envio: 0, fecha: '02/05/2024 a las 09:00h',
+      nota: 'Unidad recibida. Iniciando diagnóstico de crash-data y sensores.',
+      files: [],
+      invoiceNum: null, carrier: null, tracking: null, origen: '', destino: '', eta: '',
+    },
+  };
+
+  const id = akQueryParam('id') || 'AK-2024-1258';
+  const order = ORDERS[id] || ORDERS['AK-2024-1258'];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('bc-order').textContent = 'Pedido #' + id;
+    document.getElementById('order-title').textContent = 'Seguimiento de pedido';
+    document.getElementById('order-sub').innerHTML = 'Pedido <b style="color:#fff">#' + id + '</b> · Realizado el ' + order.fecha;
+
+    const currentStep = STEPS[order.stepIndex];
+    document.getElementById('ts-current').innerHTML = akIcon(order.stepIndex >= 5 ? 'checkCircle' : 'clock') + (order.stepIndex >= 5 ? 'ENVIADO' : currentStep.label.toUpperCase());
+    document.getElementById('ts-desc').textContent = order.stepIndex >= 5
+      ? 'Tu unidad ha sido enviada y está en camino a su destino.'
+      : 'Tu unidad está en la fase: ' + currentStep.label + '.';
+    document.getElementById('ts-updated').textContent = order.updated;
+
+    document.getElementById('order-icon').innerHTML = akIcon(order.icon);
+    document.getElementById('order-cat').textContent = order.categoria.toUpperCase();
+    document.getElementById('order-name').textContent = order.servicio + ' — ' + order.producto;
+    document.getElementById('order-ref').innerHTML = 'Referencia: <b style="color:#fff">' + order.ref + '</b> · Vehículo: ' + order.vehiculo + '<br>Problema reportado: ' + order.problema;
+
+    document.getElementById('timeline').innerHTML = STEPS.map((s, i) => {
+      const cls = i < order.stepIndex ? 'done' : i === order.stepIndex ? 'current' : '';
+      return '<div class="track-step ' + cls + '"><div class="circle">' + (i < order.stepIndex ? akIcon('check') : akIcon(s.icon)) + '</div><b>' + (i + 1) + '. ' + s.label.toUpperCase() + '</b></div>';
+    }).join('');
+
+    document.getElementById('note-text').textContent = order.nota;
+    document.getElementById('files-list').innerHTML = order.files.length
+      ? order.files.map((f) => '<div class="file-row">' + akIcon('file') + '<span>' + f + '</span><a href="#" data-action="mock">' + akIcon('arrowRight') + '</a></div>').join('')
+      : '<p style="color:var(--muted);font-size:12px;margin:0">Aún no hay archivos disponibles.</p>';
+    document.getElementById('invoice-list').innerHTML = order.invoiceNum
+      ? '<div class="file-row">' + akIcon('file') + '<span>Factura #' + order.invoiceNum + '.pdf</span><a href="#" data-action="mock">' + akIcon('arrowRight') + '</a></div>'
+      : '<p style="color:var(--muted);font-size:12px;margin:0">La factura se emitirá cuando el pedido esté enviado.</p>';
+
+    const total = order.subtotal + order.envio;
+    const iva = total - total / 1.21;
+    document.getElementById('order-totals').innerHTML =
+      '<div class="row"><span>Subtotal</span><span>' + akFormatPrice(order.subtotal) + '</span></div>' +
+      '<div class="row"><span>Envío (ida y vuelta)</span><span>' + (order.envio ? akFormatPrice(order.envio) : 'Gratis') + '</span></div>' +
+      '<div class="row"><span>IVA (21%, incluido)</span><span>' + akFormatPrice(iva) + '</span></div>' +
+      '<div class="row total"><span>Total</span><span>' + akFormatPrice(total) + '</span></div>';
+
+    const shipBox = document.getElementById('ship-box');
+    if (order.shipStatus) {
+      const shipSteps = ['Recogido', 'En tránsito', 'En reparto', 'Entregado'];
+      const shipIndex = order.shipStatus === 'entregado' ? 3 : order.shipStatus === 'en_reparto' ? 2 : 1;
+      shipBox.innerHTML =
+        '<h4><span data-icon="truck"></span>INFORMACIÓN DE ENVÍO</h4>' +
+        '<div class="ship-row"><span>Transportista</span><b>' + order.carrier + '</b></div>' +
+        '<div class="ship-row"><span>Nº seguimiento</span><b>' + order.tracking + '</b></div>' +
+        '<span class="status-pill ' + (order.shipStatus === 'entregado' ? 'ok' : 'info') + '">' + (order.shipStatus === 'entregado' ? 'ENTREGADO' : 'EN TRÁNSITO') + '</span>' +
+        '<div class="ship-timeline">' + shipSteps.map((s, i) => '<div class="ship-dot-wrap"><div class="ship-dot ' + (i <= shipIndex ? 'done' : '') + '"></div><span>' + s + '</span></div>').join('') + '</div>' +
+        '<div class="ship-row" style="margin-top:10px"><span>Origen</span></div><div style="font-size:11.5px;color:var(--muted2);margin-bottom:8px">' + order.origen + '</div>' +
+        '<div class="ship-row"><span>Destino</span></div><div style="font-size:11.5px;color:var(--muted2)">' + order.destino + '</div>' +
+        (order.eta ? '<div class="ship-eta">Entrega estimada<br><b style="color:#fff">' + order.eta + '</b></div>' : '');
+    } else {
+      shipBox.innerHTML =
+        '<h4><span data-icon="truck"></span>INFORMACIÓN DE ENVÍO</h4>' +
+        '<p style="color:var(--muted);font-size:12.5px;margin:0">Tu unidad aún no ha sido enviada de vuelta. Verás aquí los datos de transportista y seguimiento en cuanto salga de nuestro laboratorio.</p>';
+    }
+
+    akFillIcons();
+
+    document.body.addEventListener('click', (e) => {
+      if (e.target.closest('[data-action="mock"]')) {
+        e.preventDefault();
+        akToast('La descarga de documentos estará disponible cuando conectemos el backend');
+      }
+    });
+  });
+</script>
+</body>
+</html>

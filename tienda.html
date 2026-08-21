@@ -6,6 +6,7 @@
 <title>Catálogo — Autokeys Remaps Pro Store</title>
 <meta name="description" content="Catálogo profesional de servicios y productos de electrónica automotriz: recuperación ECU, clonación, inmovilizadores, módulos, software y programadores.">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 
@@ -78,6 +79,8 @@
     const c = counts();
     const stockLabels = { stock: 'En stock', encargo: 'Por encargo', envio: 'Servicio por envío' };
     document.getElementById('filters').innerHTML =
+      '<h4 style="margin-top:0">BUSCAR</h4>' +
+      '<input type="text" class="filter-select" data-role="search" placeholder="ECU, FEM, EZS, airbag..." value="' + (state.q || '').replace(/"/g, '&quot;') + '">' +
       '<h4>CATEGORÍA</h4><div class="filter-group">' +
         '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todos los servicios<span class="count">' + CATALOG.length + '</span></label>' +
         CATEGORIES.map((cat) =>
@@ -114,7 +117,7 @@
       if (state.stock.size > 0 && !state.stock.has(p.stock)) return false;
       if (p.priceFrom > state.maxPrice) return false;
       if (state.q) {
-        const hay = (p.name + ' ' + p.shortDesc).toLowerCase();
+        const hay = (p.name + ' ' + p.shortDesc + ' ' + (p.keywords || []).join(' ')).toLowerCase();
         if (!hay.includes(state.q.toLowerCase())) return false;
       }
       return true;
@@ -142,7 +145,7 @@
     if (prevEmpty) prevEmpty.remove();
     grid.innerHTML = list.map((p) =>
       '<article class="product-card">' +
-        '<div class="product-media">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + '<span class="ph">' + akIcon(p.icon) + '</span></div>' +
+        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + '<span class="ph">' + akIcon(p.icon) + '</span></div>' +
         '<div class="product-body">' +
           '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
           '<h3>' + p.name + '</h3>' +
@@ -196,6 +199,9 @@
         state.maxPrice = Number(e.target.value);
         const label = document.getElementById('price-label');
         if (label) label.textContent = '€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '');
+        renderGrid();
+      } else if (e.target.dataset.role === 'search') {
+        state.q = e.target.value;
         renderGrid();
       }
     });

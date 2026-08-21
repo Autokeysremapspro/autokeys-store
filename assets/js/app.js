@@ -41,6 +41,13 @@ const AK_ICONS = {
   ticket: '<path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 1 0-4V5H3z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2 2"/>',
   file: '<path d="M6 2.5h9l4 4V21.5H6z"/><polyline points="15 2.5 15 6.5 19 6.5"/>',
   car: '<path d="M4 16.5V12l2.5-5h9L18 12v4.5"/><path d="M4 16.5h14"/><circle cx="7.5" cy="16.7" r="1.6"/><circle cx="15.5" cy="16.7" r="1.6"/>',
+  gear: '<circle cx="12" cy="12" r="3.2"/><line x1="12" y1="2.5" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="21.5" y2="12"/><line x1="5.5" y1="5.5" x2="7.6" y2="7.6"/><line x1="16.4" y1="16.4" x2="18.5" y2="18.5"/><line x1="5.5" y1="18.5" x2="7.6" y2="16.4"/><line x1="16.4" y1="7.6" x2="18.5" y2="5.5"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/>',
+  chart: '<line x1="4" y1="21" x2="20" y2="21"/><rect x="5" y="13" width="3.5" height="8"/><rect x="10.2" y="8" width="3.5" height="13"/><rect x="15.4" y="4" width="3.5" height="17"/>',
+  trendUp: '<polyline points="3,17 9,11 13,15 21,6"/><polyline points="15,6 21,6 21,12"/>',
+  trendDown: '<polyline points="3,7 9,13 13,9 21,18"/><polyline points="15,18 21,18 21,12"/>',
+  grid: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
+  menu: '<line x1="3.5" y1="6.5" x2="20.5" y2="6.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="3.5" y1="17.5" x2="20.5" y2="17.5"/>',
 };
 
 function akIcon(name, cls) {
@@ -89,37 +96,46 @@ function akHeaderHTML(active) {
     '<ul class="main-nav">' +
       dropdown('tienda', 'TIENDA', [
         { href: 'tienda.html', label: 'Ver todo el catálogo' },
-        { href: 'tienda.html?cat=recuperacion-ecu', label: 'Recuperación ECU' },
+        { href: 'tienda.html?cat=reparacion-ecu', label: 'Reparación ECU' },
         { href: 'tienda.html?cat=clonacion-ecu', label: 'Clonación ECU' },
-        { href: 'tienda.html?cat=modulos', label: 'Módulos y centralitas' },
-        { href: 'tienda.html?cat=inmovilizadores', label: 'Inmovilizadores' },
+        { href: 'tienda.html?brand=bmw', label: 'BMW' },
+        { href: 'tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
+        { href: 'tienda.html?cat=reparacion-envio', label: 'Reparación por envío' },
       ]) +
       dropdown('servicios', 'SERVICIOS', [
-        { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Recuperación ECU' },
+        { href: 'producto.html?id=ecu-uce-diagnostico', label: 'Diagnóstico ECU / UCE' },
+        { href: 'producto.html?id=modulos-confort-uch', label: 'Módulos confort / UCH' },
+        { href: 'producto.html?id=airbag-srs-reparacion', label: 'Airbag / SRS' },
+        { href: 'producto.html?id=cuadros-reparacion', label: 'Cuadros de instrumentos' },
+        { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
+      ]) +
+      dropdown('ecu', 'ECU Y MÓDULOS', [
+        { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Reparación ECU' },
         { href: 'producto.html?id=clonacion-ecu-general', label: 'Clonación ECU' },
         { href: 'producto.html?id=bmw-fem-bdc', label: 'BMW FEM / BDC' },
+        { href: 'producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
         { href: 'producto.html?id=mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
+      ]) +
+      dropdown('llaves', 'LLAVES / IMMO', [
         { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
+        { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
+        { href: 'producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
       ]) +
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
+        { href: 'producto.html?id=edc15-multimap-suite', label: 'EDC15 Multimap Suite' },
+        { href: 'producto.html?id=file-service-online', label: 'File Service' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
-        { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
-      ]) +
-      dropdown('marcas', 'MARCAS', [
-        { href: 'tienda.html?brand=bmw', label: 'BMW' },
-        { href: 'tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
-        { href: 'tienda.html?brand=audi', label: 'Audi' },
-        { href: 'tienda.html?brand=vw', label: 'Volkswagen' },
       ]) +
       navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
-      navLink('#contacto', 'contacto', 'CONTACTO') +
+      navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul>' +
     '<form class="search-form" action="tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
       '<button type="submit" aria-label="Buscar">' + akIcon('search') + '</button>' +
     '</form>' +
     '<div class="head-actions">' +
+      '<a class="search-icon-btn" href="tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
       '<a class="head-action" href="login.html">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
       '<a class="head-action" href="carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
       '<button class="burger" type="button" data-nav-toggle aria-label="Menú">' + akIcon('plus') + '</button>' +
@@ -160,11 +176,11 @@ function akFooterHTML() {
         '<li><a href="#contacto">Contacto</a></li>' +
       '</ul></div>' +
       '<div><h4>INFORMACIÓN</h4><ul>' +
-        '<li><a href="#">Quiénes somos</a></li>' +
-        '<li><a href="#">Preguntas frecuentes</a></li>' +
-        '<li><a href="#">Envíos y devoluciones</a></li>' +
-        '<li><a href="#">Términos y condiciones</a></li>' +
-        '<li><a href="#">Política de privacidad</a></li>' +
+        '<li><a href="#" data-action="mock">Quiénes somos</a></li>' +
+        '<li><a href="#" data-action="mock">Preguntas frecuentes</a></li>' +
+        '<li><a href="#" data-action="mock">Envíos y devoluciones</a></li>' +
+        '<li><a href="#" data-action="mock">Términos y condiciones</a></li>' +
+        '<li><a href="#" data-action="mock">Política de privacidad</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
         '<li>' + akIcon('phone') + '<span>+34 624 84 52 36</span></li>' +
@@ -212,6 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggle) {
       const open = document.querySelector('.main-nav').classList.toggle('mobile-open');
       toggle.innerHTML = akIcon(open ? 'close' : 'plus');
+      return;
+    }
+    const mock = e.target.closest('[data-action="mock"]');
+    if (mock && mock.getAttribute('href') === '#') {
+      e.preventDefault();
+      akToast('Esta sección todavía no está disponible en esta demo');
     }
   });
 });

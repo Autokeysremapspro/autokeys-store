@@ -6,6 +6,7 @@
 <title id="page-title">Servicio — Autokeys Remaps Pro Store</title>
 <meta name="description" content="Ficha de servicio Autokeys Remaps Pro Store.">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 
@@ -54,7 +55,7 @@
           '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
         '</div>' +
         '<div class="gallery" style="margin-top:20px">' +
-          '<div class="gallery-main">' +
+          '<div class="gallery-main hex-overlay">' +
             '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
             '<span class="ph">' + akIcon(product.icon) + '</span>' +
             '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
@@ -66,7 +67,7 @@
           '</div>' +
         '</div>' +
       '</div>' +
-      '<aside class="buybox" id="buybox"></aside>' +
+      '<aside class="buybox metal-frame" id="buybox"></aside>' +
     '</div>';
     renderBuybox();
 
@@ -93,17 +94,23 @@
           '</label>'
         ).join('') +
       '</div>' +
-      '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
-      '<div class="field-row">' +
-        '<div class="field"><label>Referencia / Nº de pieza</label><input type="text" placeholder="Ej. 0 281 034 123"></div>' +
-        '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
-        '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
-      '</div>' +
+      (product.isSoftware
+        ? '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. DATOS PARA LA LICENCIA</div>' +
+          '<div class="field-row">' +
+            '<div class="field full"><label>Email de contacto</label><input type="email" placeholder="tu@email.com"></div>' +
+            '<div class="field full"><label>Notas (opcional)</label><textarea placeholder="Equipo, versión u otra información relevante"></textarea></div>' +
+          '</div>'
+        : '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label>Referencia / Nº de pieza</label><input type="text" placeholder="Ej. 0 281 034 123"></div>' +
+            '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
+            '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
+          '</div>') +
       '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px">' + akIcon('cart') + 'Añadir al carrito</button>' +
       '<ul class="buybox-trust">' +
         '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
         '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
-        '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
+        '<li>' + akIcon('headset') + (product.isSoftware ? (product.support || 'Soporte técnico incluido') : 'Soporte experto 7 días') + '</li>' +
       '</ul>';
 
     box.querySelectorAll('.variant').forEach((el) => el.addEventListener('click', () => {
@@ -121,7 +128,13 @@
   }
 
   function renderTrustStrip() {
-    const items = [
+    const items = product.isSoftware ? [
+      ['award', 'Licencia original', 'Software con licencia legítima'],
+      ['truck', 'Activación rápida', 'Recibes el acceso en horas'],
+      ['headset', 'Soporte técnico', product.support || 'Incluido durante la vigencia'],
+      ['checkCircle', 'Actualizaciones', 'Incluidas según la licencia'],
+      ['lock', 'Pago seguro', 'Transacción 100% protegida'],
+    ] : [
       ['diag', 'Diagnóstico avanzado', 'Equipos de última generación'],
       ['award', 'Reparación profesional', 'Componentes OEM y técnicos expertos'],
       ['checkCircle', 'Pruebas en banco', 'Verificación completa antes del envío'],
@@ -134,21 +147,35 @@
   }
 
   function renderInfo() {
-    const miniSteps = GENERIC_PROCESS.map((s, i) =>
-      '<li>' + (i + 1) + '. ' + s.title + '</li>'
-    ).join('');
-    const cards = [
-      { title: '¿QUÉ SOLUCIONAMOS?', h: 'Recuperación técnica', list: product.whatWeFix },
-      { title: 'SÍNTOMAS HABITUALES', h: 'Casos frecuentes', list: product.symptoms },
-      { title: '¿QUÉ DEBES ENVIARNOS?', h: 'Material necesario', list: product.whatToSend },
-    ].filter((c) => c.list && c.list.length);
-    let html = cards.map((c) =>
-      '<div class="info-card"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
-        c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
-    ).join('');
-    html += '<div class="info-card"><div class="eyebrow">¿CÓMO FUNCIONA?</div><h3>Proceso</h3><ul class="mini-steps" style="line-height:2.1">' + miniSteps + '</ul></div>';
-    html += '<div class="info-card center"><div class="eyebrow">TIEMPO HABITUAL</div>' + akIcon('clock', 'ph') + '<h3 style="margin-top:12px">' + (product.turnaround || 'Consultar plazos') + '</h3><p style="color:var(--muted);font-size:11.5px">Tiempo estimado desde recepción.</p></div>';
-    html += '<div class="info-card center"><div class="eyebrow">GARANTÍA</div>' + akIcon('shield', 'ph') + '<h3 style="margin-top:12px">' + (product.warranty || 'Garantía incluida') + '</h3><p style="color:var(--muted);font-size:11.5px">En todos nuestros trabajos.</p></div>';
+    let html;
+    if (product.isSoftware) {
+      const cards = [
+        { title: 'COMPATIBILIDAD', h: 'Compatible con', list: product.compatibility },
+        { title: 'REQUISITOS', h: 'Qué necesitas', list: product.requirements },
+      ].filter((c) => c.list && c.list.length);
+      html = cards.map((c) =>
+        '<div class="info-card" style="grid-column:span 2"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
+          c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
+      ).join('');
+      html += '<div class="info-card center" style="grid-column:span 1"><div class="eyebrow">LICENCIA</div>' + akIcon('file', 'ph') + '<h3 style="margin-top:12px;font-size:13px">' + (product.license || 'Consultar condiciones') + '</h3></div>';
+      html += '<div class="info-card center" style="grid-column:span 1"><div class="eyebrow">SOPORTE</div>' + akIcon('headset', 'ph') + '<h3 style="margin-top:12px;font-size:13px">' + (product.support || 'Soporte técnico incluido') + '</h3></div>';
+    } else {
+      const miniSteps = GENERIC_PROCESS.map((s, i) =>
+        '<li>' + (i + 1) + '. ' + s.title + '</li>'
+      ).join('');
+      const cards = [
+        { title: '¿QUÉ SOLUCIONAMOS?', h: 'Recuperación técnica', list: product.whatWeFix },
+        { title: 'SÍNTOMAS HABITUALES', h: 'Casos frecuentes', list: product.symptoms },
+        { title: '¿QUÉ DEBES ENVIARNOS?', h: 'Material necesario', list: product.whatToSend },
+      ].filter((c) => c.list && c.list.length);
+      html = cards.map((c) =>
+        '<div class="info-card"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
+          c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
+      ).join('');
+      html += '<div class="info-card"><div class="eyebrow">¿CÓMO FUNCIONA?</div><h3>Proceso</h3><ul class="mini-steps" style="line-height:2.1">' + miniSteps + '</ul></div>';
+      html += '<div class="info-card center"><div class="eyebrow">TIEMPO HABITUAL</div>' + akIcon('clock', 'ph') + '<h3 style="margin-top:12px">' + (product.turnaround || 'Consultar plazos') + '</h3><p style="color:var(--muted);font-size:11.5px">Tiempo estimado desde recepción.</p></div>';
+      html += '<div class="info-card center"><div class="eyebrow">GARANTÍA</div>' + akIcon('shield', 'ph') + '<h3 style="margin-top:12px">' + (product.warranty || 'Garantía incluida') + '</h3><p style="color:var(--muted);font-size:11.5px">En todos nuestros trabajos.</p></div>';
+    }
     document.getElementById('info-root').innerHTML = html;
     document.querySelectorAll('#info-root .info-card.center svg').forEach((s) => { s.style.width = '30px'; s.style.height = '30px'; s.style.color = 'var(--red)'; s.style.margin = '0 auto'; });
   }
