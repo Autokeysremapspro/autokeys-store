@@ -129,7 +129,7 @@ function akHeaderHTML(active) {
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
-        { href: 'https://akcloud.com', label: 'File Service (AK Cloud)', external: true },
+        { href: 'https://akcloud.es', label: 'File Service (AK Cloud)', external: true },
       ]) +
       navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
