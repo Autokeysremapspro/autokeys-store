@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  smoke-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar sintaxis de los <script> inline en cada página
+        run: |
+          node -e "
+          const fs = require('fs');
+          const files = fs.readdirSync('.').filter((f) => f.endsWith('.html'));
+          let failed = false;
+          for (const file of files) {
+            const html = fs.readFileSync(file, 'utf8');
+            const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+            scripts.forEach((s, i) => {
+              try {
+                new Function(s);
+              } catch (e) {
+                failed = true;
+                console.error(file + ' script ' + i + ': ' + e.message);
+              }
+            });
+          }
+          if (failed) process.exit(1);
+          console.log('Todos los <script> inline son sintácticamente válidos.');
+          "
+
+      - name: Comprobar sintaxis de los .js de assets/js
+        run: |
+          for f in assets/js/*.js; do
+            node -c "$f" || exit 1
+          done
+          echo "Todos los .js son sintácticamente válidos."
+
+      - name: Comprobar la función serverless del sitemap
+        run: node -c api/sitemap.js
+
+      - name: Comprobar que vercel.json y robots.txt son consistentes
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('vercel.json', 'utf8'))"
+          grep -q 'sitemap.xml' robots.txt || (echo 'robots.txt no referencia el sitemap' && exit 1)

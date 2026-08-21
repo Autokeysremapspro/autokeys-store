@@ -276,3 +276,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* Monitorización básica de errores de cliente: reporta a Supabase (tabla
+   tienda_errores_cliente, solo lectura para staff) sin depender de un
+   servicio externo. Limitado por sesión para no inundar la tabla si algo
+   entra en bucle. */
+(function () {
+  const MAX_REPORTS = 5;
+  let sent = 0;
+  const seen = new Set();
+
+  function report(mensaje, stack) {
+    if (sent >= MAX_REPORTS) return;
+    if (!mensaje) return;
+    const key = mensaje.slice(0, 200);
+    if (seen.has(key)) return;
+    seen.add(key);
+    sent += 1;
+    try {
+      if (typeof akSupabase !== 'function') return;
+      akSupabase()
+        .from('tienda_errores_cliente')
+        .insert({
+          mensaje: key,
+          stack: stack ? String(stack).slice(0, 4000) : null,
+          pagina: location.pathname + location.search,
+          user_agent: navigator.userAgent,
+        })
+        .then(() => {}, () => {});
+    } catch (e) {
+      /* no-op: nunca romper la página por fallar el propio reporte */
+    }
+  }
+
+  window.addEventListener('error', (e) => {
+    report(e.message, e.error && e.error.stack);
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    const reason = e.reason;
+    report(reason && reason.message ? reason.message : String(reason), reason && reason.stack);
+  });
+})();
