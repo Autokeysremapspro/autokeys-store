@@ -1,4 +1,4 @@
-const SITE_URL = 'https://www.autokeys.es';
+const SITE_URL = 'https://www.autokeysremapspro.es';
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
 
