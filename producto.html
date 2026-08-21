@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="page-title">Servicio — Autokeys Remaps Pro Store</title>
+<meta id="meta-description" name="description" content="Ficha de servicio Autokeys Remaps Pro Store.">
+<link id="link-canonical" rel="canonical" href="https://www.autokeys.es/producto.html">
+<meta id="meta-og-type" property="og:type" content="product">
+<meta property="og:site_name" content="Autokeys Remaps Pro Store">
+<meta property="og:locale" content="es_ES">
+<meta id="meta-og-title" property="og:title" content="Servicio — Autokeys Remaps Pro Store">
+<meta id="meta-og-description" property="og:description" content="Ficha de servicio Autokeys Remaps Pro Store.">
+<meta id="meta-og-url" property="og:url" content="https://www.autokeys.es/producto.html">
+<meta id="meta-og-image" property="og:image" content="https://www.autokeys.es/assets/img/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta id="meta-twitter-title" name="twitter:title" content="Servicio — Autokeys Remaps Pro Store">
+<meta id="meta-twitter-description" name="twitter:description" content="Ficha de servicio Autokeys Remaps Pro Store.">
+<meta name="twitter:image" content="https://www.autokeys.es/assets/img/logo.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header id="site-header" data-active="servicios"></header>
+
+<nav class="breadcrumb" id="breadcrumb"></nav>
+
+<div id="detail-root"></div>
+<div class="feature-strip" id="trust-strip"></div>
+<div class="info-grid cols-6" id="info-root" style="padding-top:60px"></div>
+<div class="faq" id="faq-root"></div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script>
+  const product = akFindProduct(akQueryParam('id')) || CATALOG[0];
+  let selectedVariant = product.variants[0];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.title = product.name + ' — Autokeys Remaps Pro Store';
+    const cat = akFindCategory(product.category);
+
+    document.getElementById('breadcrumb').innerHTML =
+      '<a href="index.html">Inicio</a><span data-icon="chevRight"></span>' +
+      '<a href="tienda.html?cat=' + product.category + '">' + (cat ? cat.label : 'Servicios') + '</a><span data-icon="chevRight"></span>' +
+      '<span class="current">' + product.name + '</span>';
+
+    renderDetail();
+    renderTrustStrip();
+    renderInfo();
+    renderFaq();
+    renderSeo();
+    akFillIcons();
+  });
+
+  function renderDetail() {
+    document.getElementById('detail-root').innerHTML =
+    '<div class="detail">' +
+      '<div>' +
+        '<div class="detail-info">' +
+          (product.badge ? '<div class="eyebrow">' + product.badge + '</div>' : '') +
+          '<h1>' + product.name + '</h1>' +
+          '<p class="lead">' + (product.longDesc || product.shortDesc) + '</p>' +
+          '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
+        '</div>' +
+        '<div class="gallery" style="margin-top:20px">' +
+          (product.image ?
+            '<div class="gallery-main hex-overlay"><img class="gm-photo" src="' + product.image + '" alt="' + product.name + '"></div>' :
+            '<div class="gallery-main hex-overlay">' +
+              '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
+              '<span class="ph">' + akIcon(product.icon) + '</span>' +
+              '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
+            '</div>' +
+            '<div class="thumbs">' +
+              '<div class="thumb active">' + akIcon(product.icon) + '</div>' +
+              '<div class="thumb">' + akIcon('module') + '</div>' +
+              '<div class="thumb">' + akIcon('programmer') + '</div>' +
+            '</div>'
+          ) +
+        '</div>' +
+      '</div>' +
+      '<aside class="buybox metal-frame" id="buybox"></aside>' +
+    '</div>';
+    renderBuybox();
+
+    document.querySelectorAll('.thumb').forEach((t) => t.addEventListener('click', () => {
+      document.querySelectorAll('.thumb').forEach((x) => x.classList.remove('active'));
+      t.classList.add('active');
+    }));
+  }
+
+  function renderBuybox() {
+    const box = document.getElementById('buybox');
+    box.innerHTML =
+      '<div class="eyebrow">' + (product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
+      '<div class="price-big" id="price-big">' + akFormatPrice(selectedVariant.price) + '</div>' +
+      '<div class="price-note">IVA incluido</div>' +
+      '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
+      '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">1. SELECCIONA LA OPCIÓN</div>' +
+      '<div class="variant-list" id="variant-list">' +
+        product.variants.map((v, i) =>
+          '<label class="variant ' + (v.id === selectedVariant.id ? 'selected' : '') + '" data-variant="' + v.id + '">' +
+            '<input type="radio" name="variant" ' + (v.id === selectedVariant.id ? 'checked' : '') + '>' +
+            '<span class="vt"><b>' + v.name + '</b><span>' + v.desc + '</span></span>' +
+            '<span class="vp">' + akFormatPrice(v.price) + '</span>' +
+          '</label>'
+        ).join('') +
+      '</div>' +
+      (product.isSoftware
+        ? '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. DATOS PARA LA LICENCIA</div>' +
+          '<div class="field-row">' +
+            '<div class="field full"><label>Email de contacto</label><input type="email" placeholder="tu@email.com"></div>' +
+            '<div class="field full"><label>Notas (opcional)</label><textarea placeholder="Equipo, versión u otra información relevante"></textarea></div>' +
+          '</div>'
+        : '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
+          '<div class="field-row">' +
+            '<div class="field"><label>Referencia / Nº de pieza</label><input type="text" placeholder="Ej. 0 281 034 123"></div>' +
+            '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
+            '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
+          '</div>') +
+      '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px">' + akIcon('cart') + 'Añadir al carrito</button>' +
+      '<ul class="buybox-trust">' +
+        '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
+        '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
+        '<li>' + akIcon('headset') + (product.isSoftware ? (product.support || 'Soporte técnico incluido') : 'Soporte experto 7 días') + '</li>' +
+      '</ul>';
+
+    box.querySelectorAll('.variant').forEach((el) => el.addEventListener('click', () => {
+      selectedVariant = product.variants.find((v) => v.id === el.dataset.variant);
+      box.querySelectorAll('.variant').forEach((x) => x.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      document.getElementById('price-big').textContent = akFormatPrice(selectedVariant.price);
+    }));
+
+    document.getElementById('add-cart-btn').addEventListener('click', () => {
+      akCartAdd(product.id, selectedVariant.id, 1);
+      akToast(product.name + ' añadido al carrito');
+    });
+  }
+
+  function renderTrustStrip() {
+    const items = product.isSoftware ? [
+      ['award', 'Licencia original', 'Software con licencia legítima'],
+      ['truck', 'Activación rápida', 'Recibes el acceso en horas'],
+      ['headset', 'Soporte técnico', product.support || 'Incluido durante la vigencia'],
+      ['checkCircle', 'Actualizaciones', 'Incluidas según la licencia'],
+      ['lock', 'Pago seguro', 'Transacción 100% protegida'],
+    ] : [
+      ['diag', 'Diagnóstico avanzado', 'Equipos de última generación'],
+      ['award', 'Reparación profesional', 'Componentes OEM y técnicos expertos'],
+      ['checkCircle', 'Pruebas en banco', 'Verificación completa antes del envío'],
+      ['truck', 'Envío asegurado', 'Embalaje seguro y seguimiento'],
+      ['shield', 'Satisfacción garantizada', 'Si no lo reparamos, no cobramos'],
+    ];
+    document.getElementById('trust-strip').innerHTML = items.map((i) =>
+      '<div>' + akIcon(i[0]) + '<div><b>' + i[1] + '</b><span>' + i[2] + '</span></div></div>'
+    ).join('');
+  }
+
+  function renderInfo() {
+    let html;
+    if (product.isSoftware) {
+      const cards = [
+        { title: 'COMPATIBILIDAD', h: 'Compatible con', list: product.compatibility },
+        { title: 'REQUISITOS', h: 'Qué necesitas', list: product.requirements },
+      ].filter((c) => c.list && c.list.length);
+      html = cards.map((c) =>
+        '<div class="info-card" style="grid-column:span 2"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
+          c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
+      ).join('');
+      html += '<div class="info-card center" style="grid-column:span 1"><div class="eyebrow">LICENCIA</div>' + akIcon('file', 'ph') + '<h3 style="margin-top:12px;font-size:13px">' + (product.license || 'Consultar condiciones') + '</h3></div>';
+      html += '<div class="info-card center" style="grid-column:span 1"><div class="eyebrow">SOPORTE</div>' + akIcon('headset', 'ph') + '<h3 style="margin-top:12px;font-size:13px">' + (product.support || 'Soporte técnico incluido') + '</h3></div>';
+    } else {
+      const miniSteps = GENERIC_PROCESS.map((s, i) =>
+        '<li>' + (i + 1) + '. ' + s.title + '</li>'
+      ).join('');
+      const cards = [
+        { title: '¿QUÉ SOLUCIONAMOS?', h: 'Recuperación técnica', list: product.whatWeFix },
+        { title: 'SÍNTOMAS HABITUALES', h: 'Casos frecuentes', list: product.symptoms },
+        { title: '¿QUÉ DEBES ENVIARNOS?', h: 'Material necesario', list: product.whatToSend },
+      ].filter((c) => c.list && c.list.length);
+      html = cards.map((c) =>
+        '<div class="info-card"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
+          c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
+      ).join('');
+      html += '<div class="info-card"><div class="eyebrow">¿CÓMO FUNCIONA?</div><h3>Proceso</h3><ul class="mini-steps" style="line-height:2.1">' + miniSteps + '</ul></div>';
+      html += '<div class="info-card center"><div class="eyebrow">TIEMPO HABITUAL</div>' + akIcon('clock', 'ph') + '<h3 style="margin-top:12px">' + (product.turnaround || 'Consultar plazos') + '</h3><p style="color:var(--muted);font-size:11.5px">Tiempo estimado desde recepción.</p></div>';
+      html += '<div class="info-card center"><div class="eyebrow">GARANTÍA</div>' + akIcon('shield', 'ph') + '<h3 style="margin-top:12px">' + (product.warranty || 'Garantía incluida') + '</h3><p style="color:var(--muted);font-size:11.5px">En todos nuestros trabajos.</p></div>';
+    }
+    document.getElementById('info-root').innerHTML = html;
+    document.querySelectorAll('#info-root .info-card.center svg').forEach((s) => { s.style.width = '30px'; s.style.height = '30px'; s.style.color = 'var(--red)'; s.style.margin = '0 auto'; });
+  }
+
+  function renderFaq() {
+    const faqs = product.faqs && product.faqs.length ? product.faqs : GENERIC_FAQS;
+    const related = (product.related || []).map((id) => akFindProduct(id)).filter(Boolean);
+    document.getElementById('faq-root').innerHTML =
+      '<div><div class="eyebrow">FAQ</div><h2>Preguntas frecuentes</h2>' +
+        faqs.map((f) => '<details><summary>' + f.q + '</summary><p>' + f.a + '</p></details>').join('') +
+      '</div>' +
+      '<aside class="related"><div class="eyebrow">SERVICIOS RELACIONADOS</div><h3 style="margin:8px 0 4px">También puede interesarte</h3>' +
+        related.map((r) =>
+          '<a class="related-item" href="producto.html?id=' + r.id + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
+        ).join('') +
+      '</aside>';
+  }
+
+  function renderSeo() {
+    const url = 'https://www.autokeys.es/producto.html?id=' + product.id;
+    const desc = (product.shortDesc || '').slice(0, 160);
+    const title = product.name + ' — Autokeys Remaps Pro Store';
+
+    document.getElementById('meta-description').setAttribute('content', desc);
+    document.getElementById('link-canonical').setAttribute('href', url);
+    document.getElementById('meta-og-type').setAttribute('content', product.isProduct ? 'product' : 'website');
+    document.getElementById('meta-og-title').setAttribute('content', title);
+    document.getElementById('meta-og-description').setAttribute('content', desc);
+    document.getElementById('meta-og-url').setAttribute('content', url);
+    document.getElementById('meta-twitter-title').setAttribute('content', title);
+    document.getElementById('meta-twitter-description').setAttribute('content', desc);
+
+    const minPrice = Math.min(...product.variants.map((v) => v.price));
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': product.isProduct ? 'Product' : 'Service',
+      name: product.name,
+      description: product.longDesc || product.shortDesc,
+      image: 'https://www.autokeys.es/assets/img/logo.png',
+      brand: { '@type': 'Brand', name: 'Autokeys Remaps Pro Store' },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'EUR',
+        price: minPrice,
+        availability: 'https://schema.org/InStock',
+        url: url,
+      },
+    };
+    if (!product.isProduct) {
+      schema.provider = { '@type': 'AutomotiveBusiness', name: 'Autokeys Remaps Pro Store', url: 'https://www.autokeys.es/' };
+      schema.areaServed = 'ES';
+    }
+    let ld = document.getElementById('ld-product');
+    if (!ld) {
+      ld = document.createElement('script');
+      ld.type = 'application/ld+json';
+      ld.id = 'ld-product';
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify(schema);
+
+    const cat = akFindCategory(product.category);
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.autokeys.es/' },
+        { '@type': 'ListItem', position: 2, name: cat ? cat.label : 'Servicios', item: 'https://www.autokeys.es/tienda.html?cat=' + product.category },
+        { '@type': 'ListItem', position: 3, name: product.name, item: url },
+      ],
+    };
+    let ldB = document.getElementById('ld-breadcrumb');
+    if (!ldB) {
+      ldB = document.createElement('script');
+      ldB.type = 'application/ld+json';
+      ldB.id = 'ld-breadcrumb';
+      document.head.appendChild(ldB);
+    }
+    ldB.textContent = JSON.stringify(breadcrumb);
+  }
+</script>
+</body>
+</html>
