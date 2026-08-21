@@ -34,8 +34,20 @@
 <script src="assets/js/supabase-config.js"></script>
 <script>
   let payMethod = 'tarjeta';
+  let CURRENT_USER = null;
+  let PERFIL = null;
 
-  document.addEventListener('DOMContentLoaded', render);
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const { data } = await akSupabase().auth.getUser();
+      CURRENT_USER = data.user;
+      if (CURRENT_USER) {
+        const { data: perfil } = await akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle();
+        PERFIL = perfil;
+      }
+    } catch (e) { /* supabase not reachable — treat as guest */ }
+    render();
+  });
 
   function render() {
     const lines = akCartLines();
@@ -77,46 +89,65 @@
           '</ul>' +
         '</div>' +
       '</div>' +
-      '<div>' +
-        '<div class="cart-panel">' +
-          '<h3>DATOS DEL CLIENTE</h3>' +
-          '<div class="field-row">' +
-            '<div class="field"><label>Nombre *</label><input type="text" id="f-nombre" placeholder="Tu nombre" required></div>' +
-            '<div class="field"><label>Apellidos *</label><input type="text" id="f-apellidos" placeholder="Tus apellidos" required></div>' +
-            '<div class="field full"><label>Email *</label><input type="email" id="f-email" placeholder="tu@email.com" required></div>' +
-            '<div class="field full"><label>Teléfono *</label><input type="tel" id="f-telefono" placeholder="+34 600 123 456" required></div>' +
-          '</div>' +
-          '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
-          '<div class="field-row">' +
-            '<div class="field full"><label>Dirección *</label><input type="text" id="f-direccion" placeholder="Calle, número" required></div>' +
-            '<div class="field"><label>Código postal *</label><input type="text" id="f-cp" placeholder="28001" required></div>' +
-            '<div class="field"><label>Ciudad *</label><input type="text" id="f-ciudad" placeholder="Madrid" required></div>' +
-            '<div class="field"><label>País *</label><select id="f-pais"><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
-            '<div class="field"><label>Provincia *</label><input type="text" id="f-provincia" placeholder="Madrid" required></div>' +
-          '</div>' +
-          '<h3 style="margin-top:22px">MÉTODO DE PAGO</h3>' +
-          '<div id="pay-methods">' +
-            payOption('tarjeta', 'Tarjeta de crédito / débito', 'Paga de forma segura con tu tarjeta.', 'VISA · Mastercard') +
-            payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
-            payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
-          '</div>' +
-          '<div class="notice">' + akIcon('lock') + 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago (próximamente a través de SumUp).</div>' +
-          '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
-          '<div class="field-row">' +
-            '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" placeholder="12345678Z"></div>' +
-            '<div class="field"><label>Razón social (opcional)</label><input type="text" id="f-razon" placeholder="Autokeys Soluciones S.L."></div>' +
-          '</div>' +
-          '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
-          '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
-            '<div><div style="font-size:11px;color:var(--muted)">TOTAL ESTIMADO</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
-            '<button class="btn btn-primary" id="finish-btn">Enviar pedido' + akIcon('arrowRight') + '</button>' +
-          '</div>' +
-          '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Tus datos se transmiten de forma segura. Al enviar aceptas nuestros términos y condiciones.</p>' +
-        '</div>' +
-      '</div>' +
+      '<div>' + (CURRENT_USER ? renderCheckoutForm(total) : renderLoginGate()) + '</div>' +
     '</div>';
 
     wireEvents();
+  }
+
+  function renderLoginGate() {
+    return '<div class="cart-panel">' +
+      '<h3>INICIA SESIÓN PARA CONTINUAR</h3>' +
+      '<p style="color:var(--muted);font-size:13px;line-height:1.6">Para completar tu pedido necesitas una cuenta — así podemos avisarte del estado y llevar un control correcto de tus compras. Tu carrito se mantiene intacto.</p>' +
+      '<a class="btn btn-primary btn-block" href="login.html?redirect=carrito.html">' + akIcon('user') + 'Iniciar sesión o crear cuenta' + akIcon('arrowRight') + '</a>' +
+      '<ul class="trust-row" style="margin-top:16px">' +
+        '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
+        '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
+      '</ul>' +
+    '</div>';
+  }
+
+  function renderCheckoutForm(total) {
+    const p = PERFIL || {};
+    return '<div class="cart-panel">' +
+      '<h3>DATOS DEL CLIENTE</h3>' +
+      '<div class="field-row">' +
+        '<div class="field"><label>Nombre *</label><input type="text" id="f-nombre" value="' + esc(p.nombre) + '" placeholder="Tu nombre" required></div>' +
+        '<div class="field"><label>Apellidos *</label><input type="text" id="f-apellidos" value="' + esc(p.apellidos) + '" placeholder="Tus apellidos" required></div>' +
+        '<div class="field full"><label>Email</label><input type="email" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
+        '<div class="field full"><label>Teléfono *</label><input type="tel" id="f-telefono" value="' + esc(p.telefono) + '" placeholder="+34 600 123 456" required></div>' +
+      '</div>' +
+      '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
+      '<div class="field-row">' +
+        '<div class="field full"><label>Dirección *</label><input type="text" id="f-direccion" value="' + esc(p.direccion) + '" placeholder="Calle, número" required></div>' +
+        '<div class="field"><label>Código postal *</label><input type="text" id="f-cp" value="' + esc(p.codigo_postal) + '" placeholder="28001" required></div>' +
+        '<div class="field"><label>Ciudad *</label><input type="text" id="f-ciudad" value="' + esc(p.ciudad) + '" placeholder="Madrid" required></div>' +
+        '<div class="field"><label>País *</label><select id="f-pais"><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
+        '<div class="field"><label>Provincia *</label><input type="text" id="f-provincia" value="' + esc(p.provincia) + '" placeholder="Madrid" required></div>' +
+      '</div>' +
+      '<h3 style="margin-top:22px">MÉTODO DE PAGO</h3>' +
+      '<div id="pay-methods">' +
+        payOption('tarjeta', 'Tarjeta de crédito / débito', 'Paga de forma segura con tu tarjeta.', 'VISA · Mastercard') +
+        payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
+        payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
+      '</div>' +
+      '<div class="notice">' + akIcon('lock') + 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago (próximamente a través de SumUp).</div>' +
+      '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
+      '<div class="field-row">' +
+        '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" value="' + esc(p.nif_cif) + '" placeholder="12345678Z"></div>' +
+        '<div class="field"><label>Razón social (opcional)</label><input type="text" id="f-razon" placeholder="Autokeys Soluciones S.L."></div>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
+      '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
+        '<div><div style="font-size:11px;color:var(--muted)">TOTAL ESTIMADO</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
+        '<button class="btn btn-primary" id="finish-btn">Enviar pedido' + akIcon('arrowRight') + '</button>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Tus datos se transmiten de forma segura. Al enviar aceptas nuestros términos y condiciones.</p>' +
+    '</div>';
+  }
+
+  function esc(v) {
+    return v ? String(v).replace(/"/g, '&quot;') : '';
   }
 
   function renderLine(l) {
@@ -178,8 +209,13 @@
   }
 
   async function submitOrder() {
+    if (!CURRENT_USER) {
+      akToast('Inicia sesión para completar el pedido');
+      window.location.href = 'login.html?redirect=carrito.html';
+      return;
+    }
     const required = [
-      ['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos'], ['f-email', 'Email'], ['f-telefono', 'Teléfono'],
+      ['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos'], ['f-telefono', 'Teléfono'],
       ['f-direccion', 'Dirección'], ['f-cp', 'Código postal'], ['f-ciudad', 'Ciudad'], ['f-provincia', 'Provincia'],
     ];
     const missing = required.find(([id]) => !fieldVal(id));
@@ -188,12 +224,7 @@
       document.getElementById(missing[0]).focus();
       return;
     }
-    const email = fieldVal('f-email');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      akToast('Revisa el formato del email');
-      document.getElementById('f-email').focus();
-      return;
-    }
+    const email = CURRENT_USER.email;
 
     const btn = document.getElementById('finish-btn');
     btn.disabled = true;
@@ -210,6 +241,7 @@
     const pedido = {
       id: pedidoId,
       numero,
+      usuario_id: CURRENT_USER.id,
       nombre: fieldVal('f-nombre'),
       apellidos: fieldVal('f-apellidos'),
       email,

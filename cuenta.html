@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Panel de cliente — Autokeys Remaps Pro Store</title>
-<meta name="description" content="Panel de cliente Autokeys Remaps Pro Store: pedidos, servicios, vehículos, facturas y tickets de soporte.">
+<meta name="description" content="Panel de cliente Autokeys Remaps Pro Store: consulta tus pedidos y gestiona tu perfil.">
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://www.autokeys.es/cuenta.html">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -18,12 +18,7 @@
   <a href="index.html">Inicio</a><span data-icon="chevRight"></span><span class="current">Mi cuenta</span>
 </nav>
 
-<div class="notice" style="margin:18px 6vw 0">
-  <span data-icon="award"></span>
-  Estás viendo una demo del panel de cliente con datos de ejemplo — se conectará a pedidos reales cuando esté listo el backend.
-</div>
-
-<div class="account-layout">
+<div class="account-layout" id="account-layout" style="display:none">
   <aside class="account-nav" id="account-nav"></aside>
   <div id="account-content"></div>
 </div>
@@ -33,60 +28,20 @@
 <script src="assets/js/catalog.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
 <script>
   const NAV_ITEMS = [
     { id: 'resumen', label: 'Resumen', icon: 'diag' },
     { id: 'pedidos', label: 'Mis pedidos', icon: 'box' },
-    { id: 'servicios', label: 'Mis servicios', icon: 'programmer' },
-    { id: 'vehiculos', label: 'Mis vehículos', icon: 'car' },
-    { id: 'facturas', label: 'Facturas', icon: 'file' },
-    { id: 'tickets', label: 'Tickets', icon: 'ticket' },
-    { id: 'favoritos', label: 'Favoritos', icon: 'shield' },
-    { id: 'direcciones', label: 'Direcciones', icon: 'mapPin' },
     { id: 'perfil', label: 'Perfil', icon: 'user' },
   ];
 
-  const PEDIDOS = [
-    { id: 'AK-2024-1258', servicio: 'Bosch EDC17CP54', desc: 'Recuperación de centralita', fecha: '24/05/2024', estado: 'entregado', icon: 'ecu', total: 349 },
-    { id: 'AK-2024-1251', servicio: 'Clonación ECU', desc: 'Clonación de centralitas', fecha: '20/05/2024', estado: 'proceso', icon: 'ecu', total: 249 },
-    { id: 'AK-2024-1245', servicio: 'BMW FEM / BDC', desc: 'Reparación y clonación', fecha: '15/05/2024', estado: 'entregado', icon: 'module', total: 349 },
-    { id: 'AK-2024-1238', servicio: 'Mercedes EZS / ELV', desc: 'Reparación de unidades', fecha: '10/05/2024', estado: 'entregado', icon: 'module', total: 299 },
-    { id: 'AK-2024-1220', servicio: 'Airbag / SRS', desc: 'Borrado de crash-data', fecha: '02/05/2024', estado: 'diagnostico', icon: 'shield', total: 129 },
-  ];
-
-  const SERVICIOS_ACTIVOS = [
-    { nombre: 'Programación llave BMW', detalle: 'BMW Serie 3 F30 — 2015', desde: '20/05/2024', estado: 'ok', icon: 'key' },
-    { nombre: 'Reparación ECU', detalle: 'VW Golf 7 — 2016 2.0 TDI', desde: '18/05/2024', estado: 'ok', icon: 'ecu' },
-    { nombre: 'Clonación inmovilizador', detalle: 'Audi A4 B8 — 2012', desde: '15/05/2024', estado: 'warn', icon: 'key' },
-    { nombre: 'Reparación BSI', detalle: 'Peugeot 308 — 2014', desde: '12/05/2024', estado: 'ok', icon: 'module' },
-  ];
-
-  const VEHICULOS = [
-    { nombre: 'BMW Serie 3', modelo: 'F30 320d', matricula: '1234 JKL', principal: true },
-    { nombre: 'Audi A4', modelo: 'B8 2.0 TDI', matricula: '5678 MNO', principal: false },
-    { nombre: 'Volkswagen Golf 7', modelo: '2.0 TDI', matricula: '9101 PQR', principal: false },
-  ];
-
-  const FACTURAS = [
-    { num: 'FAC-2024-0587', fecha: '24/05/2024', total: 350, estado: 'ok' },
-    { num: 'FAC-2024-0574', fecha: '20/05/2024', total: 180, estado: 'ok' },
-    { num: 'FAC-2024-0561', fecha: '15/05/2024', total: 420, estado: 'ok' },
-    { num: 'FAC-2024-0549', fecha: '10/05/2024', total: 299, estado: 'ok' },
-  ];
-
-  const TICKETS = [
-    { num: '#TKT-2024-0897', asunto: 'Consulta sobre clonación ECU', fecha: '24/05/2024', estado: 'info' },
-    { num: '#TKT-2024-0891', asunto: 'Estado de reparación BSI', fecha: '20/05/2024', estado: 'warn' },
-    { num: '#TKT-2024-0883', asunto: 'Duda sobre programación', fecha: '15/05/2024', estado: 'muted' },
-  ];
-
-  const FAVORITOS_IDS = ['clonacion-ecu-general', 'recuperacion-bosch-edc17cp54', 'llaves-copia-programacion', 'airbag-srs-reparacion'];
-
   const ESTADO_LABEL = {
-    recibido: ['Pedido recibido', 'muted'], pendiente: ['Módulo pendiente', 'muted'], modulo_recibido: ['Módulo recibido', 'info'],
-    diagnostico: ['Diagnóstico', 'info'], proceso: ['En reparación', 'warn'], programacion: ['Programación', 'warn'],
-    pruebas: ['Pruebas', 'warn'], listo: ['Listo', 'ok'], enviado: ['Enviado', 'info'], entregado: ['Entregado', 'ok'],
-    ok: ['Activo', 'ok'], warn: ['En proceso', 'warn'], info: ['Abierto', 'info'], muted: ['Cerrado', 'muted'],
+    pendiente: ['Pendiente de revisión', 'warn'],
+    contactado: ['Te hemos contactado', 'info'],
+    convertido: ['En marcha', 'ok'],
+    cancelado: ['Cancelado', 'muted'],
   };
 
   function pill(estadoKey) {
@@ -95,55 +50,45 @@
   }
 
   let activeTab = 'resumen';
+  let CURRENT_USER = null;
+  let PERFIL = null;
+  let PEDIDOS = [];
 
   function renderNav() {
     document.getElementById('account-nav').innerHTML =
       '<div class="an-title">PANEL CLIENTE</div>' +
-      NAV_ITEMS.map((n) => '<button data-tab="' + n.id + '" class="' + (activeTab === n.id ? 'active' : '') + '">' + akIcon(n.icon) + n.label + '</button>').join('');
+      NAV_ITEMS.map((n) => '<button data-tab="' + n.id + '" class="' + (activeTab === n.id ? 'active' : '') + '">' + akIcon(n.icon) + n.label + '</button>').join('') +
+      '<div class="an-sep"></div>' +
+      '<button data-action="logout">' + akIcon('close') + 'Cerrar sesión</button>';
   }
 
   function renderResumen() {
+    const totalGastado = PEDIDOS.filter((p) => p.estado !== 'cancelado').reduce((s, p) => s + Number(p.total), 0);
+    const clienteDesde = CURRENT_USER.created_at ? new Date(CURRENT_USER.created_at).toLocaleDateString('es-ES') : '—';
+    const nombre = (PERFIL && PERFIL.nombre) || CURRENT_USER.email;
+
     return '' +
     '<div class="acc-welcome">' +
-      '<div><h1>Bienvenido, Carlos</h1><p>Aquí tienes un resumen de tu actividad y servicios.</p></div>' +
+      '<div><h1>Hola, ' + nombre + '</h1><p>Aquí tienes un resumen de tu actividad.</p></div>' +
       '<div class="acc-meta">' +
-        '<div style="font-size:11px;color:var(--muted)">Cliente desde<br><b style="color:#fff;font-size:13px">15/03/2022</b></div>' +
-        '<div class="acc-badge-premium">' + akIcon('award') + '<span><b>CLIENTE PREMIUM</b><span>Nivel 2</span></span></div>' +
+        '<div style="font-size:11px;color:var(--muted)">Cliente desde<br><b style="color:#fff;font-size:13px">' + clienteDesde + '</b></div>' +
       '</div>' +
     '</div>' +
     '<div class="stat-grid">' +
       statCard('box', 'Pedidos realizados', PEDIDOS.length + '', 'pedidos', 'Ver todos') +
-      statCard('programmer', 'Servicios activos', SERVICIOS_ACTIVOS.length + '', 'servicios', 'Ver servicios') +
-      statCard('car', 'Vehículos guardados', VEHICULOS.length + '', 'vehiculos', 'Ver vehículos') +
-      statCard('file', 'Facturas disponibles', FACTURAS.length + '', 'facturas', 'Ver facturas') +
-      statCard('ticket', 'Tickets abiertos', TICKETS.filter((t) => t.estado !== 'muted').length + '', 'tickets', 'Ver tickets') +
+      statCard('file', 'Total solicitado', akFormatPrice(totalGastado), 'pedidos', 'Ver detalle') +
+      statCard('user', 'Mi perfil', PERFIL && PERFIL.telefono ? 'Completo' : 'Incompleto', 'perfil', 'Editar') +
     '</div>' +
-    '<div class="dash-grid">' +
+    '<div class="dash-grid" style="grid-template-columns:1fr">' +
       '<div class="dash-panel"><h3>Pedidos recientes<a href="#" data-tab="pedidos">Ver todos</a></h3>' +
-        PEDIDOS.slice(0, 4).map((p) => '<div class="dp-row"><span class="ph-box">' + akIcon(p.icon) + '</span><div class="dp-body"><b>' + p.servicio + '</b><span>' + p.desc + ' · ' + p.fecha + '</span></div>' + pill(p.estado) + '</div>').join('') +
-      '</div>' +
-      '<div class="dash-panel"><h3>Servicios activos<a href="#" data-tab="servicios">Ver todos</a></h3>' +
-        SERVICIOS_ACTIVOS.slice(0, 4).map((s) => '<div class="dp-row"><span class="ph-box">' + akIcon(s.icon) + '</span><div class="dp-body"><b>' + s.nombre + '</b><span>' + s.detalle + ' · Desde ' + s.desde + '</span></div>' + pill(s.estado) + '</div>').join('') +
-      '</div>' +
-      '<div class="dash-panel"><h3>Mis vehículos<a href="#" data-tab="vehiculos">Ver todos</a></h3>' +
-        VEHICULOS.slice(0, 3).map((v) => '<div class="dp-row"><span class="ph-box">' + akIcon('car') + '</span><div class="dp-body"><b>' + v.nombre + '</b><span>' + v.modelo + ' · ' + v.matricula + '</span></div></div>').join('') +
-      '</div>' +
-      '<div class="dash-panel"><h3>Facturas recientes<a href="#" data-tab="facturas">Ver todas</a></h3>' +
-        FACTURAS.slice(0, 3).map((f) => '<div class="dp-row"><span class="ph-box">' + akIcon('file') + '</span><div class="dp-body"><b>Factura #' + f.num + '</b><span>' + f.fecha + ' · ' + akFormatPrice(f.total) + '</span></div>' + pill('ok') + '</div>').join('') +
-      '</div>' +
-      '<div class="dash-panel"><h3>Tickets de soporte<a href="#" data-tab="tickets">Ver todos</a></h3>' +
-        TICKETS.map((t) => '<div class="dp-row"><span class="ph-box">' + akIcon('ticket') + '</span><div class="dp-body"><b>' + t.num + '</b><span>' + t.asunto + ' · ' + t.fecha + '</span></div>' + pill(t.estado) + '</div>').join('') +
-      '</div>' +
-      '<div class="dash-panel"><h3>Servicios favoritos<a href="#" data-tab="favoritos">Ver catálogo</a></h3>' +
-        FAVORITOS_IDS.slice(0, 3).map((id) => { const p = akFindProduct(id); return '<div class="dp-row"><span class="ph-box">' + akIcon(p.icon) + '</span><div class="dp-body"><b>' + p.name + '</b><span>Desde ' + akFormatPrice(p.priceFrom) + '</span></div></div>'; }).join('') +
+        (PEDIDOS.length
+          ? PEDIDOS.slice(0, 5).map((p) => '<div class="dp-row"><span class="ph-box">' + akIcon('box') + '</span><div class="dp-body"><b>#' + p.numero + '</b><span>' + new Date(p.created_at).toLocaleDateString('es-ES') + ' · ' + akFormatPrice(p.total) + '</span></div>' + pill(p.estado) + '</div>').join('')
+          : '<p style="color:var(--muted);font-size:13px;margin:0">Todavía no has realizado ningún pedido.</p>') +
       '</div>' +
     '</div>' +
-    '<div class="quick-actions">' +
+    '<div class="quick-actions" style="grid-template-columns:repeat(2,1fr)">' +
       '<a href="tienda.html">' + akIcon('cart') + '<span>Nuevo pedido<br><span class="sub">Realizar compra</span></span></a>' +
       '<a href="tienda.html?cat=reparacion-envio">' + akIcon('truck') + '<span>Solicitar servicio<br><span class="sub">Enviar centralita</span></span></a>' +
-      '<button type="button" data-action="mock">' + akIcon('ticket') + '<span>Nuevo ticket<br><span class="sub">Contactar soporte</span></span></button>' +
-      '<button type="button" data-action="mock">' + akIcon('car') + '<span>Añadir vehículo<br><span class="sub">Guardar vehículo</span></span></button>' +
-      '<button type="button" data-action="mock">' + akIcon('file') + '<span>Descargar presupuestos<br><span class="sub">Ver presupuestos</span></span></button>' +
     '</div>';
   }
 
@@ -152,90 +97,115 @@
   }
 
   function renderPedidos() {
-    return panelHeader('Mis pedidos', 'Historial completo de pedidos y su estado actual.') +
-      '<div class="cart-panel"><table class="data-table"><thead><tr><th>Pedido</th><th>Servicio</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>' +
-      PEDIDOS.map((p) => '<tr><td>#' + p.id + '</td><td>' + p.servicio + '</td><td>' + p.fecha + '</td><td>' + akFormatPrice(p.total) + '</td><td>' + pill(p.estado) + '</td><td><a class="link-red" href="seguimiento.html?id=' + p.id + '">Seguimiento' + akIcon('arrowRight') + '</a></td></tr>').join('') +
-      '</tbody></table></div>';
-  }
-
-  function renderServicios() {
-    return panelHeader('Mis servicios', 'Servicios actualmente en curso o recientemente finalizados.') +
-      '<div class="dash-grid" style="grid-template-columns:1fr 1fr">' +
-      SERVICIOS_ACTIVOS.map((s) => '<div class="dash-panel"><div class="dp-row" style="border-top:0"><span class="ph-box">' + akIcon(s.icon) + '</span><div class="dp-body"><b>' + s.nombre + '</b><span>' + s.detalle + ' · Desde ' + s.desde + '</span></div>' + pill(s.estado) + '</div></div>').join('') +
-      '</div>';
-  }
-
-  function renderVehiculos() {
-    return panelHeader('Mis vehículos', 'Vehículos guardados para agilizar tus próximos pedidos.') +
-      '<div class="dash-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">' +
-      VEHICULOS.map((v) => '<div class="vehicle-card"><div class="vc-top"><span class="ph-box">' + akIcon('car') + '</span><span><b>' + v.nombre + '</b><span>' + v.modelo + '</span></span></div><div class="vc-plate"><span class="tagp">' + v.matricula + '</span>' + (v.principal ? '<span>Principal</span>' : '') + '</div></div>').join('') +
-      '</div><button class="btn btn-secondary" data-action="mock">' + akIcon('plus') + 'Añadir vehículo</button>';
-  }
-
-  function renderFacturas() {
-    return panelHeader('Facturas', 'Descarga tus facturas emitidas para cada pedido.') +
-      '<div class="cart-panel"><table class="data-table"><thead><tr><th>Factura</th><th>Fecha</th><th>Importe</th><th>Estado</th><th></th></tr></thead><tbody>' +
-      FACTURAS.map((f) => '<tr><td>#' + f.num + '</td><td>' + f.fecha + '</td><td>' + akFormatPrice(f.total) + '</td><td>' + pill('ok') + '</td><td><button class="link-red" style="background:none;border:0" data-action="mock">' + akIcon('file') + 'Descargar</button></td></tr>').join('') +
-      '</tbody></table></div>';
-  }
-
-  function renderTickets() {
-    return panelHeader('Tickets de soporte', 'Consulta el estado de tus incidencias o abre una nueva.') +
-      '<div class="cart-panel" style="margin-bottom:16px">' +
-      TICKETS.map((t) => '<div class="dp-row"><span class="ph-box">' + akIcon('ticket') + '</span><div class="dp-body"><b>' + t.num + ' — ' + t.asunto + '</b><span>' + t.fecha + '</span></div>' + pill(t.estado) + '</div>').join('') +
-      '</div><button class="btn btn-primary" data-action="mock">' + akIcon('plus') + 'Nuevo ticket</button>';
-  }
-
-  function renderFavoritos() {
-    return panelHeader('Favoritos', 'Servicios que has guardado para pedirlos más rápido.') +
-      '<div class="product-grid cols-4">' +
-      FAVORITOS_IDS.map((id) => { const p = akFindProduct(id); return '' +
-        '<article class="product-card"><div class="product-media hex-overlay"><span class="ph">' + akIcon(p.icon) + '</span></div>' +
-        '<div class="product-body"><div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div><h3>' + p.name + '</h3>' +
-        '<div class="product-price-row"><div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
-        '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">Pedir</a></div></div></article>'; }).join('') +
-      '</div>';
-  }
-
-  function renderDirecciones() {
-    return panelHeader('Direcciones', 'Direcciones de envío y facturación guardadas.') +
-      '<div class="dash-grid" style="grid-template-columns:1fr 1fr">' +
-      '<div class="dash-panel"><h3>Dirección principal<span class="status-pill ok">Predeterminada</span></h3>' +
-      '<p style="color:var(--muted2);font-size:13px;line-height:1.7;margin:0">Carlos Martínez<br>Calle Innovación, 12<br>28001 Madrid, España<br>+34 600 123 456</p></div>' +
-      '</div><button class="btn btn-secondary" style="margin-top:16px" data-action="mock">' + akIcon('plus') + 'Añadir dirección</button>';
+    if (!PEDIDOS.length) {
+      return panelHeader('Mis pedidos', 'Aquí verás el historial de tus solicitudes.') +
+        '<div class="empty-state">' + akIcon('box') + '<h3>Todavía no tienes pedidos</h3><p>Cuando hagas una solicitud en la tienda, aparecerá aquí.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="tienda.html">Ir a la tienda</a></div>';
+    }
+    return panelHeader('Mis pedidos', 'Historial de tus solicitudes y su estado actual.') +
+      '<div class="cart-panel"><table class="data-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>' +
+      PEDIDOS.map((p) => '<tr><td>#' + p.numero + '</td><td>' + new Date(p.created_at).toLocaleDateString('es-ES') + '</td><td>' + akFormatPrice(p.total) + '</td><td>' + pill(p.estado) + '</td><td><span style="color:var(--muted);font-size:11.5px">' + (p.lineas || 0) + ' producto' + (p.lineas === 1 ? '' : 's') + '</span></td></tr>').join('') +
+      '</tbody></table></div>' +
+      '<div class="notice" style="margin-top:16px">' + akIcon('headset') + 'Nuestro equipo revisa cada pedido y te contacta para confirmar el pago y los detalles.</div>';
   }
 
   function renderPerfil() {
-    return panelHeader('Perfil y seguridad', 'Datos de tu cuenta.') +
-      '<div class="cart-panel" style="max-width:520px">' +
+    const p = PERFIL || {};
+    return panelHeader('Perfil', 'Estos datos se usan para agilizar tus próximos pedidos.') +
+      '<div class="cart-panel" style="max-width:560px">' +
       '<div class="field-row">' +
-        '<div class="field"><label>Nombre</label><input type="text" value="Carlos"></div>' +
-        '<div class="field"><label>Apellidos</label><input type="text" value="Martínez"></div>' +
-        '<div class="field full"><label>Email</label><input type="email" value="carlos@email.com"></div>' +
-        '<div class="field full"><label>Teléfono</label><input type="tel" value="+34 600 123 456"></div>' +
+        '<div class="field"><label>Nombre</label><input type="text" id="p-nombre" value="' + esc(p.nombre) + '"></div>' +
+        '<div class="field"><label>Apellidos</label><input type="text" id="p-apellidos" value="' + esc(p.apellidos) + '"></div>' +
+        '<div class="field full"><label>Email</label><input type="email" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
+        '<div class="field full"><label>Teléfono</label><input type="tel" id="p-telefono" value="' + esc(p.telefono) + '"></div>' +
       '</div>' +
-      '<button class="btn btn-primary" style="margin-top:16px" data-action="mock">Guardar cambios</button>' +
+      '<h3 style="margin-top:18px;font-size:13px">DIRECCIÓN HABITUAL (opcional)</h3>' +
+      '<div class="field-row">' +
+        '<div class="field full"><label>Dirección</label><input type="text" id="p-direccion" value="' + esc(p.direccion) + '"></div>' +
+        '<div class="field"><label>Código postal</label><input type="text" id="p-cp" value="' + esc(p.codigo_postal) + '"></div>' +
+        '<div class="field"><label>Ciudad</label><input type="text" id="p-ciudad" value="' + esc(p.ciudad) + '"></div>' +
+        '<div class="field"><label>Provincia</label><input type="text" id="p-provincia" value="' + esc(p.provincia) + '"></div>' +
+        '<div class="field"><label>NIF / CIF</label><input type="text" id="p-nif" value="' + esc(p.nif_cif) + '"></div>' +
+      '</div>' +
+      '<button class="btn btn-primary" style="margin-top:16px" id="save-profile-btn">Guardar cambios</button>' +
       '</div>';
+  }
+
+  function esc(v) {
+    return v ? String(v).replace(/"/g, '&quot;') : '';
   }
 
   function panelHeader(title, desc) {
     return '<div style="margin-bottom:20px"><h1 style="font-size:22px;margin:0 0 6px">' + title + '</h1><p style="color:var(--muted);font-size:13px;margin:0">' + desc + '</p></div>';
   }
 
-  const RENDERERS = {
-    resumen: renderResumen, pedidos: renderPedidos, servicios: renderServicios, vehiculos: renderVehiculos,
-    facturas: renderFacturas, tickets: renderTickets, favoritos: renderFavoritos, direcciones: renderDirecciones, perfil: renderPerfil,
-  };
+  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, perfil: renderPerfil };
 
   function render() {
     renderNav();
     document.getElementById('account-content').innerHTML = RENDERERS[activeTab]();
+    if (activeTab === 'perfil') {
+      document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+    }
+    akFillIcons();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  async function saveProfile() {
+    const btn = document.getElementById('save-profile-btn');
+    btn.disabled = true;
+    const updates = {
+      nombre: document.getElementById('p-nombre').value.trim(),
+      apellidos: document.getElementById('p-apellidos').value.trim(),
+      telefono: document.getElementById('p-telefono').value.trim(),
+      direccion: document.getElementById('p-direccion').value.trim(),
+      codigo_postal: document.getElementById('p-cp').value.trim(),
+      ciudad: document.getElementById('p-ciudad').value.trim(),
+      provincia: document.getElementById('p-provincia').value.trim(),
+      nif_cif: document.getElementById('p-nif').value.trim(),
+      updated_at: new Date().toISOString(),
+    };
+    const { error } = await akSupabase().from('tienda_clientes').update(updates).eq('id', CURRENT_USER.id);
+    btn.disabled = false;
+    if (error) {
+      akToast('No se pudieron guardar los cambios');
+      return;
+    }
+    PERFIL = Object.assign({}, PERFIL, updates);
+    akToast('Perfil actualizado');
+  }
+
+  async function loadData() {
+    const client = akSupabase();
+    const { data: perfilData } = await client.from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle();
+    PERFIL = perfilData;
+
+    const { data: pedidosData } = await client
+      .from('tienda_pedidos')
+      .select('*, tienda_pedido_lineas(id)')
+      .eq('usuario_id', CURRENT_USER.id)
+      .order('created_at', { ascending: false });
+    PEDIDOS = (pedidosData || []).map((p) => Object.assign({}, p, { lineas: (p.tienda_pedido_lineas || []).length }));
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    let user = null;
+    try {
+      const { data } = await akSupabase().auth.getUser();
+      user = data.user;
+    } catch (e) { /* supabase not reachable */ }
+
+    if (!user) {
+      window.location.href = 'login.html?redirect=cuenta.html';
+      return;
+    }
+    CURRENT_USER = user;
+    await loadData();
+
+    document.getElementById('account-layout').style.display = '';
     const hashTab = (window.location.hash || '').replace('#', '');
     if (RENDERERS[hashTab]) activeTab = hashTab;
     render();
+
     document.body.addEventListener('click', (e) => {
       const tabBtn = e.target.closest('[data-tab]');
       if (tabBtn) {
@@ -243,10 +213,6 @@
         activeTab = tabBtn.dataset.tab;
         render();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-      if (e.target.closest('[data-action="mock"]')) {
-        akToast('Esta acción estará disponible cuando conectemos el backend del panel de cliente');
       }
     });
   });

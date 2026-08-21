@@ -44,7 +44,6 @@
       <a class="help-item" href="https://wa.me/34632982646" target="_blank" rel="noopener"><span data-icon="whatsapp"></span><span><b>WhatsApp</b><span>+34 632 98 26 46</span></span></a>
     </div>
     <div class="auth-fineprint"><span data-icon="shield"></span><span>Compras seguras y confiables. Utilizamos cifrado SSL y cumplimos con las normativas de privacidad.</span></div>
-    <p style="text-align:center;margin-top:16px"><a class="link-red" href="cuenta.html" style="justify-content:center">Ver panel de cliente (demo)<span data-icon="arrowRight"></span></a></p>
   </div>
 </div>
 
@@ -53,17 +52,19 @@
 <script src="assets/js/catalog.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
 <script>
   const loginTab = '' +
     '<h2>Bienvenido de nuevo</h2><p class="sub">Accede a tu cuenta para continuar</p>' +
     '<div class="auth-field"><label>CORREO ELECTRÓNICO</label>' +
-      '<div class="auth-input">' + akIcon('mail') + '<input type="email" placeholder="tu@email.com"></div></div>' +
+      '<div class="auth-input">' + akIcon('mail') + '<input type="email" id="login-email" placeholder="tu@email.com"></div></div>' +
     '<div class="auth-field"><label>CONTRASEÑA</label>' +
       '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="login-pass" placeholder="••••••••••">' +
       '<button type="button" data-toggle-pass="login-pass">' + akIcon('eye') + '</button></div></div>' +
     '<div class="auth-row-between">' +
-      '<label><input type="checkbox" checked style="accent-color:var(--red)">Recordarme</label>' +
-      '<a class="link-red" href="#">¿Olvidaste tu contraseña?</a>' +
+      '<span></span>' +
+      '<a class="link-red" href="#" data-action="forgot">¿Olvidaste tu contraseña?</a>' +
     '</div>' +
     '<button class="btn btn-primary btn-block" data-action="login">Iniciar sesión' + akIcon('arrowRight') + '</button>' +
     '<div class="auth-divider">O continúa con</div>' +
@@ -75,14 +76,14 @@
   const registerTab = '' +
     '<h2>Crea tu cuenta</h2><p class="sub">Regístrate para gestionar tus pedidos y servicios</p>' +
     '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
-      '<div class="auth-field"><label>NOMBRE</label><div class="auth-input">' + akIcon('user') + '<input type="text" placeholder="Nombre"></div></div>' +
-      '<div class="auth-field"><label>APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" placeholder="Apellidos"></div></div>' +
+      '<div class="auth-field"><label>NOMBRE</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-nombre" placeholder="Nombre"></div></div>' +
+      '<div class="auth-field"><label>APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-apellidos" placeholder="Apellidos"></div></div>' +
     '</div>' +
-    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" placeholder="tu@email.com"></div></div>' +
+    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="reg-email" placeholder="tu@email.com"></div></div>' +
     '<div class="auth-field"><label>CONTRASEÑA</label>' +
       '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres">' +
       '<button type="button" data-toggle-pass="reg-pass">' + akIcon('eye') + '</button></div></div>' +
-    '<div class="auth-row-between"><label><input type="checkbox" style="accent-color:var(--red)">Acepto los términos y condiciones y la política de privacidad</label></div>' +
+    '<div class="auth-row-between"><label><input type="checkbox" id="reg-terms" style="accent-color:var(--red)">Acepto los términos y condiciones y la política de privacidad</label></div>' +
     '<button class="btn btn-primary btn-block" data-action="register">Crear cuenta' + akIcon('arrowRight') + '</button>' +
     '<div class="auth-divider">O continúa con</div>' +
     '<div class="oauth-row">' +
@@ -103,19 +104,86 @@
       input.type = isPass ? 'text' : 'password';
       btn.innerHTML = akIcon(isPass ? 'eyeOff' : 'eye');
     }));
-    document.querySelectorAll('[data-action="login"],[data-action="register"]').forEach((btn) => btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      akToast('Las cuentas de cliente se activarán cuando conectemos el backend de autenticación');
-    }));
+    const loginBtn = document.querySelector('[data-action="login"]');
+    if (loginBtn) loginBtn.addEventListener('click', handleLogin);
+    const registerBtn = document.querySelector('[data-action="register"]');
+    if (registerBtn) registerBtn.addEventListener('click', handleRegister);
+    const forgotLink = document.querySelector('[data-action="forgot"]');
+    if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); handleForgotPassword(); });
     document.querySelectorAll('[data-action="oauth"]').forEach((btn) => btn.addEventListener('click', () => {
       akToast('El acceso con Google / Microsoft se activará en la siguiente fase');
     }));
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function redirectTarget() {
+    return akQueryParam('redirect') || 'cuenta.html';
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if (!email || !pass) { akToast('Introduce tu email y contraseña'); return; }
+    const btn = document.querySelector('[data-action="login"]');
+    btn.disabled = true;
+    const { error } = await akSupabase().auth.signInWithPassword({ email, password: pass });
+    btn.disabled = false;
+    if (error) {
+      akToast(/invalid/i.test(error.message) ? 'Email o contraseña incorrectos' : 'No se pudo iniciar sesión: ' + error.message);
+      return;
+    }
+    window.location.href = redirectTarget();
+  }
+
+  async function handleRegister() {
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const apellidos = document.getElementById('reg-apellidos').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    const terms = document.getElementById('reg-terms').checked;
+    if (!nombre || !apellidos || !email || !pass) { akToast('Rellena todos los campos'); return; }
+    if (pass.length < 8) { akToast('La contraseña debe tener al menos 8 caracteres'); return; }
+    if (!terms) { akToast('Debes aceptar los términos y la política de privacidad'); return; }
+
+    const btn = document.querySelector('[data-action="register"]');
+    btn.disabled = true;
+    const { data, error } = await akSupabase().auth.signUp({
+      email, password: pass,
+      options: { data: { nombre } },
+    });
+    btn.disabled = false;
+    if (error) {
+      akToast(/already/i.test(error.message) ? 'Ese email ya tiene una cuenta. Inicia sesión.' : 'No se pudo crear la cuenta: ' + error.message);
+      return;
+    }
+    if (data.user) {
+      await akSupabase().from('tienda_clientes').update({ apellidos }).eq('id', data.user.id);
+    }
+    if (data.session) {
+      akToast('Cuenta creada. ¡Bienvenido!');
+      window.location.href = redirectTarget();
+    } else {
+      akToast('Cuenta creada. Revisa tu email para confirmarla antes de iniciar sesión.');
+      setTab('login');
+    }
+  }
+
+  async function handleForgotPassword() {
+    const emailInput = document.getElementById('login-email');
+    const email = emailInput ? emailInput.value.trim() : '';
+    if (!email) { akToast('Escribe tu email arriba y vuelve a pulsar el enlace'); return; }
+    const { error } = await akSupabase().auth.resetPasswordForEmail(email);
+    akToast(error ? 'No se pudo enviar el correo de recuperación' : 'Te hemos enviado un enlace para restablecer tu contraseña');
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
     setTab('login');
     akFillIcons();
     document.querySelectorAll('.auth-tabs button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+    try {
+      const { data: { user } } = await akSupabase().auth.getUser();
+      if (user) window.location.href = redirectTarget();
+    } catch (e) { /* not logged in */ }
   });
 </script>
 </body>

@@ -135,7 +135,8 @@ function akHeaderHTML(active) {
     '</form>' +
     '<div class="head-actions">' +
       '<a class="search-icon-btn" href="tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
-      '<a class="head-action" href="login.html">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
+      '<a class="head-action" href="login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
+      '<button class="head-action" id="logout-link" data-action="logout" style="display:none;border:0;background:transparent">' + akIcon('close') + '<span>Salir</span></button>' +
       '<a class="head-action" href="carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
       '<button class="burger" type="button" data-nav-toggle aria-label="Menú">' + akIcon('plus') + '</button>' +
     '</div>' +
@@ -211,6 +212,35 @@ function akToast(message) {
   el._t = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
+/* ---------------- Auth-aware header ---------------- */
+
+async function akUpdateAuthUI() {
+  if (!window.supabase) return;
+  try {
+    const { data: { user } } = await akSupabase().auth.getUser();
+    const link = document.getElementById('account-link');
+    const logout = document.getElementById('logout-link');
+    if (!link) return;
+    if (user) {
+      link.setAttribute('href', 'cuenta.html');
+      const span = link.querySelector('span');
+      if (span) span.textContent = 'Mi cuenta';
+      if (logout) logout.style.display = 'flex';
+    } else {
+      link.setAttribute('href', 'login.html');
+      if (logout) logout.style.display = 'none';
+    }
+  } catch (e) {
+    /* not logged in or auth not reachable — header stays in the guest state */
+  }
+}
+
+async function akLogout() {
+  if (!window.supabase) return;
+  await akSupabase().auth.signOut();
+  window.location.href = 'index.html';
+}
+
 /* ---------------- Boot ---------------- */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -221,12 +251,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   akCartRenderBadge();
   akFillIcons();
+  akUpdateAuthUI();
 
   document.addEventListener('click', (e) => {
     const toggle = e.target.closest('[data-nav-toggle]');
     if (toggle) {
       const open = document.querySelector('.main-nav').classList.toggle('mobile-open');
       toggle.innerHTML = akIcon(open ? 'close' : 'plus');
+      return;
+    }
+    if (e.target.closest('[data-action="logout"]')) {
+      akLogout();
       return;
     }
     const mock = e.target.closest('[data-action="mock"]');
