@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi cuenta — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Inicia sesión o crea tu cuenta en Autokeys Remaps Pro Store para gestionar tus pedidos y servicios.">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header id="site-header" data-active="login"></header>
+
+<div class="auth-layout">
+  <div class="auth-media">
+    <h1>Tu acceso a<br>soluciones profesionales<br>en <em>electrónica automotriz</em></h1>
+    <p class="lead">Inicia sesión o crea tu cuenta para acceder a servicios exclusivos, seguimiento de pedidos y soporte técnico especializado.</p>
+    <ul class="auth-benefits">
+      <li><span data-icon="shield"></span><span><b>Acceso seguro</b><span>Protegemos tus datos con los más altos estándares.</span></span></li>
+      <li><span data-icon="truck"></span><span><b>Seguimiento de pedidos</b><span>Consulta el estado de tus envíos en tiempo real.</span></span></li>
+      <li><span data-icon="headset"></span><span><b>Soporte experto</b><span>Asistencia técnica 7 días a la semana.</span></span></li>
+      <li><span data-icon="award"></span><span><b>Clientes profesionales</b><span>Soluciones diseñadas para talleres y especialistas.</span></span></li>
+    </ul>
+    <div class="hero-media" style="min-height:200px"><div class="ph" data-icon="ecu"></div></div>
+    <div class="auth-strip">
+      <div><span data-icon="truck"></span><span><b>Envíos rápidos</b><br><span style="color:var(--muted)">24/48h en España y UE</span></span></div>
+      <div><span data-icon="lock"></span><span><b>Pagos seguros</b><br><span style="color:var(--muted)">100% protegidos</span></span></div>
+      <div><span data-icon="checkCircle"></span><span><b>Devolución fácil</b><br><span style="color:var(--muted)">Hasta 14 días</span></span></div>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-tabs">
+      <button type="button" class="active" data-tab="login">INICIAR SESIÓN</button>
+      <button type="button" data-tab="register">CREAR CUENTA</button>
+    </div>
+    <div id="tab-content"></div>
+    <div class="help-row">
+      <div class="help-item"><span data-icon="mail"></span><span><b>Escríbenos</b><span>info@autokeys.es</span></span></div>
+      <div class="help-item"><span data-icon="phone"></span><span><b>Llámanos</b><span>+34 624 84 52 36</span></span></div>
+      <div class="help-item"><span data-icon="whatsapp"></span><span><b>WhatsApp</b><span>+34 624 84 52 36</span></span></div>
+    </div>
+    <div class="auth-fineprint"><span data-icon="shield"></span><span>Compras seguras y confiables. Utilizamos cifrado SSL y cumplimos con las normativas de privacidad.</span></div>
+  </div>
+</div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const loginTab = '' +
+    '<h2>Bienvenido de nuevo</h2><p class="sub">Accede a tu cuenta para continuar</p>' +
+    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label>' +
+      '<div class="auth-input">' + akIcon('mail') + '<input type="email" placeholder="tu@email.com"></div></div>' +
+    '<div class="auth-field"><label>CONTRASEÑA</label>' +
+      '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="login-pass" placeholder="••••••••••">' +
+      '<button type="button" data-toggle-pass="login-pass">' + akIcon('eye') + '</button></div></div>' +
+    '<div class="auth-row-between">' +
+      '<label><input type="checkbox" checked style="accent-color:var(--red)">Recordarme</label>' +
+      '<a class="link-red" href="#">¿Olvidaste tu contraseña?</a>' +
+    '</div>' +
+    '<button class="btn btn-primary btn-block" data-action="login">Iniciar sesión' + akIcon('arrowRight') + '</button>' +
+    '<div class="auth-divider">O continúa con</div>' +
+    '<div class="oauth-row">' +
+      '<button class="oauth-btn" data-action="oauth">' + akIcon('google') + 'Continuar con Google</button>' +
+      '<button class="oauth-btn" data-action="oauth">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
+    '</div>';
+
+  const registerTab = '' +
+    '<h2>Crea tu cuenta</h2><p class="sub">Regístrate para gestionar tus pedidos y servicios</p>' +
+    '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
+      '<div class="auth-field"><label>NOMBRE</label><div class="auth-input">' + akIcon('user') + '<input type="text" placeholder="Nombre"></div></div>' +
+      '<div class="auth-field"><label>APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" placeholder="Apellidos"></div></div>' +
+    '</div>' +
+    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" placeholder="tu@email.com"></div></div>' +
+    '<div class="auth-field"><label>CONTRASEÑA</label>' +
+      '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres">' +
+      '<button type="button" data-toggle-pass="reg-pass">' + akIcon('eye') + '</button></div></div>' +
+    '<div class="auth-row-between"><label><input type="checkbox" style="accent-color:var(--red)">Acepto los términos y condiciones y la política de privacidad</label></div>' +
+    '<button class="btn btn-primary btn-block" data-action="register">Crear cuenta' + akIcon('arrowRight') + '</button>' +
+    '<div class="auth-divider">O continúa con</div>' +
+    '<div class="oauth-row">' +
+      '<button class="oauth-btn" data-action="oauth">' + akIcon('google') + 'Continuar con Google</button>' +
+      '<button class="oauth-btn" data-action="oauth">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
+    '</div>';
+
+  function setTab(tab) {
+    document.getElementById('tab-content').innerHTML = tab === 'login' ? loginTab : registerTab;
+    document.querySelectorAll('.auth-tabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+    wireTabEvents();
+  }
+
+  function wireTabEvents() {
+    document.querySelectorAll('[data-toggle-pass]').forEach((btn) => btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.togglePass);
+      const isPass = input.type === 'password';
+      input.type = isPass ? 'text' : 'password';
+      btn.innerHTML = akIcon(isPass ? 'eyeOff' : 'eye');
+    }));
+    document.querySelectorAll('[data-action="login"],[data-action="register"]').forEach((btn) => btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      akToast('Las cuentas de cliente se activarán cuando conectemos el backend de autenticación');
+    }));
+    document.querySelectorAll('[data-action="oauth"]').forEach((btn) => btn.addEventListener('click', () => {
+      akToast('El acceso con Google / Microsoft se activará en la siguiente fase');
+    }));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTab('login');
+    akFillIcons();
+    document.querySelectorAll('.auth-tabs button').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  });
+</script>
+</body>
+</html>

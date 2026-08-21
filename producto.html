@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title id="page-title">Servicio — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Ficha de servicio Autokeys Remaps Pro Store.">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header id="site-header" data-active="servicios"></header>
+
+<nav class="breadcrumb" id="breadcrumb"></nav>
+
+<div id="detail-root"></div>
+<div class="feature-strip" id="trust-strip"></div>
+<div class="info-grid cols-6" id="info-root" style="padding-top:60px"></div>
+<div class="faq" id="faq-root"></div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const product = akFindProduct(akQueryParam('id')) || CATALOG[0];
+  let selectedVariant = product.variants[0];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.title = product.name + ' — Autokeys Remaps Pro Store';
+    const cat = akFindCategory(product.category);
+
+    document.getElementById('breadcrumb').innerHTML =
+      '<a href="index.html">Inicio</a><span data-icon="chevRight"></span>' +
+      '<a href="tienda.html?cat=' + product.category + '">' + (cat ? cat.label : 'Servicios') + '</a><span data-icon="chevRight"></span>' +
+      '<span class="current">' + product.name + '</span>';
+
+    renderDetail();
+    renderTrustStrip();
+    renderInfo();
+    renderFaq();
+    akFillIcons();
+  });
+
+  function renderDetail() {
+    document.getElementById('detail-root').innerHTML =
+    '<div class="detail">' +
+      '<div>' +
+        '<div class="detail-info">' +
+          (product.badge ? '<div class="eyebrow">' + product.badge + '</div>' : '') +
+          '<h1>' + product.name + '</h1>' +
+          '<p class="lead">' + (product.longDesc || product.shortDesc) + '</p>' +
+          '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
+        '</div>' +
+        '<div class="gallery" style="margin-top:20px">' +
+          '<div class="gallery-main">' +
+            '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
+            '<span class="ph">' + akIcon(product.icon) + '</span>' +
+            '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
+          '</div>' +
+          '<div class="thumbs">' +
+            '<div class="thumb active">' + akIcon(product.icon) + '</div>' +
+            '<div class="thumb">' + akIcon('module') + '</div>' +
+            '<div class="thumb">' + akIcon('programmer') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<aside class="buybox" id="buybox"></aside>' +
+    '</div>';
+    renderBuybox();
+
+    document.querySelectorAll('.thumb').forEach((t) => t.addEventListener('click', () => {
+      document.querySelectorAll('.thumb').forEach((x) => x.classList.remove('active'));
+      t.classList.add('active');
+    }));
+  }
+
+  function renderBuybox() {
+    const box = document.getElementById('buybox');
+    box.innerHTML =
+      '<div class="eyebrow">' + (product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
+      '<div class="price-big" id="price-big">' + akFormatPrice(selectedVariant.price) + '</div>' +
+      '<div class="price-note">IVA incluido</div>' +
+      '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
+      '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">1. SELECCIONA LA OPCIÓN</div>' +
+      '<div class="variant-list" id="variant-list">' +
+        product.variants.map((v, i) =>
+          '<label class="variant ' + (v.id === selectedVariant.id ? 'selected' : '') + '" data-variant="' + v.id + '">' +
+            '<input type="radio" name="variant" ' + (v.id === selectedVariant.id ? 'checked' : '') + '>' +
+            '<span class="vt"><b>' + v.name + '</b><span>' + v.desc + '</span></span>' +
+            '<span class="vp">' + akFormatPrice(v.price) + '</span>' +
+          '</label>'
+        ).join('') +
+      '</div>' +
+      '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
+      '<div class="field-row">' +
+        '<div class="field"><label>Referencia / Nº de pieza</label><input type="text" placeholder="Ej. 0 281 034 123"></div>' +
+        '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
+        '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
+      '</div>' +
+      '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px">' + akIcon('cart') + 'Añadir al carrito</button>' +
+      '<ul class="buybox-trust">' +
+        '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
+        '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
+        '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
+      '</ul>';
+
+    box.querySelectorAll('.variant').forEach((el) => el.addEventListener('click', () => {
+      selectedVariant = product.variants.find((v) => v.id === el.dataset.variant);
+      box.querySelectorAll('.variant').forEach((x) => x.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      document.getElementById('price-big').textContent = akFormatPrice(selectedVariant.price);
+    }));
+
+    document.getElementById('add-cart-btn').addEventListener('click', () => {
+      akCartAdd(product.id, selectedVariant.id, 1);
+      akToast(product.name + ' añadido al carrito');
+    });
+  }
+
+  function renderTrustStrip() {
+    const items = [
+      ['diag', 'Diagnóstico avanzado', 'Equipos de última generación'],
+      ['award', 'Reparación profesional', 'Componentes OEM y técnicos expertos'],
+      ['checkCircle', 'Pruebas en banco', 'Verificación completa antes del envío'],
+      ['truck', 'Envío asegurado', 'Embalaje seguro y seguimiento'],
+      ['shield', 'Satisfacción garantizada', 'Si no lo reparamos, no cobramos'],
+    ];
+    document.getElementById('trust-strip').innerHTML = items.map((i) =>
+      '<div>' + akIcon(i[0]) + '<div><b>' + i[1] + '</b><span>' + i[2] + '</span></div></div>'
+    ).join('');
+  }
+
+  function renderInfo() {
+    const miniSteps = GENERIC_PROCESS.map((s, i) =>
+      '<li>' + (i + 1) + '. ' + s.title + '</li>'
+    ).join('');
+    const cards = [
+      { title: '¿QUÉ SOLUCIONAMOS?', h: 'Recuperación técnica', list: product.whatWeFix },
+      { title: 'SÍNTOMAS HABITUALES', h: 'Casos frecuentes', list: product.symptoms },
+      { title: '¿QUÉ DEBES ENVIARNOS?', h: 'Material necesario', list: product.whatToSend },
+    ].filter((c) => c.list && c.list.length);
+    let html = cards.map((c) =>
+      '<div class="info-card"><div class="eyebrow">' + c.title + '</div><h3>' + c.h + '</h3><ul>' +
+        c.list.map((li) => '<li>' + li + '</li>').join('') + '</ul></div>'
+    ).join('');
+    html += '<div class="info-card"><div class="eyebrow">¿CÓMO FUNCIONA?</div><h3>Proceso</h3><ul class="mini-steps" style="line-height:2.1">' + miniSteps + '</ul></div>';
+    html += '<div class="info-card center"><div class="eyebrow">TIEMPO HABITUAL</div>' + akIcon('clock', 'ph') + '<h3 style="margin-top:12px">' + (product.turnaround || 'Consultar plazos') + '</h3><p style="color:var(--muted);font-size:11.5px">Tiempo estimado desde recepción.</p></div>';
+    html += '<div class="info-card center"><div class="eyebrow">GARANTÍA</div>' + akIcon('shield', 'ph') + '<h3 style="margin-top:12px">' + (product.warranty || 'Garantía incluida') + '</h3><p style="color:var(--muted);font-size:11.5px">En todos nuestros trabajos.</p></div>';
+    document.getElementById('info-root').innerHTML = html;
+    document.querySelectorAll('#info-root .info-card.center svg').forEach((s) => { s.style.width = '30px'; s.style.height = '30px'; s.style.color = 'var(--red)'; s.style.margin = '0 auto'; });
+  }
+
+  function renderFaq() {
+    const faqs = product.faqs && product.faqs.length ? product.faqs : GENERIC_FAQS;
+    const related = (product.related || []).map((id) => akFindProduct(id)).filter(Boolean);
+    document.getElementById('faq-root').innerHTML =
+      '<div><div class="eyebrow">FAQ</div><h2>Preguntas frecuentes</h2>' +
+        faqs.map((f) => '<details><summary>' + f.q + '</summary><p>' + f.a + '</p></details>').join('') +
+      '</div>' +
+      '<aside class="related"><div class="eyebrow">SERVICIOS RELACIONADOS</div><h3 style="margin:8px 0 4px">También puede interesarte</h3>' +
+        related.map((r) =>
+          '<a class="related-item" href="producto.html?id=' + r.id + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
+        ).join('') +
+      '</aside>';
+  }
+</script>
+</body>
+</html>

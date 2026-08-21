@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carrito y checkout — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Revisa tu pedido y completa el pago de forma segura en Autokeys Remaps Pro Store.">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header id="site-header" data-active="carrito"></header>
+
+<div class="checkout-steps">
+  <div class="cstep active"><b>1</b><span>CARRITO<small>Revisa tu pedido</small></span></div>
+  <div class="cstep"><b>2</b><span>DATOS<small>Información personal</small></span></div>
+  <div class="cstep"><b>3</b><span>PAGO<small>Método de pago</small></span></div>
+  <div class="cstep"><b>4</b><span>CONFIRMACIÓN<small>Pedido completado</small></span></div>
+</div>
+
+<div id="cart-root"></div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  let payMethod = 'tarjeta';
+
+  document.addEventListener('DOMContentLoaded', render);
+
+  function render() {
+    const lines = akCartLines();
+    if (lines.length === 0) {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('cart') +
+        '<h3>Tu carrito está vacío</h3><p>Añade algún servicio o producto desde la tienda para continuar.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="tienda.html">Ir a la tienda</a></div></div>';
+      return;
+    }
+
+    const subtotal = akCartSubtotal();
+    const ivaPortion = subtotal - subtotal / 1.21;
+    const total = subtotal;
+
+    document.getElementById('cart-root').innerHTML =
+    '<div class="cart-layout">' +
+      '<div>' +
+        '<div class="cart-panel">' +
+          '<h3>RESUMEN DEL PEDIDO <span class="count">' + lines.length + (lines.length === 1 ? ' producto' : ' productos') + '</span></h3>' +
+          '<div id="cart-items">' + lines.map(renderLine).join('') + '</div>' +
+          '<a class="link-red" href="tienda.html" style="margin-top:6px;display:inline-flex">' + akIcon('chevLeft') + 'Seguir comprando</a>' +
+          '<div class="coupon-row">' +
+            '<input type="text" id="coupon-input" placeholder="Introduce tu código de descuento">' +
+            '<button class="btn btn-secondary" id="coupon-btn">Aplicar cupón</button>' +
+          '</div>' +
+          '<div class="totals">' +
+            '<div class="row"><span>Subtotal</span><span>' + akFormatPrice(subtotal) + '</span></div>' +
+            '<div class="row"><span>Envío</span><span>Gratis</span></div>' +
+            '<div class="row"><span>IVA (21%, incluido)</span><span>' + akFormatPrice(ivaPortion) + '</span></div>' +
+            '<div class="row total"><span>Total</span><span>' + akFormatPrice(total) + '</span></div>' +
+          '</div>' +
+          '<div class="notice">' + akIcon('truck') + '¡Envío gratis! Tu pedido incluye envío gratuito a toda España peninsular.</div>' +
+          '<ul class="trust-row">' +
+            '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
+            '<li>' + akIcon('shield') + 'Garantía hasta 24 meses</li>' +
+            '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
+            '<li>' + akIcon('award') + 'Más de 10 años de experiencia</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="cart-panel">' +
+          '<h3>DATOS DEL CLIENTE</h3>' +
+          '<div class="field-row">' +
+            '<div class="field"><label>Nombre *</label><input type="text" placeholder="Tu nombre"></div>' +
+            '<div class="field"><label>Apellidos *</label><input type="text" placeholder="Tus apellidos"></div>' +
+            '<div class="field full"><label>Email *</label><input type="email" placeholder="tu@email.com"></div>' +
+            '<div class="field full"><label>Teléfono *</label><input type="tel" placeholder="+34 600 123 456"></div>' +
+          '</div>' +
+          '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
+          '<div class="field-row">' +
+            '<div class="field full"><label>Dirección *</label><input type="text" placeholder="Calle, número"></div>' +
+            '<div class="field"><label>Código postal *</label><input type="text" placeholder="28001"></div>' +
+            '<div class="field"><label>Ciudad *</label><input type="text" placeholder="Madrid"></div>' +
+            '<div class="field"><label>País *</label><select><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
+            '<div class="field"><label>Provincia *</label><input type="text" placeholder="Madrid"></div>' +
+          '</div>' +
+          '<h3 style="margin-top:22px">MÉTODO DE PAGO</h3>' +
+          '<div id="pay-methods">' +
+            payOption('tarjeta', 'Tarjeta de crédito / débito', 'Paga de forma segura con tu tarjeta.', 'VISA · Mastercard') +
+            payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
+            payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
+          '</div>' +
+          '<div class="notice">' + akIcon('lock') + 'El cobro se procesa mediante SumUp. La pasarela de pago se activará en la siguiente fase del proyecto.</div>' +
+          '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
+          '<div class="field-row">' +
+            '<div class="field"><label>NIF / CIF *</label><input type="text" placeholder="12345678Z"></div>' +
+            '<div class="field"><label>Razón social (opcional)</label><input type="text" placeholder="Autokeys Soluciones S.L."></div>' +
+          '</div>' +
+          '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá automáticamente tras la confirmación del pedido.</p>' +
+          '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
+            '<div><div style="font-size:11px;color:var(--muted)">TOTAL A PAGAR</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
+            '<button class="btn btn-primary" id="finish-btn">Finalizar pedido' + akIcon('arrowRight') + '</button>' +
+          '</div>' +
+          '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Transacción segura. Al finalizar aceptas nuestros términos y condiciones.</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    wireEvents();
+  }
+
+  function renderLine(l) {
+    return '<div class="cart-item">' +
+      '<span class="ph-box">' + akIcon(l.product.icon) + '</span>' +
+      '<div class="ci-body">' +
+        '<b>' + l.product.name + '</b>' +
+        '<p>' + l.variant.name + '</p>' +
+        '<div class="qty-row"><div class="qty-ctrl">' +
+          '<button data-qty="down" data-idx="' + l.index + '">' + akIcon('minus') + '</button>' +
+          '<span>' + l.qty + '</span>' +
+          '<button data-qty="up" data-idx="' + l.index + '">' + akIcon('plus') + '</button>' +
+        '</div></div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">' +
+        '<span class="ci-price">' + akFormatPrice(l.lineTotal) + '</span>' +
+        '<button class="ci-remove" data-remove="' + l.index + '">' + akIcon('close') + '</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function payOption(id, title, desc, tag) {
+    return '<label class="pay-option ' + (payMethod === id ? 'selected' : '') + '" data-pay="' + id + '">' +
+      '<input type="radio" name="pay" ' + (payMethod === id ? 'checked' : '') + '>' +
+      '<span class="po-t"><b>' + title + '</b><span>' + desc + '</span></span>' +
+      '<span class="po-icons"><span>' + tag + '</span></span>' +
+    '</label>';
+  }
+
+  function wireEvents() {
+    document.querySelectorAll('[data-qty]').forEach((btn) => btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.idx);
+      const lines = akCartLines();
+      const line = lines.find((l) => l.index === idx);
+      if (!line) return;
+      const nextQty = btn.dataset.qty === 'up' ? line.qty + 1 : line.qty - 1;
+      if (nextQty <= 0) akCartRemove(idx); else akCartSetQty(idx, nextQty);
+      render();
+    }));
+    document.querySelectorAll('[data-remove]').forEach((btn) => btn.addEventListener('click', () => {
+      akCartRemove(Number(btn.dataset.remove));
+      render();
+    }));
+    document.getElementById('coupon-btn').addEventListener('click', () => {
+      akToast('Los cupones de descuento estarán disponibles próximamente');
+    });
+    document.querySelectorAll('[data-pay]').forEach((el) => el.addEventListener('click', () => {
+      payMethod = el.dataset.pay;
+      document.querySelectorAll('[data-pay]').forEach((x) => x.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }));
+    document.getElementById('finish-btn').addEventListener('click', () => {
+      akToast('Checkout en modo demo: la pasarela de pago SumUp se conectará en la siguiente fase');
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catálogo — Autokeys Remaps Pro Store</title>
+<meta name="description" content="Catálogo profesional de servicios y productos de electrónica automotriz: recuperación ECU, clonación, inmovilizadores, módulos, software y programadores.">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header id="site-header" data-active="tienda"></header>
+
+<nav class="breadcrumb">
+  <a href="index.html">Inicio</a><span data-icon="chevRight"></span><span class="current">Catálogo de servicios y productos</span>
+</nav>
+
+<div class="section" style="padding-bottom:0">
+  <div class="eyebrow">TIENDA AUTOKEYS</div>
+  <h2>Catálogo de servicios y productos</h2>
+  <p class="section-desc">Soluciones profesionales en electrónica automotriz. Selecciona el servicio o producto que necesitas.</p>
+</div>
+
+<div class="store-layout">
+  <aside class="filters" id="filters"></aside>
+  <div>
+    <div class="store-toolbar">
+      <div id="result-count" style="color:var(--muted);font-size:13px"></div>
+      <select id="sort-select" class="filter-select" style="max-width:220px">
+        <option value="popularidad">Más vendidos</option>
+        <option value="precio-asc">Precio: menor a mayor</option>
+        <option value="precio-desc">Precio: mayor a menor</option>
+        <option value="nombre">Nombre A-Z</option>
+      </select>
+    </div>
+    <div class="product-grid cols-4" id="store-grid"></div>
+  </div>
+</div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const MAX_PRICE = Math.max(...CATALOG.map((p) => p.priceFrom)) + 1;
+
+  const state = {
+    cats: new Set(),
+    brand: 'all',
+    types: new Set(),
+    stock: new Set(),
+    maxPrice: MAX_PRICE,
+    q: '',
+    sort: 'popularidad',
+  };
+
+  function initFromURL() {
+    const cat = akQueryParam('cat');
+    const brand = akQueryParam('brand');
+    const q = akQueryParam('q');
+    if (cat) state.cats.add(cat);
+    if (brand) state.brand = brand;
+    if (q) state.q = q;
+  }
+
+  function counts() {
+    const c = { cats: {}, types: {}, stock: {} };
+    CATALOG.forEach((p) => {
+      c.cats[p.category] = (c.cats[p.category] || 0) + 1;
+      c.types[p.type] = (c.types[p.type] || 0) + 1;
+      c.stock[p.stock] = (c.stock[p.stock] || 0) + 1;
+    });
+    return c;
+  }
+
+  function renderFilters() {
+    const c = counts();
+    const stockLabels = { stock: 'En stock', encargo: 'Por encargo', envio: 'Servicio por envío' };
+    document.getElementById('filters').innerHTML =
+      '<h4>CATEGORÍA</h4><div class="filter-group">' +
+        '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todos los servicios<span class="count">' + CATALOG.length + '</span></label>' +
+        CATEGORIES.map((cat) =>
+          '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + (c.cats[cat.id] || 0) + '</span></label>'
+        ).join('') +
+      '</div>' +
+      '<h4>MARCA</h4>' +
+      '<select class="filter-select" data-role="brand">' +
+        '<option value="all">Todas las marcas</option>' +
+        BRANDS.map((b) => '<option value="' + b.id + '" ' + (state.brand === b.id ? 'selected' : '') + '>' + b.label + '</option>').join('') +
+      '</select>' +
+      '<h4>TIPO DE SERVICIO</h4><div class="filter-group">' +
+        SERVICE_TYPES.map((t) =>
+          '<label class="' + (state.types.has(t.id) ? 'active' : '') + '"><input type="checkbox" data-role="type" value="' + t.id + '" ' + (state.types.has(t.id) ? 'checked' : '') + '>' + t.label + '<span class="count">' + (c.types[t.id] || 0) + '</span></label>'
+        ).join('') +
+      '</div>' +
+      '<h4>RANGO DE PRECIO</h4>' +
+      '<input type="range" min="0" max="' + MAX_PRICE + '" value="' + state.maxPrice + '" data-role="price">' +
+      '<div class="range-labels"><span>€0</span><span id="price-label">€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '') + '</span></div>' +
+      '<h4>DISPONIBILIDAD</h4><div class="filter-group">' +
+        Object.keys(stockLabels).map((s) =>
+          '<label class="' + (state.stock.has(s) ? 'active' : '') + '"><input type="checkbox" data-role="stock" value="' + s + '" ' + (state.stock.has(s) ? 'checked' : '') + '>' + stockLabels[s] + '<span class="count">' + (c.stock[s] || 0) + '</span></label>'
+        ).join('') +
+      '</div>' +
+      '<button class="btn btn-secondary btn-block" data-role="clear" style="margin-top:22px">Limpiar filtros ' + '</button>';
+    akFillIcons(document.getElementById('filters'));
+  }
+
+  function filteredSorted() {
+    let list = CATALOG.filter((p) => {
+      if (state.cats.size > 0 && !state.cats.has(p.category)) return false;
+      if (state.brand !== 'all' && p.brand !== state.brand && p.brand !== 'multi') return false;
+      if (state.types.size > 0 && !state.types.has(p.type)) return false;
+      if (state.stock.size > 0 && !state.stock.has(p.stock)) return false;
+      if (p.priceFrom > state.maxPrice) return false;
+      if (state.q) {
+        const hay = (p.name + ' ' + p.shortDesc).toLowerCase();
+        if (!hay.includes(state.q.toLowerCase())) return false;
+      }
+      return true;
+    });
+    if (state.sort === 'precio-asc') list.sort((a, b) => a.priceFrom - b.priceFrom);
+    else if (state.sort === 'precio-desc') list.sort((a, b) => b.priceFrom - a.priceFrom);
+    else if (state.sort === 'nombre') list.sort((a, b) => a.name.localeCompare(b.name));
+    else list.sort((a, b) => b.popularity - a.popularity);
+    return list;
+  }
+
+  function renderGrid() {
+    const list = filteredSorted();
+    document.getElementById('result-count').textContent =
+      list.length + (list.length === 1 ? ' resultado' : ' resultados');
+    const grid = document.getElementById('store-grid');
+    if (list.length === 0) {
+      grid.innerHTML = '';
+      grid.insertAdjacentHTML('afterend',
+        '<div class="empty-state" id="empty-msg">' + akIcon('search') +
+        '<h3>No hay resultados</h3><p>Prueba a quitar algún filtro o buscar con otras palabras.</p></div>');
+      return;
+    }
+    const prevEmpty = document.getElementById('empty-msg');
+    if (prevEmpty) prevEmpty.remove();
+    grid.innerHTML = list.map((p) =>
+      '<article class="product-card">' +
+        '<div class="product-media">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + '<span class="ph">' + akIcon(p.icon) + '</span></div>' +
+        '<div class="product-body">' +
+          '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
+          '<h3>' + p.name + '</h3>' +
+          '<p>' + p.features.slice(0, 3).map((f) => '<span style="display:flex;align-items:center;gap:6px;margin-bottom:3px">' + akIcon('check') + f + '</span>').join('') + '</p>' +
+          '<div class="product-price-row">' +
+            '<div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
+            '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">' + (p.isProduct ? 'Ver producto' : 'Ver servicio') + '</a>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    ).join('');
+  }
+
+  function render() {
+    renderFilters();
+    renderGrid();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initFromURL();
+    render();
+
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      state.sort = e.target.value;
+      renderGrid();
+    });
+
+    document.body.addEventListener('change', (e) => {
+      const role = e.target.dataset.role;
+      if (!role) return;
+      if (role === 'cat-all') {
+        state.cats.clear();
+        render();
+      } else if (role === 'cat') {
+        e.target.checked ? state.cats.add(e.target.value) : state.cats.delete(e.target.value);
+        render();
+      } else if (role === 'brand') {
+        state.brand = e.target.value;
+        render();
+      } else if (role === 'type') {
+        e.target.checked ? state.types.add(e.target.value) : state.types.delete(e.target.value);
+        render();
+      } else if (role === 'stock') {
+        e.target.checked ? state.stock.add(e.target.value) : state.stock.delete(e.target.value);
+        render();
+      }
+    });
+
+    document.body.addEventListener('input', (e) => {
+      if (e.target.dataset.role === 'price') {
+        state.maxPrice = Number(e.target.value);
+        const label = document.getElementById('price-label');
+        if (label) label.textContent = '€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '');
+        renderGrid();
+      }
+    });
+
+    document.body.addEventListener('click', (e) => {
+      if (e.target.closest('[data-role="clear"]')) {
+        state.cats.clear(); state.brand = 'all'; state.types.clear(); state.stock.clear();
+        state.maxPrice = MAX_PRICE; state.q = '';
+        render();
+      }
+    });
+  });
+</script>
+</body>
+</html>
