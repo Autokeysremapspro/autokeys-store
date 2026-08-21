@@ -61,6 +61,12 @@ function akQueryParam(name) {
   return new URLSearchParams(window.location.search).get(name);
 }
 
+function akEscapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
 /* Fills every <span data-icon="name" data-icon-class="..."></span> found in
    static page markup — used for icons written directly in HTML (hero, etc.)
    rather than built from a JS template string. */

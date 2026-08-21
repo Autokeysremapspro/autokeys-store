@@ -116,7 +116,13 @@
   }
 
   function redirectTarget() {
-    return akQueryParam('redirect') || 'cuenta.html';
+    const target = akQueryParam('redirect');
+    // Solo se permiten rutas relativas propias del sitio (evita open redirect
+    // hacia dominios externos via ?redirect=https://... o //evil.com).
+    if (target && /^[a-zA-Z0-9_-][^:]*\.html([?#].*)?$/.test(target) && !target.startsWith('//')) {
+      return target;
+    }
+    return 'cuenta.html';
   }
 
   async function handleLogin() {
