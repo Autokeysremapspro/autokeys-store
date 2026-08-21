@@ -34,8 +34,16 @@
   const NAV_ITEMS = [
     { id: 'resumen', label: 'Resumen', icon: 'diag' },
     { id: 'pedidos', label: 'Mis pedidos', icon: 'box' },
+    { id: 'soporte', label: 'Soporte', icon: 'ticket' },
     { id: 'perfil', label: 'Perfil', icon: 'user' },
   ];
+
+  const TICKET_ESTADO_LABEL = {
+    abierto: ['Abierto', 'warn'],
+    en_proceso: ['En proceso', 'info'],
+    resuelto: ['Resuelto', 'ok'],
+    cerrado: ['Cerrado', 'muted'],
+  };
 
   const ESTADO_LABEL = {
     pendiente: ['Pendiente de revisión', 'warn'],
@@ -53,6 +61,10 @@
   let CURRENT_USER = null;
   let PERFIL = null;
   let PEDIDOS = [];
+  let TICKETS = [];
+  let showNewTicketForm = false;
+  let openTicketId = null;
+  let openTicketMensajes = [];
 
   function renderNav() {
     document.getElementById('account-nav').innerHTML =
@@ -109,6 +121,62 @@
       '<div class="notice" style="margin-top:16px">' + akIcon('headset') + 'Nuestro equipo revisa cada pedido y te contacta para confirmar el pago y los detalles.</div>';
   }
 
+  function ticketPill(estadoKey) {
+    const [label, cls] = TICKET_ESTADO_LABEL[estadoKey] || [estadoKey, 'muted'];
+    return '<span class="status-pill ' + cls + '">' + label + '</span>';
+  }
+
+  function renderSoporte() {
+    const ticket = openTicketId ? TICKETS.find((t) => t.id === openTicketId) : null;
+    if (ticket) return renderTicketDetail(ticket);
+
+    return panelHeader('Soporte', 'Consulta tus tickets o abre uno nuevo.') +
+      '<button class="btn btn-secondary" id="toggle-new-ticket" style="margin-bottom:16px">' + akIcon('plus') + (showNewTicketForm ? 'Cancelar' : 'Nuevo ticket') + '</button>' +
+      (showNewTicketForm ? renderNewTicketForm() : '') +
+      (TICKETS.length
+        ? '<div class="cart-panel"><table class="data-table"><thead><tr><th>Ticket</th><th>Asunto</th><th>Fecha</th><th>Estado</th><th></th></tr></thead><tbody>' +
+          TICKETS.map((t) => '<tr><td>#' + akEscapeHtml(t.numero) + '</td><td>' + akEscapeHtml(t.asunto) + '</td><td>' + new Date(t.created_at).toLocaleDateString('es-ES') + '</td><td>' + ticketPill(t.estado) + '</td><td><button class="link-red" data-open-ticket="' + t.id + '" style="background:none;border:0;cursor:pointer">Ver' + akIcon('arrowRight') + '</button></td></tr>').join('') +
+          '</tbody></table></div>'
+        : (showNewTicketForm ? '' : '<div class="empty-state">' + akIcon('ticket') + '<h3>No tienes tickets abiertos</h3><p>Si necesitas ayuda con un pedido o producto, abre un ticket y te responderemos lo antes posible.</p></div>'));
+  }
+
+  function renderNewTicketForm() {
+    return '<div class="cart-panel" style="max-width:560px;margin-bottom:20px">' +
+      '<div class="field-row">' +
+        '<div class="field"><label>Categoría</label><select id="t-categoria">' +
+          '<option value="pedido">Pedido</option><option value="producto">Producto</option><option value="envio">Envío</option><option value="otro" selected>Otro</option>' +
+        '</select></div>' +
+        '<div class="field full"><label>Asunto</label><input type="text" id="t-asunto" placeholder="Resumen breve" maxlength="120"></div>' +
+        '<div class="field full"><label>Mensaje</label><textarea id="t-mensaje" rows="4" placeholder="Cuéntanos en qué podemos ayudarte" maxlength="2000"></textarea></div>' +
+      '</div>' +
+      '<button class="btn btn-primary" id="send-ticket-btn" style="margin-top:12px">Enviar</button>' +
+    '</div>';
+  }
+
+  function renderTicketDetail(t) {
+    return '<a class="link-red" href="#" data-open-ticket="">' + akIcon('chevLeft') + 'Volver a mis tickets</a>' +
+      '<div style="margin:16px 0">' +
+        '<h1 style="font-size:20px;margin:0 0 4px">' + akEscapeHtml(t.asunto) + '</h1>' +
+        '<p style="color:var(--muted);font-size:12.5px;margin:0">Ticket #' + akEscapeHtml(t.numero) + ' · ' + ticketPill(t.estado) + '</p>' +
+      '</div>' +
+      '<div class="cart-panel" style="max-width:640px">' +
+        '<div id="ticket-thread" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">' +
+          (openTicketMensajes.length
+            ? openTicketMensajes.map((m) =>
+                '<div style="align-self:' + (m.autor_tipo === 'staff' ? 'flex-start' : 'flex-end') + ';max-width:80%;background:' + (m.autor_tipo === 'staff' ? 'var(--panel2)' : 'var(--red)') + ';border-radius:10px;padding:10px 14px">' +
+                  '<div style="font-size:10px;opacity:.75;margin-bottom:3px">' + akEscapeHtml(m.autor_nombre || (m.autor_tipo === 'staff' ? 'Soporte' : 'Tú')) + ' · ' + new Date(m.created_at).toLocaleString('es-ES') + '</div>' +
+                  '<div style="font-size:13px;white-space:pre-wrap">' + akEscapeHtml(m.mensaje) + '</div>' +
+                '</div>'
+              ).join('')
+            : '<p style="color:var(--muted);font-size:13px">Cargando mensajes…</p>') +
+        '</div>' +
+        (t.estado !== 'cerrado'
+          ? '<div class="field full"><textarea id="t-reply" rows="3" placeholder="Escribe una respuesta…" maxlength="2000"></textarea></div>' +
+            '<button class="btn btn-primary" id="send-reply-btn" style="margin-top:10px">Responder</button>'
+          : '<p style="color:var(--muted);font-size:12.5px">Este ticket está cerrado.</p>') +
+      '</div>';
+  }
+
   function renderPerfil() {
     const p = PERFIL || {};
     return panelHeader('Perfil', 'Estos datos se usan para agilizar tus próximos pedidos.') +
@@ -139,7 +207,7 @@
     return '<div style="margin-bottom:20px"><h1 style="font-size:22px;margin:0 0 6px">' + title + '</h1><p style="color:var(--muted);font-size:13px;margin:0">' + desc + '</p></div>';
   }
 
-  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, perfil: renderPerfil };
+  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, soporte: renderSoporte, perfil: renderPerfil };
 
   function render() {
     renderNav();
@@ -147,7 +215,70 @@
     if (activeTab === 'perfil') {
       document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
     }
+    if (activeTab === 'soporte') {
+      const toggleBtn = document.getElementById('toggle-new-ticket');
+      if (toggleBtn) toggleBtn.addEventListener('click', () => { showNewTicketForm = !showNewTicketForm; render(); });
+      const sendBtn = document.getElementById('send-ticket-btn');
+      if (sendBtn) sendBtn.addEventListener('click', sendNewTicket);
+      const replyBtn = document.getElementById('send-reply-btn');
+      if (replyBtn) replyBtn.addEventListener('click', sendReply);
+    }
     akFillIcons();
+  }
+
+  async function sendNewTicket() {
+    const asunto = document.getElementById('t-asunto').value.trim();
+    const mensaje = document.getElementById('t-mensaje').value.trim();
+    const categoria = document.getElementById('t-categoria').value;
+    if (!asunto || !mensaje) { akToast('Rellena el asunto y el mensaje'); return; }
+    const btn = document.getElementById('send-ticket-btn');
+    btn.disabled = true;
+    const numero = 'TCK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 5).toUpperCase();
+    const client = akSupabase();
+    const { data: nuevoTicket, error } = await client
+      .from('tienda_tickets')
+      .insert({ numero, cliente_id: CURRENT_USER.id, asunto, categoria })
+      .select()
+      .single();
+    if (error || !nuevoTicket) {
+      btn.disabled = false;
+      akToast('No se pudo crear el ticket');
+      return;
+    }
+    await client.from('tienda_ticket_mensajes').insert({
+      ticket_id: nuevoTicket.id, autor_tipo: 'cliente', autor_id: CURRENT_USER.id,
+      autor_nombre: (PERFIL && PERFIL.nombre) || CURRENT_USER.email, mensaje,
+    });
+    TICKETS = [nuevoTicket, ...TICKETS];
+    showNewTicketForm = false;
+    akToast('Ticket enviado, te responderemos pronto');
+    render();
+  }
+
+  async function openTicket(id) {
+    openTicketId = id;
+    openTicketMensajes = [];
+    render();
+    const { data } = await akSupabase().from('tienda_ticket_mensajes').select('*').eq('ticket_id', id).order('created_at', { ascending: true });
+    openTicketMensajes = data || [];
+    if (activeTab === 'soporte' && openTicketId === id) render();
+  }
+
+  async function sendReply() {
+    const mensaje = document.getElementById('t-reply').value.trim();
+    if (!mensaje || !openTicketId) return;
+    const btn = document.getElementById('send-reply-btn');
+    btn.disabled = true;
+    const { error } = await akSupabase().from('tienda_ticket_mensajes').insert({
+      ticket_id: openTicketId, autor_tipo: 'cliente', autor_id: CURRENT_USER.id,
+      autor_nombre: (PERFIL && PERFIL.nombre) || CURRENT_USER.email, mensaje,
+    });
+    if (error) {
+      btn.disabled = false;
+      akToast('No se pudo enviar la respuesta');
+      return;
+    }
+    await openTicket(openTicketId);
   }
 
   async function saveProfile() {
@@ -185,6 +316,13 @@
       .eq('usuario_id', CURRENT_USER.id)
       .order('created_at', { ascending: false });
     PEDIDOS = (pedidosData || []).map((p) => Object.assign({}, p, { lineas: (p.tienda_pedido_lineas || []).length }));
+
+    const { data: ticketsData } = await client
+      .from('tienda_tickets')
+      .select('*')
+      .eq('cliente_id', CURRENT_USER.id)
+      .order('created_at', { ascending: false });
+    TICKETS = ticketsData || [];
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -213,6 +351,14 @@
         activeTab = tabBtn.dataset.tab;
         render();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const ticketBtn = e.target.closest('[data-open-ticket]');
+      if (ticketBtn) {
+        e.preventDefault();
+        const id = ticketBtn.dataset.openTicket;
+        if (id) openTicket(id);
+        else { openTicketId = null; render(); }
       }
     });
   });
