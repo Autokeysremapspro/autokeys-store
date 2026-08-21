@@ -38,6 +38,10 @@
   let payMethod = 'tarjeta';
   let CURRENT_USER = null;
   let PERFIL = null;
+  let VEHICULOS = [];
+  let selectedVehiculoId = '';
+  let showNewVehiculoForm = false;
+  let appliedCupon = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -46,11 +50,64 @@
       if (CURRENT_USER) {
         const { data: perfil } = await akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle();
         PERFIL = perfil;
+        const { data: vehiculosData } = await akSupabase()
+          .from('tienda_vehiculos')
+          .select('*')
+          .eq('cliente_id', CURRENT_USER.id)
+          .order('created_at', { ascending: false });
+        VEHICULOS = vehiculosData || [];
       }
     } catch (e) { /* supabase not reachable — treat as guest */ }
     await akCatalogReady();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pago') === 'retorno' && params.get('pedido')) {
+      showPaymentReturn(params.get('pedido'));
+      return;
+    }
     render();
   });
+
+  async function showPaymentReturn(pedidoId) {
+    document.querySelectorAll('.cstep').forEach((s, i) => s.classList.toggle('active', i === 3));
+    document.getElementById('cart-root').innerHTML =
+      '<div class="section"><div class="empty-state">' + akIcon('clock') + '<h3>Comprobando tu pago…</h3></div></div>';
+
+    try {
+      await fetch('/api/confirmar-pago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pedido_id: pedidoId }),
+      });
+    } catch (e) {
+      console.error('No se pudo confirmar el pago activamente, se muestra el último estado conocido:', e);
+    }
+
+    const { data: pedido } = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
+
+    if (!pedido) {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>Pedido recibido</h3><p>No hemos podido comprobar el estado del pago, pero tu pedido ha quedado registrado. Te contactaremos para confirmarlo.</p></div></div>';
+      return;
+    }
+
+    if (pedido.pago_estado === 'pagado') {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>¡Pago confirmado!</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> por ' + akFormatPrice(Number(pedido.total)) + ' está pagado. Empezamos a prepararlo.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="cuenta.html">Ver mis pedidos</a></div></div>';
+    } else if (pedido.pago_estado === 'fallido') {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('close') +
+        '<h3>El pago no se ha completado</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado, pero el pago no llegó a procesarse. Puedes escribirnos por WhatsApp para intentarlo de otra forma.</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="https://wa.me/34632982646" target="_blank" rel="noopener">Contactar por WhatsApp</a></div></div>';
+    } else {
+      document.getElementById('cart-root').innerHTML =
+        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
+        '<h3>Pedido recibido</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado. Estamos confirmando el pago — te avisaremos en cuanto se complete.</p></div></div>';
+    }
+  }
 
   function render() {
     const lines = akCartLines();
@@ -64,7 +121,8 @@
 
     const subtotal = akCartSubtotal();
     const ivaPortion = subtotal - subtotal / 1.21;
-    const total = subtotal;
+    const descuento = cuponDescuento(subtotal);
+    const total = subtotal - descuento;
 
     document.getElementById('cart-root').innerHTML =
     '<div class="cart-layout">' +
@@ -73,12 +131,15 @@
           '<h3>RESUMEN DEL PEDIDO <span class="count">' + lines.length + (lines.length === 1 ? ' producto' : ' productos') + '</span></h3>' +
           '<div id="cart-items">' + lines.map(renderLine).join('') + '</div>' +
           '<a class="link-red" href="tienda.html" style="margin-top:6px;display:inline-flex">' + akIcon('chevLeft') + 'Seguir comprando</a>' +
-          '<div class="coupon-row">' +
-            '<input type="text" id="coupon-input" placeholder="Introduce tu código de descuento">' +
-            '<button class="btn btn-secondary" id="coupon-btn">Aplicar cupón</button>' +
-          '</div>' +
+          (appliedCupon
+            ? '<div class="coupon-row"><span style="display:flex;align-items:center;gap:8px;font-size:13px"><b style="color:var(--red)">' + esc(appliedCupon.codigo) + '</b> aplicado</span><button class="btn btn-secondary" id="coupon-remove-btn">Quitar</button></div>'
+            : '<div class="coupon-row">' +
+              '<input type="text" id="coupon-input" placeholder="Introduce tu código de descuento">' +
+              '<button class="btn btn-secondary" id="coupon-btn">Aplicar cupón</button>' +
+            '</div>') +
           '<div class="totals">' +
             '<div class="row"><span>Subtotal</span><span>' + akFormatPrice(subtotal) + '</span></div>' +
+            (descuento > 0 ? '<div class="row" style="color:var(--red)"><span>Descuento</span><span>−' + akFormatPrice(descuento) + '</span></div>' : '') +
             '<div class="row"><span>Envío</span><span>Gratis</span></div>' +
             '<div class="row"><span>IVA (21%, incluido)</span><span>' + akFormatPrice(ivaPortion) + '</span></div>' +
             '<div class="row total"><span>Total</span><span>' + akFormatPrice(total) + '</span></div>' +
@@ -96,6 +157,57 @@
     '</div>';
 
     wireEvents();
+  }
+
+  function cuponDescuento(subtotal) {
+    if (!appliedCupon) return 0;
+    const raw = appliedCupon.tipo === 'porcentaje' ? (subtotal * appliedCupon.valor) / 100 : appliedCupon.valor;
+    return Math.min(raw, subtotal);
+  }
+
+  async function applyCoupon() {
+    const input = document.getElementById('coupon-input');
+    const codigo = (input.value || '').trim().toUpperCase();
+    if (!codigo) return;
+    const btn = document.getElementById('coupon-btn');
+    btn.disabled = true;
+    try {
+      const { data: cupon, error } = await akSupabase()
+        .from('tienda_cupones')
+        .select('*')
+        .eq('codigo', codigo)
+        .eq('activo', true)
+        .maybeSingle();
+      if (error || !cupon) {
+        akToast('Ese código de descuento no existe o no está activo');
+        return;
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      if (cupon.fecha_inicio && today < cupon.fecha_inicio) {
+        akToast('Ese cupón todavía no está en vigor');
+        return;
+      }
+      if (cupon.fecha_fin && today > cupon.fecha_fin) {
+        akToast('Ese cupón ha caducado');
+        return;
+      }
+      if (cupon.usos_maximos !== null && cupon.usos_actuales >= cupon.usos_maximos) {
+        akToast('Ese cupón ya alcanzó su límite de usos');
+        return;
+      }
+      const subtotal = akCartSubtotal();
+      if (subtotal < Number(cupon.importe_minimo)) {
+        akToast('Este cupón requiere un pedido mínimo de ' + akFormatPrice(Number(cupon.importe_minimo)));
+        return;
+      }
+      appliedCupon = { codigo: cupon.codigo, tipo: cupon.tipo, valor: Number(cupon.valor) };
+      akToast('Cupón aplicado');
+      render();
+    } catch (e) {
+      akToast('No se pudo comprobar el cupón, inténtalo de nuevo');
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   function renderLoginGate() {
@@ -120,6 +232,7 @@
         '<div class="field full"><label>Email</label><input type="email" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
         '<div class="field full"><label>Teléfono *</label><input type="tel" id="f-telefono" value="' + esc(p.telefono) + '" placeholder="+34 600 123 456" required></div>' +
       '</div>' +
+      renderVehiculoSection() +
       '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
       '<div class="field-row">' +
         '<div class="field full"><label>Dirección *</label><input type="text" id="f-direccion" value="' + esc(p.direccion) + '" placeholder="Calle, número" required></div>' +
@@ -134,7 +247,7 @@
         payOption('paypal', 'PayPal', 'Paga de forma rápida y segura con tu cuenta PayPal.', 'PayPal') +
         payOption('bizum', 'Bizum', 'Paga de forma rápida y segura con Bizum.', 'Bizum') +
       '</div>' +
-      '<div class="notice">' + akIcon('lock') + 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago (próximamente a través de SumUp).</div>' +
+      '<div class="notice" id="pay-notice">' + akIcon('lock') + '<span id="pay-notice-text">' + pagoNoticeTexto() + '</span></div>' +
       '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
       '<div class="field-row">' +
         '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" value="' + esc(p.nif_cif) + '" placeholder="12345678Z"></div>' +
@@ -143,10 +256,47 @@
       '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
       '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
         '<div><div style="font-size:11px;color:var(--muted)">TOTAL ESTIMADO</div><div style="font-size:24px;font-weight:900">' + akFormatPrice(total) + '</div></div>' +
-        '<button class="btn btn-primary" id="finish-btn">Enviar pedido' + akIcon('arrowRight') + '</button>' +
+        '<button class="btn btn-primary" id="finish-btn">' + finishBtnTexto() + akIcon('arrowRight') + '</button>' +
       '</div>' +
       '<p style="color:var(--muted);font-size:10.5px;margin-top:10px;display:flex;align-items:center;gap:6px">' + akIcon('lock') + 'Tus datos se transmiten de forma segura. Al enviar aceptas nuestros términos y condiciones.</p>' +
     '</div>';
+  }
+
+  function renderVehiculoSection() {
+    const options = VEHICULOS.map((v) =>
+      '<option value="' + v.id + '"' + (selectedVehiculoId === v.id ? ' selected' : '') + '>' +
+        esc(v.marca) + ' ' + esc(v.modelo) + (v.anio ? ' (' + v.anio + ')' : '') + (v.matricula ? ' — ' + esc(v.matricula) : '') +
+      '</option>'
+    ).join('');
+    return '<h3 style="margin-top:22px">VEHÍCULO (OPCIONAL)</h3>' +
+      '<p style="color:var(--muted);font-size:12.5px;margin:0 0 10px">Si este pedido es para un vehículo concreto, indícalo — nos ayuda a preparar el trabajo antes de que llegue.</p>' +
+      '<div class="field-row">' +
+        '<div class="field full">' +
+          '<select id="f-vehiculo">' +
+            '<option value=""' + (selectedVehiculoId === '' && !showNewVehiculoForm ? ' selected' : '') + '>Ninguno / no especificado</option>' +
+            options +
+            '<option value="__nuevo__"' + (showNewVehiculoForm ? ' selected' : '') + '>+ Añadir un vehículo nuevo</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+      (showNewVehiculoForm ?
+        '<div class="field-row" style="margin-top:8px">' +
+          '<div class="field"><label>Marca *</label><input type="text" id="nv-marca" placeholder="BMW"></div>' +
+          '<div class="field"><label>Modelo *</label><input type="text" id="nv-modelo" placeholder="Serie 1"></div>' +
+          '<div class="field"><label>Año</label><input type="number" id="nv-anio" placeholder="2019"></div>' +
+          '<div class="field"><label>Matrícula</label><input type="text" id="nv-matricula" placeholder="1234ABC"></div>' +
+        '</div>'
+        : '');
+  }
+
+  function pagoNoticeTexto() {
+    return payMethod === 'tarjeta'
+      ? 'Con tarjeta pagas ahora mismo de forma segura a través de SumUp.'
+      : 'Tu pedido queda registrado como solicitud. Nuestro equipo te contactará para confirmar el pago.';
+  }
+
+  function finishBtnTexto() {
+    return payMethod === 'tarjeta' ? 'Pagar ahora' : 'Enviar pedido';
   }
 
   function esc(v) {
@@ -194,21 +344,65 @@
       akCartRemove(Number(btn.dataset.remove));
       render();
     }));
-    document.getElementById('coupon-btn').addEventListener('click', () => {
-      akToast('Los cupones de descuento estarán disponibles próximamente');
-    });
+    const couponBtn = document.getElementById('coupon-btn');
+    if (couponBtn) couponBtn.addEventListener('click', applyCoupon);
+    const couponRemoveBtn = document.getElementById('coupon-remove-btn');
+    if (couponRemoveBtn) couponRemoveBtn.addEventListener('click', () => { appliedCupon = null; render(); });
     document.querySelectorAll('[data-pay]').forEach((el) => el.addEventListener('click', () => {
       payMethod = el.dataset.pay;
       document.querySelectorAll('[data-pay]').forEach((x) => x.classList.remove('selected'));
       el.classList.add('selected');
       el.querySelector('input').checked = true;
+      const noticeText = document.getElementById('pay-notice-text');
+      if (noticeText) noticeText.textContent = pagoNoticeTexto();
+      const finishBtn = document.getElementById('finish-btn');
+      if (finishBtn) finishBtn.innerHTML = finishBtnTexto() + akIcon('arrowRight');
     }));
     document.getElementById('finish-btn').addEventListener('click', submitOrder);
+    const vehiculoSelect = document.getElementById('f-vehiculo');
+    if (vehiculoSelect) {
+      vehiculoSelect.addEventListener('change', (e) => {
+        if (e.target.value === '__nuevo__') {
+          showNewVehiculoForm = true;
+          selectedVehiculoId = '';
+        } else {
+          showNewVehiculoForm = false;
+          selectedVehiculoId = e.target.value;
+        }
+        render();
+      });
+    }
   }
 
   function fieldVal(id) {
     const el = document.getElementById(id);
     return el ? el.value.trim() : '';
+  }
+
+  function vehiculoReferencia(v) {
+    return v.marca + ' ' + v.modelo + (v.anio ? ' (' + v.anio + ')' : '') + (v.matricula ? ' — ' + v.matricula : '');
+  }
+
+  async function resolveVehiculo() {
+    if (showNewVehiculoForm) {
+      const marca = fieldVal('nv-marca');
+      const modelo = fieldVal('nv-modelo');
+      if (!marca || !modelo) return { id: null, referencia: null };
+      const anio = fieldVal('nv-anio');
+      const matricula = fieldVal('nv-matricula');
+      const { data, error } = await akSupabase()
+        .from('tienda_vehiculos')
+        .insert({ cliente_id: CURRENT_USER.id, marca, modelo, anio: anio ? Number(anio) : null, matricula: matricula || null })
+        .select()
+        .single();
+      if (error || !data) return { id: null, referencia: null };
+      return { id: data.id, referencia: vehiculoReferencia(data) };
+    }
+    if (selectedVehiculoId) {
+      const v = VEHICULOS.find((x) => x.id === selectedVehiculoId);
+      if (v) return { id: v.id, referencia: vehiculoReferencia(v) };
+    }
+    return { id: null, referencia: null };
   }
 
   async function submitOrder() {
@@ -237,7 +431,8 @@
     const lines = akCartLines();
     const subtotal = akCartSubtotal();
     const ivaPortion = subtotal - subtotal / 1.21;
-    const total = subtotal;
+    const descuento = cuponDescuento(subtotal);
+    const total = subtotal - descuento;
     const pedidoId = crypto.randomUUID();
     const numero = 'WEB-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
 
@@ -257,14 +452,17 @@
       nif_cif: fieldVal('f-nif') || null,
       razon_social: fieldVal('f-razon') || null,
       metodo_pago: payMethod,
+      cupon: appliedCupon ? appliedCupon.codigo : null,
       subtotal,
       envio: 0,
+      descuento,
       iva_importe: ivaPortion,
       total,
     };
 
     try {
       const client = akSupabase();
+      const vehiculo = await resolveVehiculo();
       const { error: pedidoError } = await client.from('tienda_pedidos').insert(pedido);
       if (pedidoError) throw pedidoError;
 
@@ -277,11 +475,31 @@
         variante_nombre: l.variant.name,
         cantidad: l.qty,
         precio_unitario: l.variant.price,
+        vehiculo_id: vehiculo.id,
+        referencia_vehiculo: vehiculo.referencia,
       }));
       const { error: lineasError } = await client.from('tienda_pedido_lineas').insert(lineas);
       if (lineasError) console.error('No se pudieron guardar las líneas del pedido:', lineasError);
 
       akCartSave([]);
+      appliedCupon = null;
+
+      if (payMethod === 'tarjeta') {
+        try {
+          const pagoRes = await fetch('/api/crear-pago', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pedido_id: pedidoId }),
+          });
+          const pagoData = await pagoRes.json();
+          if (pagoRes.ok && pagoData.hosted_checkout_url) {
+            window.location.href = pagoData.hosted_checkout_url;
+            return;
+          }
+        } catch (e) {
+          console.error('No se pudo iniciar el pago online:', e);
+        }
+      }
       showConfirmation(numero, total);
     } catch (err) {
       console.error(err);
