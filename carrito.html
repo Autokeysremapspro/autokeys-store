@@ -256,19 +256,19 @@
     return '<div class="cart-panel">' +
       '<h3>DATOS DEL CLIENTE</h3>' +
       '<div class="field-row">' +
-        '<div class="field"><label>Nombre *</label><input type="text" id="f-nombre" value="' + esc(p.nombre) + '" placeholder="Tu nombre" required></div>' +
-        '<div class="field"><label>Apellidos *</label><input type="text" id="f-apellidos" value="' + esc(p.apellidos) + '" placeholder="Tus apellidos" required></div>' +
-        '<div class="field full"><label>Email</label><input type="email" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
-        '<div class="field full"><label>Teléfono *</label><input type="tel" id="f-telefono" value="' + esc(p.telefono) + '" placeholder="+34 600 123 456" required></div>' +
+        '<div class="field"><label for="f-nombre">Nombre *</label><input type="text" id="f-nombre" value="' + esc(p.nombre) + '" placeholder="Tu nombre" required></div>' +
+        '<div class="field"><label for="f-apellidos">Apellidos *</label><input type="text" id="f-apellidos" value="' + esc(p.apellidos) + '" placeholder="Tus apellidos" required></div>' +
+        '<div class="field full"><label for="f-email-display">Email</label><input type="email" id="f-email-display" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
+        '<div class="field full"><label for="f-telefono">Teléfono *</label><input type="tel" id="f-telefono" value="' + esc(p.telefono) + '" placeholder="+34 600 123 456" required></div>' +
       '</div>' +
       renderVehiculoSection() +
       '<h3 style="margin-top:22px">DIRECCIÓN DE ENVÍO</h3>' +
       '<div class="field-row">' +
-        '<div class="field full"><label>Dirección *</label><input type="text" id="f-direccion" value="' + esc(p.direccion) + '" placeholder="Calle, número" required></div>' +
-        '<div class="field"><label>Código postal *</label><input type="text" id="f-cp" value="' + esc(p.codigo_postal) + '" placeholder="28001" required></div>' +
-        '<div class="field"><label>Ciudad *</label><input type="text" id="f-ciudad" value="' + esc(p.ciudad) + '" placeholder="Madrid" required></div>' +
-        '<div class="field"><label>País *</label><select id="f-pais"><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
-        '<div class="field"><label>Provincia *</label><input type="text" id="f-provincia" value="' + esc(p.provincia) + '" placeholder="Madrid" required></div>' +
+        '<div class="field full"><label for="f-direccion">Dirección *</label><input type="text" id="f-direccion" value="' + esc(p.direccion) + '" placeholder="Calle, número" required></div>' +
+        '<div class="field"><label for="f-cp">Código postal *</label><input type="text" id="f-cp" value="' + esc(p.codigo_postal) + '" placeholder="28001" required></div>' +
+        '<div class="field"><label for="f-ciudad">Ciudad *</label><input type="text" id="f-ciudad" value="' + esc(p.ciudad) + '" placeholder="Madrid" required></div>' +
+        '<div class="field"><label for="f-pais">País *</label><select id="f-pais"><option>España</option><option>Portugal</option><option>Francia</option></select></div>' +
+        '<div class="field"><label for="f-provincia">Provincia *</label><input type="text" id="f-provincia" value="' + esc(p.provincia) + '" placeholder="Madrid" required></div>' +
       '</div>' +
       '<h3 style="margin-top:22px">MÉTODO DE PAGO</h3>' +
       '<div id="pay-methods">' +
@@ -279,8 +279,8 @@
       '<div class="notice" id="pay-notice">' + akIcon('lock') + '<span id="pay-notice-text">' + pagoNoticeTexto() + '</span></div>' +
       '<h3 style="margin-top:22px">DETALLES DE FACTURACIÓN</h3>' +
       '<div class="field-row">' +
-        '<div class="field"><label>NIF / CIF (opcional)</label><input type="text" id="f-nif" value="' + esc(p.nif_cif) + '" placeholder="12345678Z"></div>' +
-        '<div class="field"><label>Razón social (opcional)</label><input type="text" id="f-razon" placeholder="Autokeys Soluciones S.L."></div>' +
+        '<div class="field"><label for="f-nif">NIF / CIF (opcional)</label><input type="text" id="f-nif" value="' + esc(p.nif_cif) + '" placeholder="12345678Z"></div>' +
+        '<div class="field"><label for="f-razon">Razón social (opcional)</label><input type="text" id="f-razon" placeholder="Autokeys Soluciones S.L."></div>' +
       '</div>' +
       '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
       '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
@@ -310,10 +310,10 @@
       '</div>' +
       (showNewVehiculoForm ?
         '<div class="field-row" style="margin-top:8px">' +
-          '<div class="field"><label>Marca *</label><input type="text" id="nv-marca" placeholder="BMW"></div>' +
-          '<div class="field"><label>Modelo *</label><input type="text" id="nv-modelo" placeholder="Serie 1"></div>' +
-          '<div class="field"><label>Año</label><input type="number" id="nv-anio" placeholder="2019"></div>' +
-          '<div class="field"><label>Matrícula</label><input type="text" id="nv-matricula" placeholder="1234ABC"></div>' +
+          '<div class="field"><label for="nv-marca">Marca *</label><input type="text" id="nv-marca" placeholder="BMW"></div>' +
+          '<div class="field"><label for="nv-modelo">Modelo *</label><input type="text" id="nv-modelo" placeholder="Serie 1"></div>' +
+          '<div class="field"><label for="nv-anio">Año</label><input type="number" id="nv-anio" placeholder="2019"></div>' +
+          '<div class="field"><label for="nv-matricula">Matrícula</label><input type="text" id="nv-matricula" placeholder="1234ABC"></div>' +
         '</div>'
         : '');
   }
