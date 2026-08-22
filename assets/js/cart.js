@@ -22,14 +22,15 @@ function akCartSave(items) {
   akCartRenderBadge();
 }
 
-function akCartAdd(productId, variantId, qty) {
+function akCartAdd(productId, variantId, qty, extra) {
   qty = qty || 1;
   const items = akCartGet();
   const existing = items.find((i) => i.productId === productId && i.variantId === variantId);
   if (existing) {
     existing.qty += qty;
+    if (extra) existing.extra = extra;
   } else {
-    items.push({ productId, variantId, qty });
+    items.push(extra ? { productId, variantId, qty, extra } : { productId, variantId, qty });
   }
   akCartSave(items);
 }
@@ -53,7 +54,7 @@ function akCartLines() {
       const product = akFindProduct(item.productId);
       if (!product) return null;
       const variant = product.variants.find((v) => v.id === item.variantId) || product.variants[0];
-      return { index, product, variant, qty: item.qty, lineTotal: variant.price * item.qty };
+      return { index, product, variant, qty: item.qty, lineTotal: variant.price * item.qty, extra: item.extra || null };
     })
     .filter(Boolean);
 }

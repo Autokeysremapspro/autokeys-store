@@ -332,12 +332,25 @@
     return v ? String(v).replace(/"/g, '&quot;') : '';
   }
 
+  function lineExtraSummary(l) {
+    if (!l.extra) return '';
+    const parts = [];
+    if (l.extra.referencia_pieza) parts.push('Ref: ' + l.extra.referencia_pieza);
+    if (l.extra.descripcion_problema) parts.push('Problema: ' + l.extra.descripcion_problema);
+    if (l.extra.observaciones) parts.push(l.extra.observaciones);
+    if (!parts.length) return '';
+    const text = parts.join(' — ');
+    return '<p style="color:var(--muted);font-size:11px;margin-top:2px" title="' + esc(text) + '">' +
+      esc(text.length > 90 ? text.slice(0, 90) + '…' : text) + '</p>';
+  }
+
   function renderLine(l) {
     return '<div class="cart-item">' +
       '<span class="ph-box">' + akIcon(l.product.icon) + '</span>' +
       '<div class="ci-body">' +
         '<b>' + l.product.name + '</b>' +
         '<p>' + l.variant.name + '</p>' +
+        lineExtraSummary(l) +
         '<div class="qty-row"><div class="qty-ctrl">' +
           '<button data-qty="down" data-idx="' + l.index + '">' + akIcon('minus') + '</button>' +
           '<span>' + l.qty + '</span>' +
@@ -514,6 +527,9 @@
         precio_unitario: l.variant.price,
         vehiculo_id: vehiculo.id,
         referencia_vehiculo: vehiculo.referencia,
+        referencia_pieza: (l.extra && l.extra.referencia_pieza) || null,
+        descripcion_problema: (l.extra && l.extra.descripcion_problema) || null,
+        observaciones: (l.extra && l.extra.observaciones) || null,
       }));
       const { error: lineasError } = await client.from('tienda_pedido_lineas').insert(lineas);
       if (lineasError) console.error('No se pudieron guardar las líneas del pedido:', lineasError);
