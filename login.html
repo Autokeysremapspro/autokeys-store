@@ -26,7 +26,7 @@
       <li><span data-icon="headset"></span><span><b>Soporte experto</b><span>Asistencia técnica 7 días a la semana.</span></span></li>
       <li><span data-icon="award"></span><span><b>Clientes profesionales</b><span>Soluciones diseñadas para talleres y especialistas.</span></span></li>
     </ul>
-    <div class="hero-media" style="min-height:200px"><div class="ph" data-icon="ecu"></div></div>
+    <div class="hero-media" style="min-height:200px"><img class="hero-photo" src="assets/img/login-hero-ecu.jpg" alt="Centralita ECU Autokeys Remaps Pro" width="1402" height="1122"></div>
     <div class="auth-strip">
       <div><span data-icon="truck"></span><span><b>Envíos rápidos</b><br><span style="color:var(--muted)">24/48h en España y UE</span></span></div>
       <div><span data-icon="lock"></span><span><b>Pagos seguros</b><br><span style="color:var(--muted)">100% protegidos</span></span></div>
@@ -71,8 +71,8 @@
     '<button class="btn btn-primary btn-block" data-action="login">Iniciar sesión' + akIcon('arrowRight') + '</button>' +
     '<div class="auth-divider">O continúa con</div>' +
     '<div class="oauth-row">' +
-      '<button class="oauth-btn" data-action="oauth">' + akIcon('google') + 'Continuar con Google</button>' +
-      '<button class="oauth-btn" data-action="oauth">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
+      '<button class="oauth-btn" data-action="oauth-google">' + akIcon('google') + 'Continuar con Google</button>' +
+      '<button class="oauth-btn" data-action="oauth-proximamente">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
     '</div>';
 
   const registerTab = '' +
@@ -89,8 +89,8 @@
     '<button class="btn btn-primary btn-block" data-action="register">Crear cuenta' + akIcon('arrowRight') + '</button>' +
     '<div class="auth-divider">O continúa con</div>' +
     '<div class="oauth-row">' +
-      '<button class="oauth-btn" data-action="oauth">' + akIcon('google') + 'Continuar con Google</button>' +
-      '<button class="oauth-btn" data-action="oauth">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
+      '<button class="oauth-btn" data-action="oauth-google">' + akIcon('google') + 'Continuar con Google</button>' +
+      '<button class="oauth-btn" data-action="oauth-proximamente">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
     '</div>';
 
   function setTab(tab) {
@@ -112,8 +112,10 @@
     if (registerBtn) registerBtn.addEventListener('click', handleRegister);
     const forgotLink = document.querySelector('[data-action="forgot"]');
     if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); handleForgotPassword(); });
-    document.querySelectorAll('[data-action="oauth"]').forEach((btn) => btn.addEventListener('click', () => {
-      akToast('El acceso con Google / Microsoft se activará en la siguiente fase');
+    const googleBtn = document.querySelector('[data-action="oauth-google"]');
+    if (googleBtn) googleBtn.addEventListener('click', handleGoogleLogin);
+    document.querySelectorAll('[data-action="oauth-proximamente"]').forEach((btn) => btn.addEventListener('click', () => {
+      akToast('El acceso con Microsoft se activará en la siguiente fase');
     }));
   }
 
@@ -179,6 +181,14 @@
       akToast('Cuenta creada. Revisa tu email para confirmarla antes de iniciar sesión.');
       setTab('login');
     }
+  }
+
+  async function handleGoogleLogin() {
+    const { error } = await akSupabase().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/' + redirectTarget() },
+    });
+    if (error) akToast('No se pudo iniciar el acceso con Google: ' + error.message);
   }
 
   async function handleForgotPassword() {
