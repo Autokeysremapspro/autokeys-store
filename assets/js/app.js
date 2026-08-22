@@ -130,10 +130,7 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
-      dropdown('software', 'SOFTWARE', [
-        { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
-        { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
-      ]) +
+      navLink('tienda.html?cat=software', 'software', 'SOFTWARE') +
       navLink('tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('blog.html', 'blog', 'BLOG') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
