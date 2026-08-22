@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://pbldwfzzyofpbpojzsjg.supabase.co">
 <link rel="dns-prefetch" href="https://pbldwfzzyofpbpojzsjg.supabase.co">
-<title>Catálogo de servicios: ECU, inmovilizadores y módulos — Autokeys Remaps Pro Store</title>
-<meta name="description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
-<link rel="canonical" href="https://www.autokeysremapspro.es/tienda.html">
+<title id="page-title">Catálogo de servicios: ECU, inmovilizadores y módulos — Autokeys Remaps Pro Store</title>
+<meta id="meta-description" name="description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
+<link id="link-canonical" rel="canonical" href="https://www.autokeysremapspro.es/tienda.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Autokeys Remaps Pro Store">
 <meta property="og:locale" content="es_ES">
-<meta property="og:title" content="Catálogo de servicios: ECU, inmovilizadores y módulos — Autokeys Remaps Pro Store">
-<meta property="og:description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
-<meta property="og:url" content="https://www.autokeysremapspro.es/tienda.html">
+<meta id="meta-og-title" property="og:title" content="Catálogo de servicios: ECU, inmovilizadores y módulos — Autokeys Remaps Pro Store">
+<meta id="meta-og-description" property="og:description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
+<meta id="meta-og-url" property="og:url" content="https://www.autokeysremapspro.es/tienda.html">
 <meta property="og:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Catálogo de servicios — Autokeys Remaps Pro Store">
-<meta name="twitter:description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
+<meta id="meta-twitter-title" name="twitter:title" content="Catálogo de servicios — Autokeys Remaps Pro Store">
+<meta id="meta-twitter-description" name="twitter:description" content="Catálogo profesional de electrónica automotriz: recuperación y clonación de ECU, inmovilizadores, llaves, módulos, software y reparación por envío.">
 <meta name="twitter:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
@@ -190,11 +190,34 @@
     renderGrid();
   }
 
+  function renderSeoCategoria() {
+    // El canonical solo refleja la categoría cuando la URL trae exactamente
+    // un ?cat= (el mismo formato que genera el sitemap) — con varios filtros
+    // combinados por el usuario, la página sigue canonicalizando a sí misma
+    // sin parámetros, ya que la URL nunca cambia al filtrar.
+    const catId = akQueryParam('cat');
+    if (!catId) return;
+    const cat = akFindCategory(catId);
+    if (!cat) return;
+    const url = 'https://www.autokeysremapspro.es/tienda.html?cat=' + encodeURIComponent(catId);
+    const title = cat.label + ' — Autokeys Remaps Pro Store';
+    const desc = 'Servicios de ' + cat.label.toLowerCase() + ' en Autokeys Remaps Pro Store: profesionales, con garantía y envío a toda España.';
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('meta-description').setAttribute('content', desc);
+    document.getElementById('link-canonical').setAttribute('href', url);
+    document.getElementById('meta-og-title').setAttribute('content', title);
+    document.getElementById('meta-og-description').setAttribute('content', desc);
+    document.getElementById('meta-og-url').setAttribute('content', url);
+    document.getElementById('meta-twitter-title').setAttribute('content', title);
+    document.getElementById('meta-twitter-description').setAttribute('content', desc);
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
     MAX_PRICE = Math.max(1, ...CATALOG.map((p) => p.priceFrom)) + 1;
     state.maxPrice = MAX_PRICE;
     initFromURL();
+    renderSeoCategoria();
     render();
 
     document.getElementById('sort-select').addEventListener('change', (e) => {

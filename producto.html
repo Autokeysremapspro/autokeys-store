@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta id="meta-twitter-title" name="twitter:title" content="Servicio — Autokeys Remaps Pro Store">
 <meta id="meta-twitter-description" name="twitter:description" content="Ficha de servicio Autokeys Remaps Pro Store.">
-<meta name="twitter:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
+<meta id="meta-twitter-image" name="twitter:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
 </head>
@@ -268,6 +268,9 @@
     const url = 'https://www.autokeysremapspro.es/producto.html?id=' + product.id;
     const desc = (product.shortDesc || '').slice(0, 160);
     const title = product.name + ' — Autokeys Remaps Pro Store';
+    const image = product.image
+      ? 'https://www.autokeysremapspro.es/' + product.image.replace(/^\//, '')
+      : 'https://www.autokeysremapspro.es/assets/img/logo.png';
 
     document.getElementById('meta-description').setAttribute('content', desc);
     document.getElementById('link-canonical').setAttribute('href', url);
@@ -275,8 +278,10 @@
     document.getElementById('meta-og-title').setAttribute('content', title);
     document.getElementById('meta-og-description').setAttribute('content', desc);
     document.getElementById('meta-og-url').setAttribute('content', url);
+    document.getElementById('meta-og-image').setAttribute('content', image);
     document.getElementById('meta-twitter-title').setAttribute('content', title);
     document.getElementById('meta-twitter-description').setAttribute('content', desc);
+    document.getElementById('meta-twitter-image').setAttribute('content', image);
 
     const minPrice = Math.min(...product.variants.map((v) => v.price));
     const schema = {
@@ -284,7 +289,7 @@
       '@type': product.isProduct ? 'Product' : 'Service',
       name: product.name,
       description: product.longDesc || product.shortDesc,
-      image: 'https://www.autokeysremapspro.es/assets/img/logo.png',
+      image: image,
       brand: { '@type': 'Brand', name: 'Autokeys Remaps Pro Store' },
       offers: {
         '@type': 'Offer',
@@ -325,6 +330,25 @@
       document.head.appendChild(ldB);
     }
     ldB.textContent = JSON.stringify(breadcrumb);
+
+    const faqs = product.faqs && product.faqs.length ? product.faqs : GENERIC_FAQS;
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+    };
+    let ldF = document.getElementById('ld-faq');
+    if (!ldF) {
+      ldF = document.createElement('script');
+      ldF.type = 'application/ld+json';
+      ldF.id = 'ld-faq';
+      document.head.appendChild(ldF);
+    }
+    ldF.textContent = JSON.stringify(faqSchema);
   }
 </script>
 <script defer src="/_vercel/insights/script.js"></script>

@@ -41,6 +41,10 @@ module.exports = async function handler(req, res) {
   const urls = [
     { loc: `${SITE_URL}/`, lastmod: today, changefreq: 'weekly', priority: '1.0' },
     { loc: `${SITE_URL}/tienda.html`, lastmod: today, changefreq: 'weekly', priority: '0.9' },
+    { loc: `${SITE_URL}/aviso-legal.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
+    { loc: `${SITE_URL}/politica-privacidad.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
+    { loc: `${SITE_URL}/politica-cookies.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
+    { loc: `${SITE_URL}/condiciones-venta.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
   ];
 
   categorias.forEach((c) => {

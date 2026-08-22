@@ -49,6 +49,9 @@ const AK_ICONS = {
   grid: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
   menu: '<line x1="3.5" y1="6.5" x2="20.5" y2="6.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/><line x1="3.5" y1="17.5" x2="20.5" y2="17.5"/>',
   heart: '<path d="M12 20.3l-1.1-1C6.1 15 3 12.1 3 8.6 3 5.8 5.2 3.6 8 3.6c1.6 0 3.1.8 4 2 .9-1.2 2.4-2 4-2 2.8 0 5 2.2 5 5 0 3.5-3.1 6.4-7.9 10.7z"/>',
+  tiktok: '<path d="M14 3.5c.6 2 2.1 3.4 4.1 3.6v2.7c-1.5 0-2.9-.5-4.1-1.3v6.4c0 3-2.4 5.4-5.4 5.4S3.2 17.9 3.2 14.9s2.4-5.4 5.4-5.4c.4 0 .8 0 1.1.1v2.8a2.6 2.6 0 1 0 1.9 2.5V3.5H14z"/>',
+  twitter: '<path d="M4 4l7.5 9.9L4.4 20h2l6.1-5.4L17.5 20H20l-8-10.6L18.9 4h-2l-5.4 4.8L7 4H4z"/>',
+  linkedin: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="7.5" cy="8" r="1.4" fill="currentColor" stroke="none"/><line x1="7.5" y1="11" x2="7.5" y2="17"/><path d="M11.5 17v-3.6c0-1.5 1-2.4 2.2-2.4s2 .9 2 2.4V17"/><line x1="11.5" y1="11" x2="11.5" y2="17"/>',
 };
 
 function akIcon(name, cls) {
@@ -114,6 +117,8 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=airbag-srs-reparacion', label: 'Airbag / SRS' },
         { href: 'producto.html?id=cuadros-reparacion', label: 'Cuadros de instrumentos' },
         { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
+        { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
+        { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
         { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Reparación ECU' },
@@ -122,15 +127,10 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
         { href: 'producto.html?id=mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
-      dropdown('llaves', 'LLAVES / IMMO', [
-        { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
-        { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
-        { href: 'producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
-      ]) +
+      '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
       dropdown('software', 'SOFTWARE', [
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
-        { href: 'https://akcloud.es', label: 'File Service (AK Cloud)', external: true },
       ]) +
       navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
@@ -167,11 +167,7 @@ function akFooterHTML() {
           '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
         '</a>' +
         '<p>Tu tienda y taller especializado en electrónica automotriz. Soluciones profesionales, rápidas y garantizadas.</p>' +
-        '<div class="footer-social">' +
-          '<a href="#" aria-label="YouTube">' + akIcon('youtube') + '</a>' +
-          '<a href="#" aria-label="Instagram">' + akIcon('instagram') + '</a>' +
-          '<a href="#" aria-label="Facebook">' + akIcon('facebook') + '</a>' +
-        '</div>' +
+        '<div class="footer-social" id="footer-social"></div>' +
       '</div>' +
       '<div><h4>ENLACES RÁPIDOS</h4><ul>' +
         '<li><a href="tienda.html">Tienda</a></li>' +
@@ -181,25 +177,53 @@ function akFooterHTML() {
         '<li><a href="#contacto">Contacto</a></li>' +
       '</ul></div>' +
       '<div><h4>INFORMACIÓN</h4><ul>' +
-        '<li><a href="#" data-action="mock">Quiénes somos</a></li>' +
-        '<li><a href="#" data-action="mock">Preguntas frecuentes</a></li>' +
-        '<li><a href="#" data-action="mock">Envíos y devoluciones</a></li>' +
-        '<li><a href="#" data-action="mock">Términos y condiciones</a></li>' +
-        '<li><a href="#" data-action="mock">Política de privacidad</a></li>' +
+        '<li><a href="aviso-legal.html">Aviso legal</a></li>' +
+        '<li><a href="condiciones-venta.html">Envíos y devoluciones</a></li>' +
+        '<li><a href="condiciones-venta.html">Términos y condiciones</a></li>' +
+        '<li><a href="politica-privacidad.html">Política de privacidad</a></li>' +
+        '<li><a href="politica-cookies.html">Política de cookies</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
         '<li><a href="tel:+34953852778">' + akIcon('phone') + '<span>+34 953 85 27 78</span></a></li>' +
         '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es</span></a></li>' +
-        '<li>' + akIcon('mapPin') + '<span>España</span></li>' +
+        '<li id="footer-direccion">' + akIcon('mapPin') + '<span>España</span></li>' +
         '<li>' + akIcon('clock') + '<span>Lun - Dom · 09:00 - 20:00</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
-        '<div class="pay-icons"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Bizum</span><span>SumUp</span></div>' +
+        '<div class="pay-icons">' +
+          '<span>' + akIcon('cart') + 'Visa · Mastercard</span>' +
+          '<span>' + akIcon('cart') + 'PayPal</span>' +
+          '<span>' + akIcon('cart') + 'Bizum</span>' +
+          '<span>' + akIcon('lock') + 'SumUp seguro</span>' +
+        '</div>' +
       '</div>' +
     '</div>' +
     '<div class="footer-bottom">© 2026 AUTOKEYS REMAPS PRO STORE. Todos los derechos reservados.</div>' +
   '</div></footer>';
+}
+
+const AK_RED_ICON = { facebook: 'facebook', instagram: 'instagram', youtube: 'youtube', tiktok: 'tiktok', twitter: 'twitter', linkedin: 'linkedin' };
+const AK_RED_LABEL = { facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube', tiktok: 'TikTok', twitter: 'X (Twitter)', linkedin: 'LinkedIn' };
+
+async function akAplicarEmpresaEnFooter() {
+  const social = document.getElementById('footer-social');
+  const direccion = document.getElementById('footer-direccion');
+  if (!social && !direccion) return;
+  try {
+    const empresa = await akEmpresaReady();
+    if (!empresa) return;
+    if (social) {
+      const redes = empresa.redes_sociales || {};
+      social.innerHTML = Object.keys(AK_RED_ICON)
+        .filter((k) => redes[k])
+        .map((k) => '<a href="' + redes[k] + '" target="_blank" rel="noopener" aria-label="' + AK_RED_LABEL[k] + '">' + akIcon(AK_RED_ICON[k]) + '</a>')
+        .join('');
+    }
+    if (direccion && (empresa.ciudad || empresa.provincia)) {
+      direccion.querySelector('span').textContent = [empresa.ciudad, empresa.provincia].filter(Boolean).join(', ');
+    }
+  } catch (e) { /* si falla, se queda el fallback estático */ }
 }
 
 /* ---------------- Toast ---------------- */
@@ -241,6 +265,20 @@ async function akUpdateAuthUI() {
   }
 }
 
+let _akEmpresaPromise = null;
+function akEmpresaReady() {
+  if (!_akEmpresaPromise) {
+    _akEmpresaPromise = akSupabase()
+      .from('tienda_configuracion')
+      .select('*')
+      .eq('id', true)
+      .maybeSingle()
+      .then(({ data }) => data)
+      .catch(() => null);
+  }
+  return _akEmpresaPromise;
+}
+
 async function akLogout() {
   if (!window.supabase) return;
   await akSupabase().auth.signOut();
@@ -258,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
   akCartRenderBadge();
   akFillIcons();
   akUpdateAuthUI();
+  akAplicarEmpresaEnFooter();
 
   document.addEventListener('click', (e) => {
     const toggle = e.target.closest('[data-nav-toggle]');

@@ -237,6 +237,16 @@ img{max-width:100%;display:block}
 .section h2,.section h1{font-size:32px;letter-spacing:-1px;margin:8px 0;font-weight:800}
 .section-desc{color:var(--muted);max-width:600px;line-height:1.6;font-size:14px;margin:0}
 
+.legal-page h1{font-size:28px}
+.legal-content{max-width:760px;margin-top:28px}
+.legal-content h2{font-size:16px;margin:28px 0 10px;color:#fff}
+.legal-content h2:first-child{margin-top:0}
+.legal-content p{color:var(--muted);line-height:1.7;font-size:13.5px;margin:0 0 12px}
+.legal-content ul{color:var(--muted);line-height:1.7;font-size:13.5px;margin:0 0 12px;padding-left:20px}
+.legal-content li{margin-bottom:4px}
+.legal-content a{color:var(--red)}
+.legal-content b{color:#e4e4e7}
+
 /* category icon grid */
 .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:28px}
 .cat-item{
@@ -325,8 +335,10 @@ img{max-width:100%;display:block}
 .footer-social svg{width:16px;height:16px}
 .pay-icons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .pay-icons span{
+  display:flex;align-items:center;gap:5px;
   border:1px solid var(--line);border-radius:6px;padding:5px 9px;font-size:10px;font-weight:800;color:#c9c9d0;
 }
+.pay-icons svg{width:13px;height:13px;flex:none}
 .footer-bottom{
   border-top:1px solid var(--line-soft);margin-top:34px;padding-top:18px;
   font-size:11px;text-align:center;color:#5f5f66;
@@ -664,6 +676,9 @@ input[type=range]{width:100%;accent-color:var(--red)}
   background:var(--panel);border-radius:10px;padding:11px;font-size:12.5px;font-weight:700;
 }
 .oauth-btn svg{width:16px;height:16px}
+.tipo-toggle{display:flex;gap:8px;margin-bottom:18px}
+.tipo-btn{flex:1;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-weight:700;font-size:12.5px;color:var(--muted)}
+.tipo-btn.active{border-color:var(--red);background:#1a1113;color:var(--red)}
 .help-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
 .help-item{
   border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:12px;
