@@ -28,7 +28,7 @@
     </ul>
     <div class="hero-media" style="min-height:200px"><picture>
         <source srcset="assets/img/login-hero-ecu.webp" type="image/webp">
-        <img class="hero-photo" src="assets/img/login-hero-ecu.jpg" alt="Centralita ECU Autokeys Remaps Pro" width="1402" height="1122">
+        <img class="hero-photo" src="assets/img/login-hero-ecu.jpg" alt="Centralita ECU Autokeys Remaps Pro" width="1402" height="1122" fetchpriority="high">
       </picture></div>
     <div class="auth-strip">
       <div><span data-icon="truck"></span><span><b>Envíos rápidos</b><br><span style="color:var(--muted)">24/48h en España y UE</span></span></div>
@@ -54,12 +54,12 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/catalog.js"></script>
-<script src="assets/js/cart.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/vendor/supabase-js-2.112.3.min.js"></script>
-<script src="assets/js/supabase-config.js"></script>
-<script>
+<script defer src="assets/js/catalog.js"></script>
+<script defer src="assets/js/cart.js"></script>
+<script defer src="assets/js/app.js"></script>
+<script defer src="assets/js/vendor/supabase-js-2.112.3.min.js"></script>
+<script defer src="assets/js/supabase-config.js"></script>
+<script defer>
   const loginTab = '' +
     '<h2>Bienvenido de nuevo</h2><p class="sub">Accede a tu cuenta para continuar</p>' +
     '<div class="auth-field"><label for="login-email">CORREO ELECTRÓNICO</label>' +

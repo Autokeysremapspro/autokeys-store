@@ -71,7 +71,7 @@
     <div class="hero-media">
       <picture>
         <source srcset="assets/img/hero-taller.webp" type="image/webp">
-        <img class="hero-photo" src="assets/img/hero-taller.jpg" alt="Autokeys Remaps Pro — electrónica, reprogramación y soluciones" width="1536" height="1024">
+        <img class="hero-photo" src="assets/img/hero-taller.jpg" alt="Autokeys Remaps Pro — electrónica, reprogramación y soluciones" width="1536" height="1024" fetchpriority="high">
       </picture>
     </div>
   </section>
@@ -105,12 +105,12 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/catalog.js"></script>
-<script src="assets/js/cart.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/vendor/supabase-js-2.112.3.min.js"></script>
-<script src="assets/js/supabase-config.js"></script>
-<script>
+<script defer src="assets/js/catalog.js"></script>
+<script defer src="assets/js/cart.js"></script>
+<script defer src="assets/js/app.js"></script>
+<script defer src="assets/js/vendor/supabase-js-2.112.3.min.js"></script>
+<script defer src="assets/js/supabase-config.js"></script>
+<script defer>
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
     // category grid
