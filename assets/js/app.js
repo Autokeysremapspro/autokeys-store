@@ -103,7 +103,7 @@ function akHeaderHTML(active) {
     '<a class="brand" href="index.html">' +
       '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
     '</a>' +
-    '<ul class="main-nav">' +
+    '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav">' +
       dropdown('tienda', 'TIENDA', [
         { href: 'tienda.html', label: 'Ver todo el catálogo' },
         { href: 'tienda.html?cat=reparacion-ecu', label: 'Reparación ECU' },
@@ -137,7 +137,7 @@ function akHeaderHTML(active) {
       navLink('tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('blog.html', 'blog', 'BLOG') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
-    '</ul>' +
+    '</ul></nav>' +
     '<form class="search-form" action="tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
       '<button type="submit" aria-label="Buscar">' + akIcon('search') + '</button>' +
