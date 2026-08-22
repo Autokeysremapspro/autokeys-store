@@ -135,6 +135,7 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
       ]) +
       navLink('tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
+      navLink('blog.html', 'blog', 'BLOG') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul>' +
     '<form class="search-form" action="tienda.html" method="get">' +
@@ -182,6 +183,7 @@ function akFooterHTML() {
         '<li><a href="tienda.html">Tienda</a></li>' +
         '<li><a href="tienda.html#servicios">Servicios</a></li>' +
         '<li><a href="tienda.html?cat=reparacion-envio">Reparación por envío</a></li>' +
+        '<li><a href="blog.html">Blog</a></li>' +
         '<li><a href="producto.html?id=software-licencias">Software</a></li>' +
         '<li><a href="#contacto">Contacto</a></li>' +
       '</ul></div>' +
