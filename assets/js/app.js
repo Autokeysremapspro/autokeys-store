@@ -237,6 +237,21 @@ async function akAplicarEmpresaEnFooter() {
   } catch (e) { /* si falla, se queda el fallback estático */ }
 }
 
+/* ---------------- Botón flotante de WhatsApp ---------------- */
+
+function akInsertWhatsappFloat() {
+  if (document.querySelector('.wa-float')) return;
+  const mensaje = encodeURIComponent('Hola, tengo una consulta sobre un servicio de Autokeys Remaps Pro.');
+  const a = document.createElement('a');
+  a.className = 'wa-float';
+  a.href = 'https://wa.me/34632982646?text=' + mensaje;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.setAttribute('aria-label', 'Contactar por WhatsApp');
+  a.innerHTML = akIcon('whatsapp');
+  document.body.appendChild(a);
+}
+
 /* ---------------- Toast ---------------- */
 
 function akToast(message) {
@@ -377,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   akUpdateAuthUI();
   akAplicarEmpresaEnFooter();
   akCargarAnalitica();
+  akInsertWhatsappFloat();
 
   const newsletterForm = document.getElementById('newsletter-form');
   if (newsletterForm) {
