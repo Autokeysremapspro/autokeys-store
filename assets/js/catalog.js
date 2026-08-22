@@ -30,7 +30,20 @@ const GENERIC_FAQS = [
   { q: '¿Incluye garantía?', a: 'Los trabajos validados incluyen garantía según el servicio realizado y el material recibido.' },
 ];
 
-function akMapProducto(row, variantesByProducto) {
+/* Aviso de urgencia por stock bajo — solo para productos físicos con
+   stock_actual numérico, no para servicios (que no tienen unidades). */
+function akStockUrgencia(product) {
+  if (!product || !product.isProduct) return null;
+  const actual = product.stockActual;
+  if (actual === null || actual === undefined) return null;
+  const umbral = product.stockMinimo || 5;
+  if (actual <= 0) return null;
+  if (actual <= umbral) return actual === 1 ? '¡Última unidad!' : `¡Quedan solo ${actual} unidades!`;
+  return null;
+}
+
+function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
+  const valoracion = (valoracionesByProducto || {})[row.id];
   return {
     id: row.id,
     name: row.name,
@@ -43,6 +56,10 @@ function akMapProducto(row, variantesByProducto) {
     priceFrom: Number(row.price_from) || 0,
     popularity: row.popularity || 0,
     stock: row.stock,
+    stockActual: row.stock_actual,
+    stockMinimo: row.stock_minimo,
+    rating: valoracion ? Number(valoracion.media) : null,
+    ratingCount: valoracion ? Number(valoracion.total) : 0,
     isProduct: !!row.is_product,
     isSoftware: !!row.is_software,
     keywords: row.keywords || [],
@@ -78,12 +95,13 @@ function akCatalogReady() {
   if (!_akCatalogPromise) {
     _akCatalogPromise = (async () => {
       const client = akSupabase();
-      const [{ data: cats, error: e1 }, { data: brands, error: e2 }, { data: productos, error: e3 }, { data: variantes, error: e4 }] =
+      const [{ data: cats, error: e1 }, { data: brands, error: e2 }, { data: productos, error: e3 }, { data: variantes, error: e4 }, { data: valoraciones }] =
         await Promise.all([
           client.from('tienda_categorias').select('id, label').order('sort_order'),
           client.from('tienda_marcas').select('id, label').order('sort_order'),
           client.from('tienda_productos').select('*').eq('activo', true).order('sort_order'),
           client.from('tienda_producto_variantes').select('*').order('sort_order'),
+          client.from('tienda_producto_valoraciones').select('*'),
         ]);
       if (e1 || e2 || e3 || e4) {
         console.error('No se pudo cargar el catálogo:', e1 || e2 || e3 || e4);
@@ -95,7 +113,9 @@ function akCatalogReady() {
       (variantes || []).forEach((v) => {
         (variantesByProducto[v.producto_id] = variantesByProducto[v.producto_id] || []).push(v);
       });
-      CATALOG = (productos || []).map((p) => akMapProducto(p, variantesByProducto));
+      const valoracionesByProducto = {};
+      (valoraciones || []).forEach((v) => { valoracionesByProducto[v.producto_id] = v; });
+      CATALOG = (productos || []).map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
     })();
   }
   return _akCatalogPromise;
@@ -115,4 +135,27 @@ function akFindBrand(id) {
 
 function akFormatPrice(n) {
   return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function akStarSvg(filled) {
+  return '<svg viewBox="0 0 24 24" width="14" height="14" fill="' + (filled ? '#ef1f2b' : 'none') + '" stroke="' +
+    (filled ? '#ef1f2b' : '#5f5f66') + '" stroke-width="1.6"><polygon points="12,2.5 15,9 22,10 16.8,14.7 18.2,21.5 12,18 5.8,21.5 7.2,14.7 2,10 9,9"/></svg>';
+}
+
+/* Fila de estrellas + nº de reseñas, o cadena vacía si el producto no tiene ninguna. */
+function akStarsHtml(rating, count) {
+  if (!rating || !count) return '';
+  const llenas = Math.round(rating);
+  let stars = '';
+  for (let i = 1; i <= 5; i++) stars += akStarSvg(i <= llenas);
+  return '<span class="stars-row">' + stars +
+    '<span class="stars-count">' + rating.toFixed(1) + ' (' + count + ')</span></span>';
+}
+
+/* Igual que akStarsHtml pero para una puntuación fija (1-5), sin contador —
+   usado en cada reseña individual y en el selector al escribir una nueva. */
+function akStarsPlain(n) {
+  let stars = '';
+  for (let i = 1; i <= 5; i++) stars += akStarSvg(i <= n);
+  return '<span class="stars-row">' + stars + '</span>';
 }
