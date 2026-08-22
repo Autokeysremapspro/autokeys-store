@@ -320,6 +320,28 @@ img{max-width:100%;display:block}
 .cs-body span{font-size:11.5px;color:var(--muted)}
 .cross-sell-item .btn-sm{flex:none;padding:8px}
 
+.cookie-banner{
+  position:fixed;left:16px;right:16px;bottom:16px;z-index:200;max-width:560px;margin:0 auto;
+  background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.cookie-banner p{font-size:12px;color:var(--muted2);line-height:1.6;margin:0 0 12px}
+.cookie-banner p a{color:var(--red);font-weight:700}
+.cookie-banner-actions{display:flex;gap:8px;justify-content:flex-end}
+
+.newsletter-strip{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:20px 24px;margin-bottom:36px;
+}
+.newsletter-strip b{display:block;font-size:15px}
+.newsletter-strip span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.newsletter-strip form{display:flex;gap:8px}
+.newsletter-strip input{
+  background:var(--panel3);border:1px solid #34343a;border-radius:9px;padding:10px 14px;
+  color:inherit;font-size:13px;outline:0;min-width:220px;
+}
+@media (max-width:640px){.newsletter-strip form{width:100%}.newsletter-strip input{flex:1;min-width:0}}
+
 .product-body{padding:15px;display:flex;flex-direction:column;gap:6px;flex:1}
 .product-cat{font-size:7.5px;color:var(--red);letter-spacing:1.4px;font-weight:900}
 .product-body h3{margin:0;font-size:15px;line-height:1.3}

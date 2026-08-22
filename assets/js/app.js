@@ -163,6 +163,13 @@ function akFooterHTML() {
     '<div>' + akIcon('shield') + '<div><b>Garantía por escrito</b><span>Tranquilidad total en tu reparación</span></div></div>' +
   '</div>' +
   '<footer class="site-footer" id="contacto"><div class="container">' +
+    '<div class="newsletter-strip">' +
+      '<div><b>Ofertas y novedades en tu correo</b><span>Sin spam, solo avisos de descuentos y nuevos servicios.</span></div>' +
+      '<form id="newsletter-form">' +
+        '<input type="email" id="newsletter-email" placeholder="tu@email.com" required>' +
+        '<button type="submit" class="btn btn-primary btn-sm">Suscribirme</button>' +
+      '</form>' +
+    '</div>' +
     '<div class="footer-grid">' +
       '<div class="footer-brand">' +
         '<a class="brand" href="index.html" style="margin-bottom:12px">' +
@@ -281,6 +288,74 @@ function akEmpresaReady() {
   return _akEmpresaPromise;
 }
 
+const AK_COOKIE_CONSENT_KEY = 'ak_cookie_consent';
+
+function akMostrarBannerCookies(onAceptar) {
+  if (localStorage.getItem(AK_COOKIE_CONSENT_KEY)) {
+    if (localStorage.getItem(AK_COOKIE_CONSENT_KEY) === 'aceptado') onAceptar();
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'cookie-banner';
+  el.innerHTML =
+    '<p>Usamos cookies técnicas necesarias para el funcionamiento de la tienda y, si lo aceptas, cookies de analítica para entender cómo mejorar el sitio. ' +
+    '<a href="politica-cookies.html">Más información</a>.</p>' +
+    '<div class="cookie-banner-actions">' +
+      '<button type="button" class="btn btn-secondary btn-sm" data-cookie="rechazar">Solo esenciales</button>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-cookie="aceptar">Aceptar</button>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('[data-cookie="aceptar"]').addEventListener('click', () => {
+    localStorage.setItem(AK_COOKIE_CONSENT_KEY, 'aceptado');
+    el.remove();
+    onAceptar();
+  });
+  el.querySelector('[data-cookie="rechazar"]').addEventListener('click', () => {
+    localStorage.setItem(AK_COOKIE_CONSENT_KEY, 'rechazado');
+    el.remove();
+  });
+}
+
+/* Carga Google Analytics 4 / Meta Pixel solo si el admin ha rellenado su ID
+   en Ajustes Y el visitante ha aceptado cookies de analítica — hasta
+   entonces no se pide nada externo ni se cargan scripts de terceros de más. */
+async function akCargarAnalitica() {
+  try {
+    const empresa = await akEmpresaReady();
+    if (!empresa || (!empresa.ga4_id && !empresa.meta_pixel_id)) return;
+
+    akMostrarBannerCookies(() => akActivarScriptsAnalitica(empresa));
+  } catch (e) { /* no bloquea el resto de la página */ }
+}
+
+function akActivarScriptsAnalitica(empresa) {
+  try {
+    if (empresa.ga4_id) {
+      const s1 = document.createElement('script');
+      s1.async = true;
+      s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + empresa.ga4_id;
+      document.head.appendChild(s1);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', empresa.ga4_id);
+    }
+
+    if (empresa.meta_pixel_id) {
+      /* eslint-disable */
+      (function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+        t = b.createElement(e); t.async = true; t.src = v;
+        s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', empresa.meta_pixel_id);
+      window.fbq('track', 'PageView');
+      /* eslint-enable */
+    }
+  } catch (e) { /* no bloquea el resto de la página */ }
+}
+
 async function akLogout() {
   if (!window.supabase) return;
   await akSupabase().auth.signOut();
@@ -299,6 +374,26 @@ document.addEventListener('DOMContentLoaded', () => {
   akFillIcons();
   akUpdateAuthUI();
   akAplicarEmpresaEnFooter();
+  akCargarAnalitica();
+
+  const newsletterForm = document.getElementById('newsletter-form');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('newsletter-email').value.trim();
+      if (!email) return;
+      const btn = newsletterForm.querySelector('button');
+      btn.disabled = true;
+      const { error } = await akSupabase().from('tienda_newsletter').insert({ email });
+      btn.disabled = false;
+      if (error) {
+        akToast(/duplicate|unique/i.test(error.message) ? 'Ese email ya está suscrito' : 'No se pudo completar la suscripción');
+        return;
+      }
+      newsletterForm.reset();
+      akToast('¡Gracias! Ya estás suscrito.');
+    });
+  }
 
   document.addEventListener('click', (e) => {
     const toggle = e.target.closest('[data-nav-toggle]');
