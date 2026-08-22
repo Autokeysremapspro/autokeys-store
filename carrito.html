@@ -484,6 +484,12 @@
       akCartSave([]);
       appliedCupon = null;
 
+      fetch('/api/enviar-confirmacion-pedido', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pedido_id: pedidoId }),
+      }).catch((e) => console.error('No se pudo enviar el email de confirmación:', e));
+
       if (payMethod === 'tarjeta') {
         try {
           const pagoRes = await fetch('/api/crear-pago', {
