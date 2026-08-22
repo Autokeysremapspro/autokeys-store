@@ -131,6 +131,7 @@
           '<h3>RESUMEN DEL PEDIDO <span class="count">' + lines.length + (lines.length === 1 ? ' producto' : ' productos') + '</span></h3>' +
           '<div id="cart-items">' + lines.map(renderLine).join('') + '</div>' +
           '<a class="link-red" href="tienda.html" style="margin-top:6px;display:inline-flex">' + akIcon('chevLeft') + 'Seguir comprando</a>' +
+          renderCrossSell(lines) +
           (appliedCupon
             ? '<div class="coupon-row"><span style="display:flex;align-items:center;gap:8px;font-size:13px"><b style="color:var(--red)">' + esc(appliedCupon.codigo) + '</b> aplicado</span><button class="btn btn-secondary" id="coupon-remove-btn">Quitar</button></div>'
             : '<div class="coupon-row">' +
@@ -157,6 +158,34 @@
     '</div>';
 
     wireEvents();
+  }
+
+  function renderCrossSell(lines) {
+    const enCarrito = new Set(lines.map((l) => l.product.id));
+    const sugeridos = [];
+    lines.forEach((l) => {
+      (l.product.related || []).forEach((id) => {
+        if (enCarrito.has(id) || sugeridos.find((p) => p.id === id)) return;
+        const p = akFindProduct(id);
+        if (p) sugeridos.push(p);
+      });
+    });
+    if (!sugeridos.length) return '';
+    return '<div class="cross-sell">' +
+      '<h3 style="font-size:13px;margin:18px 0 10px">TAMBIÉN TE PUEDE INTERESAR</h3>' +
+      '<div class="cross-sell-grid">' +
+        sugeridos.slice(0, 3).map((p) =>
+          '<div class="cross-sell-item">' +
+            '<a href="producto.html?id=' + p.id + '" class="ph-box">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : akIcon(p.icon)) + '</a>' +
+            '<div class="cs-body">' +
+              '<a href="producto.html?id=' + p.id + '"><b>' + p.name + '</b></a>' +
+              '<span>' + akFormatPrice(p.priceFrom) + '</span>' +
+            '</div>' +
+            '<button class="btn btn-secondary btn-sm" data-add-cross="' + p.id + '">' + akIcon('plus') + '</button>' +
+          '</div>'
+        ).join('') +
+      '</div>' +
+    '</div>';
   }
 
   function cuponDescuento(subtotal) {
@@ -358,7 +387,15 @@
       const finishBtn = document.getElementById('finish-btn');
       if (finishBtn) finishBtn.innerHTML = finishBtnTexto() + akIcon('arrowRight');
     }));
-    document.getElementById('finish-btn').addEventListener('click', submitOrder);
+    const finishBtn = document.getElementById('finish-btn');
+    if (finishBtn) finishBtn.addEventListener('click', submitOrder);
+    document.querySelectorAll('[data-add-cross]').forEach((btn) => btn.addEventListener('click', () => {
+      const product = akFindProduct(btn.dataset.addCross);
+      if (!product) return;
+      akCartAdd(product.id, product.variants[0].id, 1);
+      akToast(product.name + ' añadido al carrito');
+      render();
+    }));
     const vehiculoSelect = document.getElementById('f-vehiculo');
     if (vehiculoSelect) {
       vehiculoSelect.addEventListener('change', (e) => {
