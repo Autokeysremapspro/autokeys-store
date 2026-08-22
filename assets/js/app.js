@@ -119,6 +119,7 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
         { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
         { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
+        { href: 'tienda.html?cat=reparacion-envio', label: 'Reparación por envío' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
         { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Reparación ECU' },
@@ -132,7 +133,7 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=software-licencias', label: 'Software y licencias' },
         { href: 'producto.html?id=programadores-multimarca', label: 'Programadores' },
       ]) +
-      navLink('tienda.html?cat=reparacion-envio', 'envio', 'REPARACIÓN POR ENVÍO') +
+      navLink('tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul>' +
     '<form class="search-form" action="tienda.html" method="get">' +
