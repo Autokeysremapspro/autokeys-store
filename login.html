@@ -62,9 +62,9 @@
 <script>
   const loginTab = '' +
     '<h2>Bienvenido de nuevo</h2><p class="sub">Accede a tu cuenta para continuar</p>' +
-    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label>' +
+    '<div class="auth-field"><label for="login-email">CORREO ELECTRÓNICO</label>' +
       '<div class="auth-input">' + akIcon('mail') + '<input type="email" id="login-email" placeholder="tu@email.com"></div></div>' +
-    '<div class="auth-field"><label>CONTRASEÑA</label>' +
+    '<div class="auth-field"><label for="login-pass">CONTRASEÑA</label>' +
       '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="login-pass" placeholder="••••••••••">' +
       '<button type="button" data-toggle-pass="login-pass">' + akIcon('eye') + '</button></div></div>' +
     '<div class="auth-row-between">' +
@@ -88,17 +88,17 @@
       '<button type="button" class="tipo-btn ' + (regTipo === 'empresa' ? 'active' : '') + '" data-tipo="empresa">Empresa</button>' +
     '</div>' +
     '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
-      '<div class="auth-field"><label>' + (regTipo === 'empresa' ? 'NOMBRE DE CONTACTO' : 'NOMBRE') + '</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-nombre" placeholder="Nombre"></div></div>' +
-      '<div class="auth-field"><label>APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-apellidos" placeholder="Apellidos"></div></div>' +
+      '<div class="auth-field"><label for="reg-nombre">' + (regTipo === 'empresa' ? 'NOMBRE DE CONTACTO' : 'NOMBRE') + '</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-nombre" placeholder="Nombre"></div></div>' +
+      '<div class="auth-field"><label for="reg-apellidos">APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-apellidos" placeholder="Apellidos"></div></div>' +
     '</div>' +
     (regTipo === 'empresa'
       ? '<div class="field-row" style="grid-template-columns:2fr 1fr">' +
-          '<div class="auth-field"><label>RAZÓN SOCIAL</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-razon" placeholder="Nombre de la empresa"></div></div>' +
-          '<div class="auth-field"><label>CIF</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-cif" placeholder="B12345678"></div></div>' +
+          '<div class="auth-field"><label for="reg-razon">RAZÓN SOCIAL</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-razon" placeholder="Nombre de la empresa"></div></div>' +
+          '<div class="auth-field"><label for="reg-cif">CIF</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-cif" placeholder="B12345678"></div></div>' +
         '</div>'
       : '') +
-    '<div class="auth-field"><label>CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="reg-email" placeholder="tu@email.com"></div></div>' +
-    '<div class="auth-field"><label>CONTRASEÑA</label>' +
+    '<div class="auth-field"><label for="reg-email">CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="reg-email" placeholder="tu@email.com"></div></div>' +
+    '<div class="auth-field"><label for="reg-pass">CONTRASEÑA</label>' +
       '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres">' +
       '<button type="button" data-toggle-pass="reg-pass">' + akIcon('eye') + '</button></div></div>' +
     '<div class="auth-row-between"><label><input type="checkbox" id="reg-terms" style="accent-color:var(--red)">Acepto los <a class="link-red" href="condiciones-venta.html" target="_blank">términos y condiciones</a> y la <a class="link-red" href="politica-privacidad.html" target="_blank">política de privacidad</a></label></div>' +
