@@ -90,6 +90,9 @@
   }
 
   function renderPost(post) {
+    const cat = post.categoria_tienda_id ? akFindCategory(post.categoria_tienda_id) : null;
+    const ctaHref = cat ? 'tienda.html?cat=' + cat.id : 'tienda.html';
+    const ctaLabel = cat ? 'Ver servicios de ' + cat.label : 'Ver catálogo de servicios';
     document.getElementById('post-root').innerHTML =
       '<div class="eyebrow">' + akEscapeHtml(post.categoria || 'BLOG') + '</div>' +
       '<h1>' + akEscapeHtml(post.titulo) + '</h1>' +
@@ -98,8 +101,34 @@
       '<div class="blog-post-body">' + post.contenido + '</div>' +
       '<div class="blog-post-cta">' +
         '<div><b style="display:block;margin-bottom:4px">¿Necesitas este servicio?</b><span style="color:var(--muted);font-size:13px">Consulta precio y plazos con nuestro equipo técnico.</span></div>' +
-        '<a class="btn btn-primary" href="tienda.html">Ver catálogo de servicios</a>' +
-      '</div>';
+        '<a class="btn btn-primary" href="' + ctaHref + '">' + ctaLabel + '</a>' +
+      '</div>' +
+      renderRelatedProductsHtml(post);
+  }
+
+  function renderRelatedProductsHtml(post) {
+    if (!post.categoria_tienda_id) return '';
+    const productos = CATALOG.filter((p) => p.category === post.categoria_tienda_id).slice(0, 3);
+    if (!productos.length) return '';
+    return '<div style="margin-top:32px">' +
+      '<h3 style="margin:0 0 14px">Servicios relacionados</h3>' +
+      '<div class="product-grid">' +
+        productos.map((p) =>
+          '<article class="product-card">' +
+            '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + akEscapeHtml(p.name) + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
+            '<div class="product-body">' +
+              '<div class="product-cat">' + akEscapeHtml((akFindCategory(p.category) || {}).label || '') + '</div>' +
+              '<h3>' + akEscapeHtml(p.name) + '</h3>' +
+              '<p>' + akEscapeHtml(p.shortDesc) + '</p>' +
+              '<div class="product-price-row">' +
+                '<div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
+                '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
+              '</div>' +
+            '</div>' +
+          '</article>'
+        ).join('') +
+      '</div>' +
+    '</div>';
   }
 
   async function loadRelated(post) {
@@ -136,12 +165,15 @@
       root.innerHTML = '<h1>Artículo no encontrado</h1><p><a class="btn btn-primary" href="blog.html">Volver al blog</a></p>';
       return;
     }
-    const { data: post, error } = await akSupabase()
-      .from('tienda_blog_posts')
-      .select('*')
-      .eq('slug', slug)
-      .eq('publicado', true)
-      .maybeSingle();
+    const [{ data: post, error }] = await Promise.all([
+      akSupabase()
+        .from('tienda_blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('publicado', true)
+        .maybeSingle(),
+      akCatalogReady(),
+    ]);
     if (error || !post) {
       root.innerHTML = '<h1>Artículo no encontrado</h1><p>Puede que se haya movido o ya no esté disponible.</p><p><a class="btn btn-primary" href="blog.html">Volver al blog</a></p>';
       return;
