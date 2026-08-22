@@ -33,6 +33,7 @@
 <div class="info-grid cols-6" id="info-root" style="padding-top:60px"></div>
 <div class="faq" id="faq-root"></div>
 <div class="section" id="resenas-root"></div>
+<div class="section" id="blog-related-root"></div>
 
 <footer id="site-footer"></footer>
 
@@ -106,6 +107,7 @@
     renderFaq();
     renderResenas();
     renderSeo();
+    loadRelatedBlog();
     akFillIcons();
   });
 
@@ -333,6 +335,28 @@
           '<a class="related-item" href="producto.html?id=' + r.id + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
         ).join('') +
       '</aside>';
+  }
+
+  async function loadRelatedBlog() {
+    const { data } = await akSupabase()
+      .from('tienda_blog_posts')
+      .select('slug, titulo, resumen, categoria')
+      .eq('categoria_tienda_id', product.category)
+      .eq('publicado', true)
+      .order('publicado_en', { ascending: false })
+      .limit(3);
+    if (!data || !data.length) return;
+    document.getElementById('blog-related-root').innerHTML =
+      '<div class="eyebrow">APRENDE MÁS</div><h2 style="margin-bottom:14px">Artículos relacionados</h2>' +
+      '<div class="related">' +
+        data.map((p) =>
+          '<a class="related-item" href="blog-post.html?slug=' + encodeURIComponent(p.slug) + '">' +
+            '<span class="ph-box">' + akIcon('file') + '</span>' +
+            '<span style="flex:1"><b>' + akEscapeHtml(p.titulo) + '</b></span>' +
+            '<span>Leer artículo</span>' +
+          '</a>'
+        ).join('') +
+      '</div>';
   }
 
   function renderResenas() {
