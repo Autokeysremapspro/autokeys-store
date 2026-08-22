@@ -168,6 +168,30 @@
     if (right) right.addEventListener('click', () => setActive(current + 1));
   }
 
+  function fieldVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  function buyboxExtra() {
+    if (product.isSoftware) {
+      const email = fieldVal('pb-email');
+      const notas = fieldVal('pb-notas');
+      const obsParts = [];
+      if (email) obsParts.push('Email de contacto para la licencia: ' + email);
+      if (notas) obsParts.push('Notas: ' + notas);
+      return obsParts.length ? { observaciones: obsParts.join(' | ') } : null;
+    }
+    const referencia_pieza = fieldVal('pb-referencia') || null;
+    const descripcion_problema = fieldVal('pb-problema') || null;
+    const refVehiculo = fieldVal('pb-ref-vehiculo');
+    const extra = {};
+    if (referencia_pieza) extra.referencia_pieza = referencia_pieza;
+    if (descripcion_problema) extra.descripcion_problema = descripcion_problema;
+    if (refVehiculo) extra.observaciones = 'Referencia de compatibilidad indicada por el cliente: ' + refVehiculo;
+    return Object.keys(extra).length ? extra : null;
+  }
+
   function renderBuybox() {
     const box = document.getElementById('buybox');
     box.innerHTML =
@@ -189,14 +213,14 @@
       (product.isSoftware
         ? '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. DATOS PARA LA LICENCIA</div>' +
           '<div class="field-row">' +
-            '<div class="field full"><label for="pb-email">Email de contacto</label><input type="email" id="pb-email" placeholder="tu@email.com"></div>' +
-            '<div class="field full"><label for="pb-notas">Notas (opcional)</label><textarea id="pb-notas" placeholder="Equipo, versión u otra información relevante"></textarea></div>' +
+            '<div class="field full"><label for="pb-email">Email de contacto</label><input type="email" id="pb-email" maxlength="254" placeholder="tu@email.com"></div>' +
+            '<div class="field full"><label for="pb-notas">Notas (opcional)</label><textarea id="pb-notas" maxlength="1500" placeholder="Equipo, versión u otra información relevante"></textarea></div>' +
           '</div>'
         : '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">2. INFORMACIÓN DE TU UNIDAD</div>' +
           '<div class="field-row">' +
-            '<div class="field"><label for="pb-referencia">Referencia / Nº de pieza</label><input type="text" id="pb-referencia" placeholder="Ej. 0 281 034 123"></div>' +
-            '<div class="field"><label for="pb-ref-vehiculo">Referencia vehículo (opcional)</label><input type="text" id="pb-ref-vehiculo" placeholder="Ej. 03L 906 022 AB"></div>' +
-            '<div class="field full"><label for="pb-problema">Describe el problema</label><textarea id="pb-problema" placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
+            '<div class="field"><label for="pb-referencia">Referencia / Nº de pieza</label><input type="text" id="pb-referencia" maxlength="200" placeholder="Ej. 0 281 034 123"></div>' +
+            '<div class="field"><label for="pb-ref-vehiculo">Referencia vehículo (opcional)</label><input type="text" id="pb-ref-vehiculo" maxlength="150" placeholder="Ej. 03L 906 022 AB"></div>' +
+            '<div class="field full"><label for="pb-problema">Describe el problema</label><textarea id="pb-problema" maxlength="2000" placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
           '</div>') +
       '<div style="display:flex;gap:8px;margin-top:18px">' +
         '<button class="btn btn-primary btn-block" id="add-cart-btn">' + akIcon('cart') + 'Añadir al carrito</button>' +
@@ -217,7 +241,7 @@
     }));
 
     document.getElementById('add-cart-btn').addEventListener('click', () => {
-      akCartAdd(product.id, selectedVariant.id, 1);
+      akCartAdd(product.id, selectedVariant.id, 1, buyboxExtra());
       akToast(product.name + ' añadido al carrito');
     });
 
