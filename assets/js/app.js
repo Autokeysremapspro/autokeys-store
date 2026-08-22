@@ -408,11 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
       akLogout();
       return;
     }
-    const mock = e.target.closest('[data-action="mock"]');
-    if (mock && mock.getAttribute('href') === '#') {
-      e.preventDefault();
-      akToast('Esta sección todavía no está disponible en esta demo');
-    }
   });
 });
 

@@ -75,6 +75,10 @@ function pedidoHtml(pedido, lineas) {
 
         <p style="font-size:12px;color:#71717a;margin:24px 0 0">Método de pago: ${metodo}</p>
         <p style="font-size:12px;color:#71717a;margin:4px 0 0">Envío a: ${pedido.direccion}, ${pedido.codigo_postal} ${pedido.ciudad}, ${pedido.provincia}</p>
+
+        <table role="presentation" width="100%" style="margin-top:24px"><tr><td align="center">
+          <a href="https://www.autokeysremapspro.es/seguimiento.html?id=${pedido.id}" style="display:inline-block;background:#ef1f2b;color:#fff;font-size:13px;font-weight:700;text-decoration:none;padding:11px 22px;border-radius:8px">Seguir mi pedido</a>
+        </td></tr></table>
       </td></tr>
     </table>
   </td></tr></table>
