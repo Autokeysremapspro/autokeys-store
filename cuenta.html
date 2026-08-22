@@ -183,13 +183,21 @@
 
   function renderPerfil() {
     const p = PERFIL || {};
+    const esEmpresa = p.tipo_cliente === 'empresa';
     return panelHeader('Perfil', 'Estos datos se usan para agilizar tus próximos pedidos.') +
       '<div class="cart-panel" style="max-width:560px">' +
+      '<div class="tipo-toggle" style="max-width:280px">' +
+        '<button type="button" class="tipo-btn ' + (!esEmpresa ? 'active' : '') + '" data-perfil-tipo="particular">Particular</button>' +
+        '<button type="button" class="tipo-btn ' + (esEmpresa ? 'active' : '') + '" data-perfil-tipo="empresa">Empresa</button>' +
+      '</div>' +
       '<div class="field-row">' +
-        '<div class="field"><label>Nombre</label><input type="text" id="p-nombre" value="' + esc(p.nombre) + '"></div>' +
+        '<div class="field"><label>' + (esEmpresa ? 'Nombre de contacto' : 'Nombre') + '</label><input type="text" id="p-nombre" value="' + esc(p.nombre) + '"></div>' +
         '<div class="field"><label>Apellidos</label><input type="text" id="p-apellidos" value="' + esc(p.apellidos) + '"></div>' +
         '<div class="field full"><label>Email</label><input type="email" value="' + esc(CURRENT_USER.email) + '" disabled></div>' +
         '<div class="field full"><label>Teléfono</label><input type="tel" id="p-telefono" value="' + esc(p.telefono) + '"></div>' +
+        (esEmpresa
+          ? '<div class="field full"><label>Razón social</label><input type="text" id="p-razon" value="' + esc(p.razon_social) + '"></div>'
+          : '') +
       '</div>' +
       '<h3 style="margin-top:18px;font-size:13px">DIRECCIÓN HABITUAL (opcional)</h3>' +
       '<div class="field-row">' +
@@ -227,6 +235,10 @@
     if (activeTab === 'perfil') {
       document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
       document.getElementById('save-password-btn').addEventListener('click', savePassword);
+      document.querySelectorAll('[data-perfil-tipo]').forEach((btn) => btn.addEventListener('click', () => {
+        PERFIL = Object.assign({}, PERFIL, { tipo_cliente: btn.dataset.perfilTipo });
+        render();
+      }));
     }
     if (activeTab === 'soporte') {
       const toggleBtn = document.getElementById('toggle-new-ticket');
@@ -306,8 +318,11 @@
       ciudad: document.getElementById('p-ciudad').value.trim(),
       provincia: document.getElementById('p-provincia').value.trim(),
       nif_cif: document.getElementById('p-nif').value.trim(),
+      tipo_cliente: PERFIL && PERFIL.tipo_cliente === 'empresa' ? 'empresa' : 'particular',
       updated_at: new Date().toISOString(),
     };
+    const razonInput = document.getElementById('p-razon');
+    if (razonInput) updates.razon_social = razonInput.value.trim();
     const { error } = await akSupabase().from('tienda_clientes').update(updates).eq('id', CURRENT_USER.id);
     btn.disabled = false;
     if (error) {

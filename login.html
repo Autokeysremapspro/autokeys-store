@@ -75,26 +75,40 @@
       '<button class="oauth-btn" data-action="oauth-proximamente">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
     '</div>';
 
-  const registerTab = '' +
+  let regTipo = 'particular';
+
+  function registerTab() {
+    return '' +
     '<h2>Crea tu cuenta</h2><p class="sub">Regístrate para gestionar tus pedidos y servicios</p>' +
+    '<div class="tipo-toggle">' +
+      '<button type="button" class="tipo-btn ' + (regTipo === 'particular' ? 'active' : '') + '" data-tipo="particular">Particular</button>' +
+      '<button type="button" class="tipo-btn ' + (regTipo === 'empresa' ? 'active' : '') + '" data-tipo="empresa">Empresa</button>' +
+    '</div>' +
     '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
-      '<div class="auth-field"><label>NOMBRE</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-nombre" placeholder="Nombre"></div></div>' +
+      '<div class="auth-field"><label>' + (regTipo === 'empresa' ? 'NOMBRE DE CONTACTO' : 'NOMBRE') + '</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-nombre" placeholder="Nombre"></div></div>' +
       '<div class="auth-field"><label>APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="reg-apellidos" placeholder="Apellidos"></div></div>' +
     '</div>' +
+    (regTipo === 'empresa'
+      ? '<div class="field-row" style="grid-template-columns:2fr 1fr">' +
+          '<div class="auth-field"><label>RAZÓN SOCIAL</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-razon" placeholder="Nombre de la empresa"></div></div>' +
+          '<div class="auth-field"><label>CIF</label><div class="auth-input">' + akIcon('file') + '<input type="text" id="reg-cif" placeholder="B12345678"></div></div>' +
+        '</div>'
+      : '') +
     '<div class="auth-field"><label>CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="reg-email" placeholder="tu@email.com"></div></div>' +
     '<div class="auth-field"><label>CONTRASEÑA</label>' +
       '<div class="auth-input">' + akIcon('lock') + '<input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres">' +
       '<button type="button" data-toggle-pass="reg-pass">' + akIcon('eye') + '</button></div></div>' +
-    '<div class="auth-row-between"><label><input type="checkbox" id="reg-terms" style="accent-color:var(--red)">Acepto los términos y condiciones y la política de privacidad</label></div>' +
+    '<div class="auth-row-between"><label><input type="checkbox" id="reg-terms" style="accent-color:var(--red)">Acepto los <a class="link-red" href="condiciones-venta.html" target="_blank">términos y condiciones</a> y la <a class="link-red" href="politica-privacidad.html" target="_blank">política de privacidad</a></label></div>' +
     '<button class="btn btn-primary btn-block" data-action="register">Crear cuenta' + akIcon('arrowRight') + '</button>' +
     '<div class="auth-divider">O continúa con</div>' +
     '<div class="oauth-row">' +
       '<button class="oauth-btn" data-action="oauth-google">' + akIcon('google') + 'Continuar con Google</button>' +
       '<button class="oauth-btn" data-action="oauth-proximamente">' + akIcon('microsoft') + 'Continuar con Microsoft</button>' +
     '</div>';
+  }
 
   function setTab(tab) {
-    document.getElementById('tab-content').innerHTML = tab === 'login' ? loginTab : registerTab;
+    document.getElementById('tab-content').innerHTML = tab === 'login' ? loginTab : registerTab();
     document.querySelectorAll('.auth-tabs button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     wireTabEvents();
   }
@@ -116,6 +130,10 @@
     if (googleBtn) googleBtn.addEventListener('click', handleGoogleLogin);
     document.querySelectorAll('[data-action="oauth-proximamente"]').forEach((btn) => btn.addEventListener('click', () => {
       akToast('El acceso con Microsoft se activará en la siguiente fase');
+    }));
+    document.querySelectorAll('[data-tipo]').forEach((btn) => btn.addEventListener('click', () => {
+      regTipo = btn.dataset.tipo;
+      setTab('register');
     }));
   }
 
@@ -150,7 +168,11 @@
     const email = document.getElementById('reg-email').value.trim();
     const pass = document.getElementById('reg-pass').value;
     const terms = document.getElementById('reg-terms').checked;
+    const esEmpresa = regTipo === 'empresa';
+    const razonSocial = esEmpresa ? document.getElementById('reg-razon').value.trim() : '';
+    const cif = esEmpresa ? document.getElementById('reg-cif').value.trim() : '';
     if (!nombre || !apellidos || !email || !pass) { akToast('Rellena todos los campos'); return; }
+    if (esEmpresa && (!razonSocial || !cif)) { akToast('Rellena la razón social y el CIF de la empresa'); return; }
     if (pass.length < 8) { akToast('La contraseña debe tener al menos 8 caracteres'); return; }
     if (!terms) { akToast('Debes aceptar los términos y la política de privacidad'); return; }
 
@@ -172,7 +194,9 @@
       return;
     }
     if (data.user) {
-      await akSupabase().from('tienda_clientes').update({ apellidos }).eq('id', data.user.id);
+      const perfil = { apellidos, tipo_cliente: regTipo };
+      if (esEmpresa) { perfil.razon_social = razonSocial; perfil.nif_cif = cif; }
+      await akSupabase().from('tienda_clientes').update(perfil).eq('id', data.user.id);
     }
     if (data.session) {
       akToast('Cuenta creada. ¡Bienvenido!');
