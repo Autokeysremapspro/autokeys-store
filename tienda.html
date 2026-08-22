@@ -171,10 +171,11 @@
     if (prevEmpty) prevEmpty.remove();
     grid.innerHTML = list.map((p) =>
       '<article class="product-card">' +
-        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
+        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (akStockUrgencia(p) ? '<span class="tag-stock">' + akStockUrgencia(p) + '</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
           '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
           '<h3>' + p.name + '</h3>' +
+          (akStarsHtml(p.rating, p.ratingCount) ? '<div>' + akStarsHtml(p.rating, p.ratingCount) + '</div>' : '') +
           '<p>' + p.features.slice(0, 3).map((f) => '<span style="display:flex;align-items:center;gap:6px;margin-bottom:3px">' + akIcon('check') + f + '</span>').join('') + '</p>' +
           '<div class="product-price-row">' +
             '<div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +

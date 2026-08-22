@@ -32,6 +32,7 @@
 <div class="feature-strip" id="trust-strip"></div>
 <div class="info-grid cols-6" id="info-root" style="padding-top:60px"></div>
 <div class="faq" id="faq-root"></div>
+<div class="section" id="resenas-root"></div>
 
 <footer id="site-footer"></footer>
 
@@ -44,6 +45,9 @@
   let product, selectedVariant;
   let CURRENT_USER = null;
   let isFavorito = false;
+  let RESENAS = [];
+  let pedidoElegible = null;
+  let miPuntuacion = 5;
 
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
@@ -70,6 +74,24 @@
       }
     } catch (e) { /* no logueado */ }
 
+    try {
+      const { data: resenasData } = await akSupabase()
+        .from('tienda_resenas')
+        .select('*')
+        .eq('producto_id', product.id)
+        .order('created_at', { ascending: false });
+      RESENAS = resenasData || [];
+      if (CURRENT_USER && !RESENAS.some((r) => r.cliente_id === CURRENT_USER.id)) {
+        const { data: linea } = await akSupabase()
+          .from('tienda_pedido_lineas')
+          .select('pedido_id')
+          .eq('producto_id', product.id)
+          .limit(1)
+          .maybeSingle();
+        pedidoElegible = linea ? linea.pedido_id : null;
+      }
+    } catch (e) { /* reseñas no disponibles, no bloquea el resto de la página */ }
+
     document.title = product.name + ' — Autokeys Remaps Pro Store';
     const cat = akFindCategory(product.category);
 
@@ -82,6 +104,7 @@
     renderTrustStrip();
     renderInfo();
     renderFaq();
+    renderResenas();
     renderSeo();
     akFillIcons();
   });
@@ -93,6 +116,7 @@
         '<div class="detail-info">' +
           (product.badge ? '<div class="eyebrow">' + product.badge + '</div>' : '') +
           '<h1>' + product.name + '</h1>' +
+          (akStarsHtml(product.rating, product.ratingCount) ? '<div style="margin:6px 0 4px">' + akStarsHtml(product.rating, product.ratingCount) + '</div>' : '') +
           '<p class="lead">' + (product.longDesc || product.shortDesc) + '</p>' +
           '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
         '</div>' +
@@ -129,6 +153,7 @@
       '<div class="price-big" id="price-big">' + akFormatPrice(selectedVariant.price) + '</div>' +
       '<div class="price-note">IVA incluido</div>' +
       '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
+      (akStockUrgencia(product) ? '<div class="stock-urgente">' + akIcon('clock') + akStockUrgencia(product) + '</div>' : '') +
       '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">1. SELECCIONA LA OPCIÓN</div>' +
       '<div class="variant-list" id="variant-list">' +
         product.variants.map((v, i) =>
@@ -262,6 +287,77 @@
           '<a class="related-item" href="producto.html?id=' + r.id + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
         ).join('') +
       '</aside>';
+  }
+
+  function renderResenas() {
+    const root = document.getElementById('resenas-root');
+    const media = product.rating ? product.rating.toFixed(1) : null;
+
+    const listaHtml = RESENAS.length
+      ? RESENAS.map((r) =>
+          '<div class="resena-item">' +
+            '<div class="resena-top">' +
+              akStarsPlain(r.puntuacion) +
+              '<b>' + akEscapeHtml(r.cliente_nombre || 'Cliente') + '</b>' +
+              '<span class="resena-fecha">' + new Date(r.created_at).toLocaleDateString('es-ES') + '</span>' +
+            '</div>' +
+            (r.comentario ? '<p>' + akEscapeHtml(r.comentario) + '</p>' : '') +
+          '</div>'
+        ).join('')
+      : '<p style="color:var(--muted);font-size:13px">Todavía no hay reseñas de este producto. ¡Sé el primero en opinar!</p>';
+
+    const formHtml = pedidoElegible
+      ? '<div class="resena-form">' +
+          '<h3 style="font-size:14px;margin:0 0 10px">Deja tu reseña</h3>' +
+          '<div class="resena-picker" id="resena-picker">' +
+            [1, 2, 3, 4, 5].map((n) => '<button type="button" data-estrella="' + n + '">' + akStarSvg(n <= miPuntuacion) + '</button>').join('') +
+          '</div>' +
+          '<textarea id="resena-comentario" placeholder="Cuéntanos qué tal tu experiencia (opcional)" rows="3"></textarea>' +
+          '<button class="btn btn-primary" id="resena-enviar" style="margin-top:10px">Publicar reseña</button>' +
+        '</div>'
+      : '';
+
+    root.innerHTML =
+      '<div class="eyebrow">OPINIONES</div>' +
+      '<h2 style="display:flex;align-items:center;gap:12px">Reseñas' +
+        (media ? '<span style="font-size:16px;color:var(--muted)">' + media + ' · ' + product.ratingCount + ' reseña' + (product.ratingCount === 1 ? '' : 's') + '</span>' : '') +
+      '</h2>' +
+      '<div class="resenas-grid">' +
+        '<div class="resenas-lista">' + listaHtml + '</div>' +
+        formHtml +
+      '</div>';
+
+    if (pedidoElegible) {
+      document.querySelectorAll('#resena-picker [data-estrella]').forEach((btn) => btn.addEventListener('click', () => {
+        miPuntuacion = Number(btn.dataset.estrella);
+        renderResenas();
+      }));
+      document.getElementById('resena-enviar').addEventListener('click', enviarResena);
+    }
+  }
+
+  async function enviarResena() {
+    const btn = document.getElementById('resena-enviar');
+    btn.disabled = true;
+    const comentario = document.getElementById('resena-comentario').value.trim();
+    const nombre = (CURRENT_USER.user_metadata && CURRENT_USER.user_metadata.nombre) || CURRENT_USER.email.split('@')[0];
+    const { error } = await akSupabase().from('tienda_resenas').insert({
+      producto_id: product.id,
+      cliente_id: CURRENT_USER.id,
+      pedido_id: pedidoElegible,
+      puntuacion: miPuntuacion,
+      comentario: comentario || null,
+      cliente_nombre: nombre,
+    });
+    btn.disabled = false;
+    if (error) {
+      akToast('No se pudo publicar la reseña: ' + error.message);
+      return;
+    }
+    akToast('¡Gracias por tu reseña!');
+    pedidoElegible = null;
+    RESENAS.unshift({ puntuacion: miPuntuacion, comentario, cliente_nombre: nombre, created_at: new Date().toISOString(), cliente_id: CURRENT_USER.id });
+    renderResenas();
   }
 
   function renderSeo() {
