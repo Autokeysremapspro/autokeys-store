@@ -387,6 +387,7 @@
       description: product.longDesc || product.shortDesc,
       image: image,
       brand: { '@type': 'Brand', name: 'Autokeys Remaps Pro Store' },
+      ...(product.rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: product.rating, reviewCount: product.ratingCount } } : {}),
       offers: {
         '@type': 'Offer',
         priceCurrency: 'EUR',
