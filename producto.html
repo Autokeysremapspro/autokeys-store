@@ -120,30 +120,52 @@
           '<p class="lead">' + (product.longDesc || product.shortDesc) + '</p>' +
           '<ul class="feature-check">' + product.features.map((f) => '<li>' + akIcon('check') + f + '</li>').join('') + '</ul>' +
         '</div>' +
-        '<div class="gallery" style="margin-top:20px">' +
-          (product.image ?
-            '<div class="gallery-main hex-overlay"><img class="gm-photo" src="' + product.image + '" alt="' + product.name + '"></div>' :
-            '<div class="gallery-main hex-overlay">' +
-              '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' +
-              '<span class="ph">' + akIcon(product.icon) + '</span>' +
-              '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' +
-            '</div>' +
-            '<div class="thumbs">' +
-              '<div class="thumb active">' + akIcon(product.icon) + '</div>' +
-              '<div class="thumb">' + akIcon('module') + '</div>' +
-              '<div class="thumb">' + akIcon('programmer') + '</div>' +
-            '</div>'
-          ) +
+        '<div class="gallery" style="margin-top:20px">' + renderGaleriaHtml() +
         '</div>' +
       '</div>' +
       '<aside class="buybox metal-frame" id="buybox"></aside>' +
     '</div>';
     renderBuybox();
+    wireGaleria();
+  }
 
-    document.querySelectorAll('.thumb').forEach((t) => t.addEventListener('click', () => {
-      document.querySelectorAll('.thumb').forEach((x) => x.classList.remove('active'));
-      t.classList.add('active');
-    }));
+  function galeriaFotos() {
+    return [product.image, ...(product.images || [])].filter(Boolean);
+  }
+
+  function renderGaleriaHtml() {
+    const fotos = galeriaFotos();
+    if (!fotos.length) {
+      return '<div class="gallery-main hex-overlay"><span class="ph">' + akIcon(product.icon) + '</span></div>';
+    }
+    return '' +
+      '<div class="gallery-main hex-overlay">' +
+        (fotos.length > 1 ? '<button class="gallery-arrow left" type="button" aria-label="Anterior">' + akIcon('chevLeft') + '</button>' : '') +
+        '<img class="gm-photo" id="gallery-main-img" src="' + fotos[0] + '" alt="' + akEscapeHtml(product.name) + '">' +
+        (fotos.length > 1 ? '<button class="gallery-arrow right" type="button" aria-label="Siguiente">' + akIcon('chevRight') + '</button>' : '') +
+      '</div>' +
+      (fotos.length > 1
+        ? '<div class="thumbs">' + fotos.map((src, i) =>
+            '<div class="thumb' + (i === 0 ? ' active' : '') + '" data-src="' + src + '"><img src="' + src + '" alt="" loading="lazy"></div>'
+          ).join('') + '</div>'
+        : '');
+  }
+
+  function wireGaleria() {
+    const fotos = galeriaFotos();
+    if (fotos.length < 2) return;
+    let current = 0;
+    const mainImg = document.getElementById('gallery-main-img');
+    function setActive(i) {
+      current = (i + fotos.length) % fotos.length;
+      if (mainImg) mainImg.src = fotos[current];
+      document.querySelectorAll('.thumb').forEach((t, idx) => t.classList.toggle('active', idx === current));
+    }
+    document.querySelectorAll('.thumb').forEach((t, i) => t.addEventListener('click', () => setActive(i)));
+    const left = document.querySelector('.gallery-arrow.left');
+    const right = document.querySelector('.gallery-arrow.right');
+    if (left) left.addEventListener('click', () => setActive(current - 1));
+    if (right) right.addEventListener('click', () => setActive(current + 1));
   }
 
   function renderBuybox() {
@@ -364,9 +386,9 @@
     const url = 'https://www.autokeysremapspro.es/producto.html?id=' + product.id;
     const desc = (product.shortDesc || '').slice(0, 160);
     const title = product.name + ' — Autokeys Remaps Pro Store';
-    const image = product.image
-      ? 'https://www.autokeysremapspro.es/' + product.image.replace(/^\//, '')
-      : 'https://www.autokeysremapspro.es/assets/img/logo.png';
+    const absUrl = (src) => (/^https?:\/\//.test(src) ? src : 'https://www.autokeysremapspro.es/' + src.replace(/^\//, ''));
+    const image = product.image ? absUrl(product.image) : 'https://www.autokeysremapspro.es/assets/img/logo.png';
+    const imagenes = galeriaFotos().map(absUrl);
 
     document.getElementById('meta-description').setAttribute('content', desc);
     document.getElementById('link-canonical').setAttribute('href', url);
@@ -385,7 +407,7 @@
       '@type': product.isProduct ? 'Product' : 'Service',
       name: product.name,
       description: product.longDesc || product.shortDesc,
-      image: image,
+      image: imagenes.length ? imagenes : image,
       brand: { '@type': 'Brand', name: 'Autokeys Remaps Pro Store' },
       ...(product.rating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: product.rating, reviewCount: product.ratingCount } } : {}),
       offers: {

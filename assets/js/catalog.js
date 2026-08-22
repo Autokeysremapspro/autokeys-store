@@ -52,6 +52,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     type: row.type,
     icon: row.icon,
     image: row.image,
+    images: row.images || [],
     badge: row.badge,
     priceFrom: Number(row.price_from) || 0,
     popularity: row.popularity || 0,
