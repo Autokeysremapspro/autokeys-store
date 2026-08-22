@@ -294,12 +294,11 @@ async function akUpdateAuthUI() {
 let _akEmpresaPromise = null;
 function akEmpresaReady() {
   if (!_akEmpresaPromise) {
+    /* Vía RPC (no lectura directa de tienda_configuracion): la tabla incluye
+       un campo "notas" de uso interno del equipo que no debe ser público. */
     _akEmpresaPromise = akSupabase()
-      .from('tienda_configuracion')
-      .select('*')
-      .eq('id', true)
-      .maybeSingle()
-      .then(({ data }) => data)
+      .rpc('tienda_configuracion_publica')
+      .then(({ data }) => (data && data[0]) || null)
       .catch(() => null);
   }
   return _akEmpresaPromise;
