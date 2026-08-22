@@ -27,12 +27,22 @@ async function fetchCategorias() {
   return res.json();
 }
 
+async function fetchBlogPosts() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/tienda_blog_posts?select=slug,updated_at&publicado=eq.true&order=publicado_en.desc`,
+    { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+  );
+  if (!res.ok) throw new Error(`Supabase respondió ${res.status}`);
+  return res.json();
+}
+
 module.exports = async function handler(req, res) {
   const today = isoDate(Date.now());
   let productos = [];
   let categorias = [];
+  let blogPosts = [];
   try {
-    [productos, categorias] = await Promise.all([fetchProductos(), fetchCategorias()]);
+    [productos, categorias, blogPosts] = await Promise.all([fetchProductos(), fetchCategorias(), fetchBlogPosts()]);
   } catch (err) {
     res.status(502).send('No se pudo generar el sitemap: ' + err.message);
     return;
@@ -41,6 +51,7 @@ module.exports = async function handler(req, res) {
   const urls = [
     { loc: `${SITE_URL}/`, lastmod: today, changefreq: 'weekly', priority: '1.0' },
     { loc: `${SITE_URL}/tienda.html`, lastmod: today, changefreq: 'weekly', priority: '0.9' },
+    { loc: `${SITE_URL}/blog.html`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_URL}/aviso-legal.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
     { loc: `${SITE_URL}/politica-privacidad.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
     { loc: `${SITE_URL}/politica-cookies.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
@@ -57,6 +68,15 @@ module.exports = async function handler(req, res) {
       lastmod: isoDate(p.updated_at),
       changefreq: 'monthly',
       priority: '0.8',
+    });
+  });
+
+  blogPosts.forEach((p) => {
+    urls.push({
+      loc: `${SITE_URL}/blog-post.html?slug=${encodeURIComponent(p.slug)}`,
+      lastmod: isoDate(p.updated_at),
+      changefreq: 'monthly',
+      priority: '0.6',
     });
   });
 

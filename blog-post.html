@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://pbldwfzzyofpbpojzsjg.supabase.co">
+<link rel="dns-prefetch" href="https://pbldwfzzyofpbpojzsjg.supabase.co">
+<title id="page-title">Blog — Autokeys Remaps Pro Store</title>
+<meta id="meta-description" name="description" content="Artículo del blog de Autokeys Remaps Pro Store.">
+<link id="link-canonical" rel="canonical" href="https://www.autokeysremapspro.es/blog.html">
+<meta id="meta-og-type" property="og:type" content="article">
+<meta property="og:site_name" content="Autokeys Remaps Pro Store">
+<meta property="og:locale" content="es_ES">
+<meta id="meta-og-title" property="og:title" content="Blog — Autokeys Remaps Pro Store">
+<meta id="meta-og-description" property="og:description" content="Artículo del blog de Autokeys Remaps Pro Store.">
+<meta id="meta-og-url" property="og:url" content="https://www.autokeysremapspro.es/blog.html">
+<meta id="meta-og-image" property="og:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta id="meta-twitter-title" name="twitter:title" content="Blog — Autokeys Remaps Pro Store">
+<meta id="meta-twitter-description" name="twitter:description" content="Artículo del blog de Autokeys Remaps Pro Store.">
+<meta id="meta-twitter-image" name="twitter:image" content="https://www.autokeysremapspro.es/assets/img/logo.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%230a0a0c%27/%3E%3Crect x=%273%27 y=%273%27 width=%2758%27 height=%2758%27 rx=%2712%27 fill=%27none%27 stroke=%27%23ef1f2b%27 stroke-width=%274%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial%27 font-weight=%27900%27 font-style=%27italic%27 font-size=%2726%27 fill=%27%23ef1f2b%27 text-anchor=%27middle%27%3EAK%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header id="site-header" data-active="blog"></header>
+
+<nav class="breadcrumb" id="breadcrumb">
+  <a href="index.html">Inicio</a><span data-icon="chevRight"></span><a href="blog.html">Blog</a><span data-icon="chevRight"></span><span class="current">Artículo</span>
+</nav>
+
+<div class="section" id="post-root" style="padding-bottom:0">
+  <p>Cargando artículo…</p>
+</div>
+
+<div class="section" id="related-root"></div>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/catalog.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script>
+  function formatFecha(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function setSeo(post) {
+    const url = 'https://www.autokeysremapspro.es/blog-post.html?slug=' + encodeURIComponent(post.slug);
+    const title = (post.meta_title || post.titulo) + ' | Autokeys Remaps Pro Store';
+    const desc = post.meta_description || post.resumen || '';
+    const img = post.imagen_url || 'https://www.autokeysremapspro.es/assets/img/logo.png';
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('meta-description').setAttribute('content', desc);
+    document.getElementById('link-canonical').setAttribute('href', url);
+    document.getElementById('meta-og-title').setAttribute('content', title);
+    document.getElementById('meta-og-description').setAttribute('content', desc);
+    document.getElementById('meta-og-url').setAttribute('content', url);
+    document.getElementById('meta-og-image').setAttribute('content', img);
+    document.getElementById('meta-twitter-title').setAttribute('content', title);
+    document.getElementById('meta-twitter-description').setAttribute('content', desc);
+    document.getElementById('meta-twitter-image').setAttribute('content', img);
+
+    const bc = document.getElementById('breadcrumb');
+    bc.innerHTML =
+      '<a href="index.html">Inicio</a><span data-icon="chevRight"></span>' +
+      '<a href="blog.html">Blog</a><span data-icon="chevRight"></span>' +
+      '<span class="current">' + akEscapeHtml(post.titulo) + '</span>';
+    akFillIcons(bc);
+
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.titulo,
+      description: desc,
+      image: img,
+      datePublished: post.publicado_en,
+      dateModified: post.updated_at || post.publicado_en,
+      author: { '@type': 'Organization', name: post.autor || 'Autokeys Remaps Pro' },
+      publisher: { '@type': 'Organization', name: 'Autokeys Remaps Pro Store', logo: { '@type': 'ImageObject', url: 'https://www.autokeysremapspro.es/assets/img/logo.png' } },
+      mainEntityOfPage: url,
+    });
+    document.head.appendChild(ld);
+  }
+
+  function renderPost(post) {
+    document.getElementById('post-root').innerHTML =
+      '<div class="eyebrow">' + akEscapeHtml(post.categoria || 'BLOG') + '</div>' +
+      '<h1>' + akEscapeHtml(post.titulo) + '</h1>' +
+      '<div class="blog-meta"><span>Por ' + akEscapeHtml(post.autor || 'Autokeys Remaps Pro') + '</span><span>·</span>' + akIcon('calendar') + '<span>' + formatFecha(post.publicado_en) + '</span></div>' +
+      (post.imagen_url ? '<img class="blog-post-hero" src="' + post.imagen_url + '" alt="' + akEscapeHtml(post.titulo) + '">' : '') +
+      '<div class="blog-post-body">' + post.contenido + '</div>' +
+      '<div class="blog-post-cta">' +
+        '<div><b style="display:block;margin-bottom:4px">¿Necesitas este servicio?</b><span style="color:var(--muted);font-size:13px">Consulta precio y plazos con nuestro equipo técnico.</span></div>' +
+        '<a class="btn btn-primary" href="tienda.html">Ver catálogo de servicios</a>' +
+      '</div>';
+  }
+
+  async function loadRelated(post) {
+    const { data } = await akSupabase()
+      .from('tienda_blog_posts')
+      .select('slug, titulo, resumen, imagen_url, categoria, publicado_en')
+      .eq('publicado', true)
+      .neq('slug', post.slug)
+      .order('publicado_en', { ascending: false })
+      .limit(3);
+    if (!data || data.length === 0) return;
+    document.getElementById('related-root').innerHTML =
+      '<div class="blog-related">' +
+        '<h3 style="margin:0 0 4px">Más artículos</h3>' +
+        '<div class="blog-grid">' +
+          data.map((p) =>
+            '<a class="blog-card" href="blog-post.html?slug=' + encodeURIComponent(p.slug) + '">' +
+              '<div class="blog-card-media">' + (p.imagen_url ? '<img src="' + p.imagen_url + '" alt="' + akEscapeHtml(p.titulo) + '" loading="lazy">' : '<div style="display:grid;place-items:center;height:100%;color:#54545c">' + akIcon('file') + '</div>') + '</div>' +
+              '<div class="blog-card-body">' +
+                (p.categoria ? '<span class="blog-cat">' + akEscapeHtml(p.categoria) + '</span>' : '') +
+                '<h3>' + akEscapeHtml(p.titulo) + '</h3>' +
+                '<p>' + akEscapeHtml(p.resumen || '') + '</p>' +
+              '</div>' +
+            '</a>'
+          ).join('') +
+        '</div>' +
+      '</div>';
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const slug = akQueryParam('slug');
+    const root = document.getElementById('post-root');
+    if (!slug) {
+      root.innerHTML = '<h1>Artículo no encontrado</h1><p><a class="btn btn-primary" href="blog.html">Volver al blog</a></p>';
+      return;
+    }
+    const { data: post, error } = await akSupabase()
+      .from('tienda_blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('publicado', true)
+      .maybeSingle();
+    if (error || !post) {
+      root.innerHTML = '<h1>Artículo no encontrado</h1><p>Puede que se haya movido o ya no esté disponible.</p><p><a class="btn btn-primary" href="blog.html">Volver al blog</a></p>';
+      return;
+    }
+    setSeo(post);
+    renderPost(post);
+    loadRelated(post);
+  });
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

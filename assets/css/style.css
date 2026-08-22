@@ -825,3 +825,27 @@ input[type=range]{width:100%;accent-color:var(--red)}
 @media(max-width:480px){
   .cat-grid,.product-grid,.product-grid.cols-4{grid-template-columns:1fr}
 }
+
+/* ---- Blog ---- */
+.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+.blog-card{border:1px solid var(--line);background:var(--panel);border-radius:15px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:border-color .15s}
+.blog-card:hover{border-color:#3a2226}
+.blog-card-media{aspect-ratio:16/9;background:var(--panel2);position:relative;overflow:hidden}
+.blog-card-media img{width:100%;height:100%;object-fit:cover}
+.blog-card-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.blog-cat{font-size:10px;letter-spacing:1px;color:var(--red);font-weight:800;text-transform:uppercase}
+.blog-card-body h3{font-size:15px;margin:0;line-height:1.35;color:#fff}
+.blog-card-body p{color:var(--muted);font-size:12.5px;line-height:1.6;margin:0;flex:1}
+.blog-meta{color:var(--muted);font-size:11.5px;display:flex;align-items:center;gap:6px}
+.blog-post-hero{width:100%;max-height:420px;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:20px 0;display:block}
+.blog-post-body{max-width:760px;margin-top:10px}
+.blog-post-body h2{font-size:18px;margin:28px 0 10px;color:#fff}
+.blog-post-body p{color:var(--muted);line-height:1.75;font-size:14px;margin:0 0 14px}
+.blog-post-body ul,.blog-post-body ol{color:var(--muted);line-height:1.75;font-size:14px;margin:0 0 14px;padding-left:22px}
+.blog-post-body li{margin-bottom:6px}
+.blog-post-body a{color:var(--red)}
+.blog-post-cta{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:20px;margin-top:34px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.blog-related{border-top:1px solid var(--line-soft);margin-top:40px;padding-top:24px}
+.blog-empty{padding:60px 0;text-align:center;color:var(--muted)}
+@media(max-width:980px){.blog-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.blog-grid{grid-template-columns:1fr}.blog-post-cta{flex-direction:column;align-items:flex-start}}
