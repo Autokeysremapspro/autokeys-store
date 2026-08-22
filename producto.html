@@ -42,6 +42,8 @@
 <script src="assets/js/supabase-config.js"></script>
 <script>
   let product, selectedVariant;
+  let CURRENT_USER = null;
+  let isFavorito = false;
 
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
@@ -53,6 +55,20 @@
       return;
     }
     selectedVariant = product.variants[0];
+
+    try {
+      const { data: { user } } = await akSupabase().auth.getUser();
+      CURRENT_USER = user;
+      if (CURRENT_USER) {
+        const { data } = await akSupabase()
+          .from('tienda_favoritos')
+          .select('id')
+          .eq('cliente_id', CURRENT_USER.id)
+          .eq('producto_id', product.id)
+          .maybeSingle();
+        isFavorito = Boolean(data);
+      }
+    } catch (e) { /* no logueado */ }
 
     document.title = product.name + ' — Autokeys Remaps Pro Store';
     const cat = akFindCategory(product.category);
@@ -135,7 +151,10 @@
             '<div class="field"><label>Referencia vehículo (opcional)</label><input type="text" placeholder="Ej. 03L 906 022 AB"></div>' +
             '<div class="field full"><label>Describe el problema</label><textarea placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
           '</div>') +
-      '<button class="btn btn-primary btn-block" id="add-cart-btn" style="margin-top:18px">' + akIcon('cart') + 'Añadir al carrito</button>' +
+      '<div style="display:flex;gap:8px;margin-top:18px">' +
+        '<button class="btn btn-primary btn-block" id="add-cart-btn">' + akIcon('cart') + 'Añadir al carrito</button>' +
+        '<button class="btn btn-secondary" id="fav-btn" title="Guardar en favoritos" style="padding:0 14px;color:' + (isFavorito ? 'var(--red)' : '') + '">' + akIcon('heart') + '</button>' +
+      '</div>' +
       '<ul class="buybox-trust">' +
         '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
         '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
@@ -154,6 +173,28 @@
       akCartAdd(product.id, selectedVariant.id, 1);
       akToast(product.name + ' añadido al carrito');
     });
+
+    document.getElementById('fav-btn').addEventListener('click', toggleFavorito);
+  }
+
+  async function toggleFavorito() {
+    if (!CURRENT_USER) {
+      window.location.href = 'login.html?redirect=' + encodeURIComponent('producto.html?id=' + product.id);
+      return;
+    }
+    const btn = document.getElementById('fav-btn');
+    btn.disabled = true;
+    if (isFavorito) {
+      const { error } = await akSupabase().from('tienda_favoritos').delete()
+        .eq('cliente_id', CURRENT_USER.id).eq('producto_id', product.id);
+      if (!error) { isFavorito = false; akToast('Quitado de favoritos'); }
+    } else {
+      const { error } = await akSupabase().from('tienda_favoritos')
+        .insert({ cliente_id: CURRENT_USER.id, producto_id: product.id });
+      if (!error) { isFavorito = true; akToast('Guardado en favoritos'); }
+    }
+    btn.disabled = false;
+    btn.style.color = isFavorito ? 'var(--red)' : '';
   }
 
   function renderTrustStrip() {

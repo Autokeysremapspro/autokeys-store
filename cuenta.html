@@ -36,6 +36,7 @@
   const NAV_ITEMS = [
     { id: 'resumen', label: 'Resumen', icon: 'diag' },
     { id: 'pedidos', label: 'Mis pedidos', icon: 'box' },
+    { id: 'favoritos', label: 'Favoritos', icon: 'heart' },
     { id: 'soporte', label: 'Soporte', icon: 'ticket' },
     { id: 'perfil', label: 'Perfil', icon: 'user' },
   ];
@@ -64,6 +65,7 @@
   let PERFIL = null;
   let PEDIDOS = [];
   let TICKETS = [];
+  let FAVORITOS = [];
   let showNewTicketForm = false;
   let openTicketId = null;
   let openTicketMensajes = [];
@@ -217,7 +219,7 @@
     return '<div style="margin-bottom:20px"><h1 style="font-size:22px;margin:0 0 6px">' + title + '</h1><p style="color:var(--muted);font-size:13px;margin:0">' + desc + '</p></div>';
   }
 
-  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, soporte: renderSoporte, perfil: renderPerfil };
+  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, favoritos: renderFavoritos, soporte: renderSoporte, perfil: renderPerfil };
 
   function render() {
     renderNav();
@@ -349,6 +351,28 @@
       .eq('cliente_id', CURRENT_USER.id)
       .order('created_at', { ascending: false });
     TICKETS = ticketsData || [];
+
+    const { data: favData } = await client
+      .from('tienda_favoritos')
+      .select('id, producto_id, created_at')
+      .eq('cliente_id', CURRENT_USER.id)
+      .order('created_at', { ascending: false });
+    FAVORITOS = (favData || []).map((f) => Object.assign({}, f, { producto: akFindProduct(f.producto_id) })).filter((f) => f.producto);
+  }
+
+  function renderFavoritos() {
+    return panelHeader('Favoritos', 'Los productos y servicios que has guardado.') +
+      (FAVORITOS.length
+        ? '<div class="fav-grid">' + FAVORITOS.map((f) =>
+            '<div class="fav-item">' +
+              '<a href="producto.html?id=' + f.producto.id + '">' +
+                '<span class="ph-box">' + akIcon(f.producto.icon || 'box') + '</span>' +
+                '<span><b>' + esc(f.producto.name) + '</b><span>' + akFormatPrice(f.producto.priceFrom) + '</span></span>' +
+              '</a>' +
+              '<button class="btn btn-secondary" data-remove-fav="' + f.producto_id + '" title="Quitar de favoritos">' + akIcon('close') + '</button>' +
+            '</div>'
+          ).join('') + '</div>'
+        : '<div class="empty-state">' + akIcon('heart') + '<h3>Aún no has guardado nada</h3><p>Pulsa el corazón en la ficha de un producto para guardarlo aquí.</p></div>');
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -363,6 +387,7 @@
       return;
     }
     CURRENT_USER = user;
+    await akCatalogReady();
     await loadData();
 
     document.getElementById('account-layout').style.display = '';
@@ -391,8 +416,21 @@
         e.preventDefault();
         akSupabase().auth.signOut().then(() => { window.location.href = 'index.html'; });
       }
+      const removeFavBtn = e.target.closest('[data-remove-fav]');
+      if (removeFavBtn) {
+        e.preventDefault();
+        removeFavorito(removeFavBtn.dataset.removeFav);
+      }
     });
   });
+
+  async function removeFavorito(productoId) {
+    const { error } = await akSupabase().from('tienda_favoritos').delete()
+      .eq('cliente_id', CURRENT_USER.id).eq('producto_id', productoId);
+    if (error) { akToast('No se pudo quitar de favoritos'); return; }
+    FAVORITOS = FAVORITOS.filter((f) => f.producto_id !== productoId);
+    render();
+  }
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
