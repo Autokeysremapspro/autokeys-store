@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
   }
 
   const body = await readJsonBody(req);
-  const { pedido_id, transportista, accion = 'crear' } = body;
+  const { pedido_id, transportista, accion = 'crear', numero_bultos, peso_kg } = body;
   if (!transportista) {
     res.status(400).json({ error: 'faltan_datos' });
     return;
@@ -110,7 +110,22 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const envio = await crearEnvio(transportista, pedido);
+    if (pedido.numero_seguimiento || pedido.envio_estado === 'enviado' || pedido.envio_estado === 'entregado') {
+      res.status(409).json({
+        error: 'envio_ya_generado',
+        message: `El pedido ya tiene un envío${pedido.numero_seguimiento ? ` (${pedido.numero_seguimiento})` : ''}.`,
+      });
+      return;
+    }
+
+    const bultos = numero_bultos == null ? 1 : Number(numero_bultos);
+    const peso = peso_kg == null ? undefined : Number(peso_kg);
+    if (!Number.isInteger(bultos) || bultos < 1 || bultos > 99 || (peso !== undefined && (!Number.isFinite(peso) || peso <= 0 || peso > 1000))) {
+      res.status(400).json({ error: 'datos_envio_no_validos' });
+      return;
+    }
+
+    const envio = await crearEnvio(transportista, { ...pedido, numero_bultos: bultos, peso_kg: peso });
 
     const res2 = await supabaseAdminRequest(`tienda_pedidos?id=eq.${encodeURIComponent(pedido_id)}`, {
       method: 'PATCH',
