@@ -15,7 +15,7 @@
     { "source": "/bmw-fem-bdc", "destination": "/api/seo-landing?slug=bmw-fem-bdc" },
     { "source": "/mercedes-ezs-elv", "destination": "/api/seo-landing?slug=mercedes-ezs-elv" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-landing?slug=reparacion-airbag-srs" },
-    { "source": "/reprogramacion-centralitas-jaen", "destination": "/api/seo-landing?slug=reprogramacion-centralitas-jaen" },
+    { "source": "/reprogramacion-centralitas-jaen", "destination": "/reprogramacion-centralitas-jaen.html" },
     { "source": "/servicios/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/categorias/:slug", "destination": "/api/render-seo?type=category&slug=:slug" },
