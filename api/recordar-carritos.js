@@ -28,10 +28,11 @@ function emailHtml(cart) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).json({ error: 'metodo_no_permitido' });
+  if (req.method !== 'GET' && req.method !== 'HEAD') return res.status(405).json({ error: 'metodo_no_permitido' });
   if (!process.env.CRON_SECRET) return res.status(503).json({ error: 'cron_no_configurado' });
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: 'no_autorizado' });
   if (!process.env.RESEND_API_KEY || !serviceKey()) return res.status(503).json({ error: 'servicio_no_configurado' });
+  if (req.method === 'HEAD') return res.status(204).end();
 
   const before = new Date(Date.now() - 4 * 3600000).toISOString();
   const after = new Date(Date.now() - 7 * 86400000).toISOString();
