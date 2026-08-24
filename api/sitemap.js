@@ -52,6 +52,7 @@ module.exports = async function handler(req, res) {
     { loc: `${SITE_URL}/`, lastmod: today, changefreq: 'weekly', priority: '1.0' },
     { loc: `${SITE_URL}/tienda.html`, lastmod: today, changefreq: 'weekly', priority: '0.9' },
     { loc: `${SITE_URL}/blog.html`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
+    { loc: `${SITE_URL}/enviar-reparacion.html`, lastmod: today, changefreq: 'monthly', priority: '0.9' },
     { loc: `${SITE_URL}/quienes-somos.html`, lastmod: today, changefreq: 'monthly', priority: '0.5' },
     { loc: `${SITE_URL}/aviso-legal.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
     { loc: `${SITE_URL}/politica-privacidad.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },

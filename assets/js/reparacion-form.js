@@ -2,6 +2,7 @@
    solo el admin puede decidir posteriormente si crea una orden interna en el ERP. */
 (function () {
   const DRAFT_KEY = 'ak_repair_request_draft_v1';
+  const PICKUP_DEFAULTS = { hasta5: 14.90, hasta10: 17.90, adicional: 1.50 };
   const UNIT_TYPES = [
     ['ecu', 'ecu', 'ECU / centralita motor'], ['tcu', 'gear', 'TCU / cambio automático'],
     ['abs_esp', 'diag', 'ABS / ESP'], ['airbag_srs', 'shield', 'Airbag / SRS'],
@@ -22,9 +23,10 @@
     otro: ['Diagnóstico', 'Reparación', 'Clonación', 'Programación / adaptación', 'No lo sé, necesito asesoramiento'],
   };
   const SEND_ITEMS = ['Solo módulo original', 'Original y donante', 'Módulo y llave', 'Módulo, llave y clausor', 'Juego completo', 'Todavía no lo sé'];
-  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','tipo-cliente','nombre','email','telefono'];
+  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
   let step = 1;
   let selectedUnit = '';
+  let pickupRates = { ...PICKUP_DEFAULTS };
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -36,7 +38,7 @@
     document.getElementById('send-items').innerHTML = SEND_ITEMS.map((label, i) =>
       '<label><input type="checkbox" value="' + label + '"' + (i === 0 ? ' checked' : '') + '><span>' + label + '</span></label>'
     ).join('');
-    restoreDraft(); wireEvents(); await loadSession(); showStep();
+    restoreDraft(); wireEvents(); await Promise.all([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
   }
 
   function wireEvents() {
@@ -47,6 +49,8 @@
     document.getElementById('averia').addEventListener('input', updateCount);
     document.getElementById('archivos').addEventListener('change', renderFiles);
     document.querySelectorAll('input[name="metodo_envio"]').forEach((radio) => radio.addEventListener('change', togglePickup));
+    document.getElementById('peso-recogida').addEventListener('input', updatePickupQuote);
+    document.getElementById('cp').addEventListener('input', updatePickupQuote);
     document.querySelectorAll('#repair-request-form input,#repair-request-form select,#repair-request-form textarea').forEach((el) => el.addEventListener('change', saveDraft));
     document.querySelectorAll('.method-card').forEach((card) => card.addEventListener('click', () => {
       document.querySelectorAll('.method-card').forEach((x) => x.classList.remove('active')); card.classList.add('active');
@@ -98,8 +102,33 @@
   function fail(message) { akToast(message); return false; }
   function value(id) { return document.getElementById(id).value.trim(); }
   function shippingMethod() { return document.querySelector('input[name="metodo_envio"]:checked').value; }
-  function togglePickup() { document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys'; saveDraft(); }
+  function togglePickup() { document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys'; updatePickupQuote(); saveDraft(); }
   function updateCount() { document.getElementById('averia-count').textContent = value('averia').length + ' / 4000 caracteres'; }
+
+  async function loadPickupRates() {
+    const { data } = await akSupabase().from('tienda_configuracion').select('recogida_precio_hasta_5kg,recogida_precio_hasta_10kg,recogida_precio_kg_adicional').eq('id', true).maybeSingle();
+    if (!data) return;
+    pickupRates = {
+      hasta5: Number(data.recogida_precio_hasta_5kg) || PICKUP_DEFAULTS.hasta5,
+      hasta10: Number(data.recogida_precio_hasta_10kg) || PICKUP_DEFAULTS.hasta10,
+      adicional: Number(data.recogida_precio_kg_adicional) || PICKUP_DEFAULTS.adicional,
+    };
+  }
+
+  function pickupQuote() {
+    const weight = Math.max(0.1, Number(document.getElementById('peso-recogida').value) || 1);
+    if (weight <= 5) return { weight, price: pickupRates.hasta5, code: 'RECOGIDA_PENINSULA_HASTA_5KG', detail: 'Hasta 5 kg · IVA incluido' };
+    if (weight <= 10) return { weight, price: pickupRates.hasta10, code: 'RECOGIDA_PENINSULA_HASTA_10KG', detail: 'De 5 a 10 kg · IVA incluido' };
+    const price = pickupRates.hasta10 + Math.ceil(weight - 10) * pickupRates.adicional;
+    return { weight, price, code: 'RECOGIDA_PENINSULA_MAS_10KG', detail: 'Más de 10 kg · IVA incluido' };
+  }
+
+  function updatePickupQuote() {
+    const quote = pickupQuote();
+    document.getElementById('pickup-price').textContent = quote.price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+    document.getElementById('pickup-rate-detail').textContent = quote.detail;
+    document.getElementById('pickup-zone-warning').hidden = !/^(07|35|38|51|52)/.test(value('cp'));
+  }
 
   function renderFiles() {
     const input = document.getElementById('archivos'); let files = Array.from(input.files || []);
@@ -147,7 +176,7 @@
     const unitLabel = (UNIT_TYPES.find((u) => u[0] === selectedUnit) || [,'',''])[2];
     document.getElementById('request-summary').innerHTML = '<h3>Resumen de la solicitud</h3><div>' +
       '<span><small>Unidad</small><b>' + akEscapeHtml(unitLabel) + '</b></span><span><small>Trabajo</small><b>' + akEscapeHtml(value('trabajo')) + '</b></span>' +
-      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Solicitar recogida') + '</b></span>' +
+      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Recogida · ' + pickupQuote().price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })) + '</b></span>' +
       '</div><p>Revisaremos los datos antes de indicarte que envíes la unidad. Esta solicitud no es todavía un presupuesto ni una orden del laboratorio.</p>';
   }
 
@@ -157,11 +186,13 @@
     const { data: { session } } = await akSupabase().auth.getSession();
     if (!session) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
+    const quote = pickupQuote();
     const payload = {
       cliente_id: session.user.id, tipo_cliente: value('tipo-cliente'), nombre: value('nombre'), email: value('email'), telefono: value('telefono'), tipo_unidad: selectedUnit, trabajo_solicitado: value('trabajo'), marca: value('marca'), modelo: value('modelo'), anio: value('anio') ? Number(value('anio')) : null,
       motorizacion: value('motor') || null, matricula: value('matricula') || null, vin: value('vin') || null, referencia_modulo: value('referencia') || null, descripcion_averia: value('averia'), vehiculo_arranca: value('arranca') === '' ? null : value('arranca') === 'true', codigos_averia: value('dtcs') || null,
       manipulado_antes: value('manipulado') === 'true', elementos_envio: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodo_envio: shippingMethod(), direccion_recogida: shippingMethod() === 'recogida_autokeys' ? value('direccion') : null, codigo_postal: shippingMethod() === 'recogida_autokeys' ? value('cp') : null,
       poblacion: shippingMethod() === 'recogida_autokeys' ? value('poblacion') : null, provincia: shippingMethod() === 'recogida_autokeys' ? value('provincia') : null, persona_contacto_recogida: shippingMethod() === 'recogida_autokeys' ? value('contacto-recogida') || value('nombre') : null, telefono_recogida: shippingMethod() === 'recogida_autokeys' ? value('telefono') : null,
+      peso_recogida_kg: shippingMethod() === 'recogida_autokeys' ? quote.weight : null, precio_recogida: shippingMethod() === 'recogida_autokeys' ? quote.price : null, tarifa_recogida_codigo: shippingMethod() === 'recogida_autokeys' ? quote.code : null,
       acepta_diagnostico: document.getElementById('acepta-diagnostico').checked, acepta_condiciones: document.getElementById('acepta-condiciones').checked, acepta_privacidad: document.getElementById('acepta-privacidad').checked,
     };
     const { data: request, error } = await akSupabase().from('tienda_solicitudes_reparacion').insert(payload).select('id,numero').single();
