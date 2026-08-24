@@ -6,6 +6,10 @@ const STATIC_URLS = [
   '/',
   '/tienda.html',
   '/blog.html',
+  '/casos-reales.html',
+  '/casos/renault-megane-2008-perdida-total-llaves',
+  '/casos/bmw-418d-stage-1-sport-display',
+  '/casos/bosch-edc17cp54-stage-1-plus-malaga',
   '/enviar-reparacion.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
@@ -26,7 +30,7 @@ const STATIC_URLS = [
 ];
 
 function xmlEscape(value) {
-  return String(value).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+  return String(value).replace(/[<>&'\"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '\"': '&quot;' }[c]));
 }
 
 function isoDate(value) {
