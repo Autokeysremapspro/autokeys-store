@@ -510,6 +510,8 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .info-card ul li:before{content:"— "}
 .info-card ul.mini-steps li:before{content:""}
 .info-card .center{text-align:center}
+.info-card>.ic{display:inline-flex;margin-bottom:8px}
+.info-card>.ic svg{width:24px;height:24px;color:var(--red)}
 
 .faq{padding:0 6vw 80px;display:grid;grid-template-columns:1.2fr .8fr;gap:26px}
 .faq details{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:15px 18px;margin-bottom:9px}
