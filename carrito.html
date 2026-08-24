@@ -69,6 +69,14 @@
       showPaymentReturn(params.get('pedido'));
       return;
     }
+
+    const removidos = akCartPruneInvalid();
+    if (removidos > 0) {
+      akToast(removidos === 1
+        ? 'Un producto de tu carrito ya no está disponible y se ha quitado.'
+        : removidos + ' productos de tu carrito ya no están disponibles y se han quitado.');
+    }
+
     render();
   });
 
@@ -459,6 +467,29 @@
     return { id: null, referencia: null };
   }
 
+  async function cuponSigueValido() {
+    if (!appliedCupon) return true;
+    const { data: cupon } = await akSupabase()
+      .from('tienda_cupones')
+      .select('*')
+      .eq('codigo', appliedCupon.codigo)
+      .eq('activo', true)
+      .maybeSingle();
+    const today = new Date().toISOString().slice(0, 10);
+    const subtotal = akCartSubtotal();
+    const sigueValido = cupon
+      && (!cupon.fecha_inicio || today >= cupon.fecha_inicio)
+      && (!cupon.fecha_fin || today <= cupon.fecha_fin)
+      && (cupon.usos_maximos === null || cupon.usos_actuales < cupon.usos_maximos)
+      && subtotal >= Number(cupon.importe_minimo);
+    if (!sigueValido) {
+      appliedCupon = null;
+      akToast('Tu cupón ya no es válido (caducó o dejó de estar disponible) — hemos actualizado el total, revísalo antes de continuar');
+      render();
+    }
+    return sigueValido;
+  }
+
   async function submitOrder() {
     if (!CURRENT_USER) {
       akToast('Inicia sesión para completar el pedido');
@@ -475,6 +506,7 @@
       document.getElementById(missing[0]).focus();
       return;
     }
+    if (!(await cuponSigueValido())) return;
     const email = CURRENT_USER.email;
 
     const btn = document.getElementById('finish-btn');
