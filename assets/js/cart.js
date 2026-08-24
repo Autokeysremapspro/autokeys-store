@@ -33,12 +33,15 @@ function akCartAdd(productId, variantId, qty, extra) {
     items.push(extra ? { productId, variantId, qty, extra } : { productId, variantId, qty });
   }
   akCartSave(items);
+  if (typeof akTrack === 'function') akTrack('add_to_cart', { producto_id: productId, variante_id: variantId });
 }
 
 function akCartRemove(index) {
   const items = akCartGet();
+  const removed = items[index];
   items.splice(index, 1);
   akCartSave(items);
+  if (removed && typeof akTrack === 'function') akTrack('remove_from_cart', { producto_id: removed.productId, variante_id: removed.variantId });
 }
 
 function akCartSetQty(index, qty) {
