@@ -34,14 +34,11 @@
 </head>
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
-
 <header id="site-header" data-active="blog"></header>
 <main id="main">
-
 <nav class="breadcrumb" aria-label="Migas de pan">
   <a href="index.html">Inicio</a><span data-icon="chevRight"></span><span class="current">Blog</span>
 </nav>
-
 <div class="section" style="padding-bottom:0">
   <div class="eyebrow">BLOG AUTOKEYS</div>
   <h1>Guías técnicas de llaves, ECU e inmovilizadores</h1>
@@ -51,15 +48,14 @@
     <a class="btn btn-primary" href="/casos-reales.html">Ver casos reales</a>
   </div>
 </div>
-
 <section class="section" style="padding-top:34px;padding-bottom:20px">
   <div class="eyebrow">CONTENIDO TÉCNICO</div>
   <h2>Información para entender el problema antes de reparar</h2>
   <p class="section-desc">Una centralita, una UCH, un inmovilizador o una llave no se diagnostican únicamente por el síntoma que ve el conductor. Dos vehículos que “no arrancan” pueden tener causas completamente diferentes. En estas guías explicamos qué módulos intervienen, qué información suele ser útil y por qué la diagnosis y la identificación correcta deben ir antes que cualquier sustitución o programación.</p>
   <p class="section-desc" style="margin-top:14px">También tratamos conceptos relacionados con lectura y escritura de ECU, clonación, recuperación de unidades, programación de llaves y electrónica de confort. El objetivo no es convertir cada artículo en una receta universal, sino ayudar a distinguir qué tipo de trabajo puede necesitar el vehículo y qué datos conviene reunir antes de solicitar una valoración.</p>
   <p class="section-desc" style="margin-top:14px">Cuando publicamos procedimientos, evitamos asumir que una referencia, un año o una familia electrónica comparten siempre el mismo método. Hardware, software, motorización, equipamiento y estado previo pueden cambiar el enfoque. Por eso enlazamos cada guía con los servicios relacionados y, cuando existe, con un caso real documentado.</p>
+  <p class="section-desc" style="margin-top:14px">También diferenciamos entre reparar, clonar, programar o recalibrar una unidad. Aunque desde fuera puedan parecer trabajos parecidos, cada uno parte de objetivos y comprobaciones distintas. Esa separación ayuda a que el cliente o taller llegue con una solicitud más precisa y permite relacionar cada consulta con la página de servicio adecuada, en lugar de tratar todos los problemas electrónicos como si fueran la misma intervención.</p>
 </section>
-
 <section class="section" style="padding-top:20px;padding-bottom:20px">
   <div class="cat-grid">
     <a class="cat-item" href="/reparacion-centralitas-ecu"><span><b>Centralitas ECU</b><p style="margin:5px 0 0;color:var(--muted);font-size:12px">Diagnosis, reparación y recuperación.</p></span></a>
@@ -68,16 +64,12 @@
     <a class="cat-item" href="/mercedes-ezs-elv"><span><b>Mercedes EZS / ELV</b><p style="margin:5px 0 0;color:var(--muted);font-size:12px">Sistemas de autorización y bloqueo de dirección.</p></span></a>
   </div>
 </section>
-
 <div class="section" style="padding-top:20px">
   <div class="eyebrow">ÚLTIMAS GUÍAS</div>
   <div class="blog-grid" id="blog-grid"></div>
 </div>
-
 </main>
-
 <footer id="site-footer"></footer>
-
 <script defer src="assets/js/catalog.js"></script>
 <script defer src="assets/js/cart.js"></script>
 <script defer src="assets/js/app.js"></script>
@@ -88,7 +80,6 @@
     if (!iso) return '';
     return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   }
-
   async function loadPosts() {
     const { data, error } = await akSupabase()
       .from('tienda_blog_posts')
@@ -97,8 +88,7 @@
       .order('publicado_en', { ascending: false });
     const grid = document.getElementById('blog-grid');
     if (error || !data || data.length === 0) {
-      grid.insertAdjacentHTML('afterend',
-        '<div class="blog-empty">' + akIcon('file') + '<p style="margin-top:10px">Todavía no hay artículos publicados. Vuelve pronto.</p></div>');
+      grid.insertAdjacentHTML('afterend', '<div class="blog-empty">' + akIcon('file') + '<p style="margin-top:10px">Todavía no hay artículos publicados. Vuelve pronto.</p></div>');
       return;
     }
     grid.innerHTML = data.map((p) =>
@@ -113,7 +103,6 @@
       '</a>'
     ).join('');
   }
-
   document.addEventListener('DOMContentLoaded', loadPosts);
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
