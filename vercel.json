@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/render-seo.js": {
-      "includeFiles": ["producto.html", "tienda.html", "blog-post.html"]
+      "includeFiles": "{producto.html,tienda.html,blog-post.html}"
     }
   },
   "rewrites": [
