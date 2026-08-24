@@ -1,4 +1,4 @@
-const { TRANSPORTISTAS, estaConfigurado, crearEnvio } = require('../lib/transportistas');
+const { TRANSPORTISTAS, getEstadoConfiguracion, probarConexion, crearEnvio } = require('../lib/transportistas');
 
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
@@ -31,7 +31,8 @@ async function esStaffAutenticado(req) {
     `usuarios_app?auth_user_id=eq.${encodeURIComponent(user.id)}&activo=eq.true&select=rol`
   );
   const staff = await staffRes.json();
-  return Array.isArray(staff) && staff.length > 0;
+  const rolesPermitidos = new Set(['admin', 'administrador', 'superadmin']);
+  return Array.isArray(staff) && staff.some((fila) => rolesPermitidos.has(String(fila.rol || '').toLowerCase()));
 }
 
 async function supabaseAdminRequest(path, init = {}) {
@@ -59,7 +60,7 @@ module.exports = async function handler(req, res) {
     // Lista qué transportistas están ya configurados, para que el panel
     // admin solo ofrezca los que de verdad se pueden usar.
     res.status(200).json({
-      transportistas: TRANSPORTISTAS.map((t) => ({ id: t.id, label: t.label, configurado: estaConfigurado(t.id) })),
+      transportistas: TRANSPORTISTAS.map((t) => ({ id: t.id, label: t.label, ...getEstadoConfiguracion(t.id) })),
     });
     return;
   }
@@ -75,9 +76,28 @@ module.exports = async function handler(req, res) {
   }
 
   const body = await readJsonBody(req);
-  const { pedido_id, transportista } = body;
-  if (!pedido_id || !transportista) {
+  const { pedido_id, transportista, accion = 'crear' } = body;
+  if (!transportista) {
     res.status(400).json({ error: 'faltan_datos' });
+    return;
+  }
+
+  if (accion === 'probar_conexion') {
+    try {
+      res.status(200).json(await probarConexion(transportista));
+    } catch (err) {
+      res.status(502).json({ ok: false, error: err.message || 'error_transportista' });
+    }
+    return;
+  }
+
+  if (accion !== 'crear') {
+    res.status(400).json({ error: 'accion_no_valida' });
+    return;
+  }
+
+  if (!pedido_id) {
+    res.status(400).json({ error: 'falta_pedido_id' });
     return;
   }
 
