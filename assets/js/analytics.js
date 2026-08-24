@@ -1,6 +1,7 @@
 /* Medición propia y respetuosa: no guarda IP, user-agent ni datos personales anónimos. */
 (function () {
   const KEY = 'ak_conversion_session_v1';
+  const REMINDER_KEY = 'ak_cart_reminder_consent_v1';
   function sessionId() {
     let id = localStorage.getItem(KEY);
     if (!/^[0-9a-f-]{36}$/i.test(id || '')) { id = crypto.randomUUID(); localStorage.setItem(KEY, id); }
@@ -9,9 +10,18 @@
   async function token() {
     try { const result = await akSupabase().auth.getSession(); return result.data.session && result.data.session.access_token; } catch (_) { return null; }
   }
+  function reminderConsent() {
+    return localStorage.getItem(REMINDER_KEY) === '1';
+  }
+  window.akCartReminderConsent = reminderConsent;
+  window.akSetCartReminderConsent = function (value) {
+    if (value) localStorage.setItem(REMINDER_KEY, '1');
+    else localStorage.removeItem(REMINDER_KEY);
+  };
   function cartSnapshot(consent) {
     if (typeof akCartGet !== 'function') return null;
-    return { items: akCartGet(), subtotal: typeof akCartSubtotal === 'function' ? akCartSubtotal() : 0, consentimiento_recordatorio: consent === true };
+    if (typeof consent === 'boolean') window.akSetCartReminderConsent(consent);
+    return { items: akCartGet(), subtotal: typeof akCartSubtotal === 'function' ? akCartSubtotal() : 0, consentimiento_recordatorio: reminderConsent() };
   }
   window.akTrack = async function (evento, details) {
     details = details || {};
