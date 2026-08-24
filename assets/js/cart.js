@@ -48,6 +48,14 @@ function akCartSetQty(index, qty) {
   akCartSave(items);
 }
 
+function akCartPruneInvalid() {
+  const items = akCartGet();
+  const valid = items.filter((item) => akFindProduct(item.productId));
+  const removidos = items.length - valid.length;
+  if (removidos > 0) akCartSave(valid);
+  return removidos;
+}
+
 function akCartLines() {
   return akCartGet()
     .map((item, index) => {

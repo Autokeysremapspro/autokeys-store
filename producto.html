@@ -56,10 +56,14 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
-    product = akFindProduct(akQueryParam('id')) || CATALOG[0];
+    product = akFindProduct(akQueryParam('id'));
     if (!product) {
+      const motivo = CATALOG.length === 0
+        ? 'No se pudo cargar el catálogo. Inténtalo de nuevo en unos segundos.'
+        : 'Puede que se haya movido o ya no esté disponible.';
       document.getElementById('detail-root').innerHTML =
-        '<div class="empty-state">' + akIcon('search') + '<h3>No se pudo cargar el catálogo</h3><p>Inténtalo de nuevo en unos segundos.</p></div>';
+        '<div class="empty-state">' + akIcon('search') + '<h3>Producto o servicio no encontrado</h3><p>' + motivo + '</p>' +
+        '<a class="btn btn-primary" style="margin-top:16px" href="tienda.html">Ir a la tienda</a></div>';
       akFillIcons();
       return;
     }
