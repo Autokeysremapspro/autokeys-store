@@ -55,7 +55,8 @@
 
   function setSeo(post) {
     const url = 'https://www.autokeysremapspro.es/guias/' + encodeURIComponent(post.slug);
-    const title = (post.meta_title || post.titulo) + ' | Autokeys Remaps Pro Store';
+    const rawTitle = post.meta_title || post.titulo;
+    const title = /autokeys remaps pro/i.test(rawTitle) ? rawTitle : rawTitle + ' | Autokeys Remaps Pro';
     const desc = post.meta_description || post.resumen || '';
     const img = post.imagen_url || 'https://www.autokeysremapspro.es/assets/img/logo.png';
     document.getElementById('page-title').textContent = title;

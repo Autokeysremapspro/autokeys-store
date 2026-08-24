@@ -110,7 +110,8 @@ async function articleSeo(slug) {
   if (!row) return null;
   const url = `${SITE}/guias/${row.slug}`;
   const description = String(row.meta_description || row.resumen || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
-  const title = `${row.meta_title || row.titulo} | Autokeys Remaps Pro`;
+  const rawTitle = String(row.meta_title || row.titulo);
+  const title = /autokeys remaps pro/i.test(rawTitle) ? rawTitle : `${rawTitle} | Autokeys Remaps Pro`;
   const image = absoluteImage(row.imagen_url);
   return {
     template: 'blog-post.html', title, description, url, image,
