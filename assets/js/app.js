@@ -178,6 +178,7 @@ function akFooterHTML() {
       '</div>' +
       '<div><h4>ENLACES RÁPIDOS</h4><ul>' +
         '<li><a href="quienes-somos.html">Quiénes somos</a></li>' +
+        '<li><a href="electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
         '<li><a href="tienda.html">Tienda</a></li>' +
         '<li><a href="tienda.html#servicios">Servicios</a></li>' +
         '<li><a href="enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +

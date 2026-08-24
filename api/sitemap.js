@@ -54,6 +54,7 @@ module.exports = async function handler(req, res) {
     { loc: `${SITE_URL}/blog.html`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_URL}/enviar-reparacion.html`, lastmod: today, changefreq: 'monthly', priority: '0.9' },
     { loc: `${SITE_URL}/quienes-somos.html`, lastmod: today, changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_URL}/electronica-automovil-jaen.html`, lastmod: today, changefreq: 'monthly', priority: '0.8' },
     { loc: `${SITE_URL}/aviso-legal.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
     { loc: `${SITE_URL}/politica-privacidad.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
     { loc: `${SITE_URL}/politica-cookies.html`, lastmod: today, changefreq: 'yearly', priority: '0.2' },
