@@ -12,7 +12,7 @@ function isoDate(value) {
 
 async function fetchProductos() {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/tienda_productos?select=id,updated_at&activo=eq.true&order=sort_order`,
+    `${SUPABASE_URL}/rest/v1/tienda_productos?select=id,updated_at,is_product&activo=eq.true&order=sort_order`,
     { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
   );
   if (!res.ok) throw new Error(`Supabase respondió ${res.status}`);
@@ -61,12 +61,12 @@ module.exports = async function handler(req, res) {
   ];
 
   categorias.forEach((c) => {
-    urls.push({ loc: `${SITE_URL}/tienda.html?cat=${encodeURIComponent(c.id)}`, lastmod: today, changefreq: 'weekly', priority: '0.6' });
+    urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}`, lastmod: today, changefreq: 'weekly', priority: '0.6' });
   });
 
   productos.forEach((p) => {
     urls.push({
-      loc: `${SITE_URL}/producto.html?id=${encodeURIComponent(p.id)}`,
+      loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`,
       lastmod: isoDate(p.updated_at),
       changefreq: 'monthly',
       priority: '0.8',
@@ -75,7 +75,7 @@ module.exports = async function handler(req, res) {
 
   blogPosts.forEach((p) => {
     urls.push({
-      loc: `${SITE_URL}/blog-post.html?slug=${encodeURIComponent(p.slug)}`,
+      loc: `${SITE_URL}/guias/${encodeURIComponent(p.slug)}`,
       lastmod: isoDate(p.updated_at),
       changefreq: 'monthly',
       priority: '0.6',

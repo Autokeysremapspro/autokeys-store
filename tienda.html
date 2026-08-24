@@ -87,7 +87,8 @@
   };
 
   function initFromURL() {
-    const cat = akQueryParam('cat');
+    const routeCat = location.pathname.match(/^\/categorias\/([^/]+)\/?$/);
+    const cat = akQueryParam('cat') || (routeCat ? decodeURIComponent(routeCat[1]) : '');
     const brand = akQueryParam('brand');
     const q = akQueryParam('q');
     if (cat) state.cats.add(cat);
@@ -200,11 +201,12 @@
     // un ?cat= (el mismo formato que genera el sitemap) — con varios filtros
     // combinados por el usuario, la página sigue canonicalizando a sí misma
     // sin parámetros, ya que la URL nunca cambia al filtrar.
-    const catId = akQueryParam('cat');
+    const routeCat = location.pathname.match(/^\/categorias\/([^/]+)\/?$/);
+    const catId = akQueryParam('cat') || (routeCat ? decodeURIComponent(routeCat[1]) : '');
     if (!catId) return;
     const cat = akFindCategory(catId);
     if (!cat) return;
-    const url = 'https://www.autokeysremapspro.es/tienda.html?cat=' + encodeURIComponent(catId);
+    const url = 'https://www.autokeysremapspro.es/categorias/' + encodeURIComponent(catId);
     const title = cat.label + ' — Autokeys Remaps Pro Store';
     const desc = 'Servicios de ' + cat.label.toLowerCase() + ' en Autokeys Remaps Pro Store: profesionales, con garantía y envío a toda España.';
     document.getElementById('page-title').textContent = title;

@@ -56,7 +56,8 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     await akCatalogReady();
-    product = akFindProduct(akQueryParam('id'));
+    const routeId = location.pathname.match(/^\/(?:productos|servicios)\/([^/]+)\/?$/);
+    product = akFindProduct(akQueryParam('id') || (routeId ? decodeURIComponent(routeId[1]) : ''));
     if (!product) {
       const motivo = CATALOG.length === 0
         ? 'No se pudo cargar el catálogo. Inténtalo de nuevo en unos segundos.'
@@ -442,7 +443,7 @@
   }
 
   function renderSeo() {
-    const url = 'https://www.autokeysremapspro.es/producto.html?id=' + product.id;
+    const url = 'https://www.autokeysremapspro.es/' + (product.isProduct ? 'productos/' : 'servicios/') + product.id;
     const desc = (product.shortDesc || '').slice(0, 160);
     const title = product.name + ' — Autokeys Remaps Pro Store';
     const absUrl = (src) => (/^https?:\/\//.test(src) ? src : 'https://www.autokeysremapspro.es/' + src.replace(/^\//, ''));
@@ -473,7 +474,7 @@
         '@type': 'Offer',
         priceCurrency: 'EUR',
         price: minPrice,
-        availability: 'https://schema.org/InStock',
+        availability: product.isProduct && (product.stock === 'agotado' || product.stockActual === 0) ? 'https://schema.org/OutOfStock' : product.isProduct && product.stock === 'encargo' ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
         url: url,
       },
     };
@@ -496,7 +497,7 @@
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.autokeysremapspro.es/' },
-        { '@type': 'ListItem', position: 2, name: cat ? cat.label : 'Servicios', item: 'https://www.autokeysremapspro.es/tienda.html?cat=' + product.category },
+        { '@type': 'ListItem', position: 2, name: cat ? cat.label : 'Servicios', item: 'https://www.autokeysremapspro.es/categorias/' + product.category },
         { '@type': 'ListItem', position: 3, name: product.name, item: url },
       ],
     };

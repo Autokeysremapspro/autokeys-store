@@ -54,7 +54,7 @@
   }
 
   function setSeo(post) {
-    const url = 'https://www.autokeysremapspro.es/blog-post.html?slug=' + encodeURIComponent(post.slug);
+    const url = 'https://www.autokeysremapspro.es/guias/' + encodeURIComponent(post.slug);
     const title = (post.meta_title || post.titulo) + ' | Autokeys Remaps Pro Store';
     const desc = post.meta_description || post.resumen || '';
     const img = post.imagen_url || 'https://www.autokeysremapspro.es/assets/img/logo.png';
@@ -163,7 +163,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const slug = akQueryParam('slug');
+    const routeSlug = location.pathname.match(/^\/guias\/([^/]+)\/?$/);
+    const slug = akQueryParam('slug') || (routeSlug ? decodeURIComponent(routeSlug[1]) : '');
     const root = document.getElementById('post-root');
     if (!slug) {
       root.innerHTML = '<h1>Artículo no encontrado</h1><p><a class="btn btn-primary" href="blog.html">Volver al blog</a></p>';
