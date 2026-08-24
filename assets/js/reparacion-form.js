@@ -106,13 +106,16 @@
   function updateCount() { document.getElementById('averia-count').textContent = value('averia').length + ' / 4000 caracteres'; }
 
   async function loadPickupRates() {
-    const { data } = await akSupabase().from('tienda_configuracion').select('recogida_precio_hasta_5kg,recogida_precio_hasta_10kg,recogida_precio_kg_adicional').eq('id', true).maybeSingle();
-    if (!data) return;
-    pickupRates = {
-      hasta5: Number(data.recogida_precio_hasta_5kg) || PICKUP_DEFAULTS.hasta5,
-      hasta10: Number(data.recogida_precio_hasta_10kg) || PICKUP_DEFAULTS.hasta10,
-      adicional: Number(data.recogida_precio_kg_adicional) || PICKUP_DEFAULTS.adicional,
-    };
+    try {
+      const response = await fetch('/api/tarifas-recogida');
+      if (!response.ok) return;
+      const data = await response.json();
+      pickupRates = {
+        hasta5: Number(data.hasta5) || PICKUP_DEFAULTS.hasta5,
+        hasta10: Number(data.hasta10) || PICKUP_DEFAULTS.hasta10,
+        adicional: Number(data.adicional) || PICKUP_DEFAULTS.adicional,
+      };
+    } catch (_) {}
   }
 
   function pickupQuote() {
