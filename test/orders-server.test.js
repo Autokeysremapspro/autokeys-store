@@ -10,7 +10,7 @@ function response(data, ok = true) {
   return { ok, json: async () => data };
 }
 
-function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false, bulky = false } = {}) {
+function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false, bulky = false, dimensions = null } = {}) {
   global.fetch = async (url) => {
     const path = String(url);
     if (path.includes('tienda_configuracion')) return response([{
@@ -23,7 +23,18 @@ function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false
       envio_peso_fallback_kg: 1,
     }]);
     if (path.includes('tienda_producto_variantes')) return response([{ producto_id: 'p1', variant_key: 'v1', name: 'Estándar', price, peso_envio_kg: null }]);
-    if (path.includes('tienda_productos')) return response([{ id: 'p1', name: 'Producto', category_id: 'recambios', requiere_envio: physical, peso_envio_kg: weight, voluminoso: bulky, excluido_envio_gratis: excluded }]);
+    if (path.includes('tienda_productos')) return response([{
+      id: 'p1',
+      name: 'Producto',
+      category_id: 'recambios',
+      requiere_envio: physical,
+      peso_envio_kg: weight,
+      largo_cm: dimensions?.largo || null,
+      ancho_cm: dimensions?.ancho || null,
+      alto_cm: dimensions?.alto || null,
+      voluminoso: bulky,
+      excluido_envio_gratis: excluded,
+    }]);
     throw new Error(`URL inesperada: ${path}`);
   };
 }
@@ -44,6 +55,17 @@ test('aplica 11,95 € entre 5 y 10 kg', async () => {
   mockCatalog({ weight: 1 });
   const result = await quote(6);
   assert.equal(result.envio, 11.95);
+});
+
+test('usa el peso volumétrico cuando supera el peso real', async () => {
+  mockCatalog({ weight: 4, dimensions: { largo: 60, ancho: 40, alto: 20 } });
+  const result = await quote(1);
+  assert.equal(result.lineas[0].peso_real_kg, 4);
+  assert.equal(result.lineas[0].peso_volumetrico_kg, 9.6);
+  assert.equal(result.lineas[0].peso_unitario_kg, 9.6);
+  assert.equal(result.peso_total_kg, 9.9);
+  assert.equal(result.envio, 11.95);
+  assert.equal(result.tarifa_envio_codigo, 'PENINSULA_HASTA_10KG');
 });
 
 test('redondea hacia arriba los kilos adicionales a partir de 10 kg', async () => {
