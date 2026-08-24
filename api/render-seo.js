@@ -121,8 +121,9 @@ async function articleSeo(slug) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).send('Método no permitido');
-  const type = String(req.query.type || '');
-  const slug = cleanSlug(req.query.slug || req.query.id);
+  const requestUrl = new URL(req.url, 'https://www.autokeysremapspro.es');
+  const type = String(requestUrl.searchParams.get('type') || '');
+  const slug = cleanSlug(requestUrl.searchParams.get('slug') || requestUrl.searchParams.get('id'));
   if (!slug || !['product', 'category', 'article'].includes(type)) return res.status(400).send('Ruta no válida');
   try {
     const seo = type === 'product' ? await productSeo(slug) : type === 'category' ? await categorySeo(slug) : await articleSeo(slug);
