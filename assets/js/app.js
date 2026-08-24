@@ -110,7 +110,7 @@ function akHeaderHTML(active) {
         { href: 'tienda.html?cat=clonacion-ecu', label: 'Clonación ECU' },
         { href: 'tienda.html?brand=bmw', label: 'BMW' },
         { href: 'tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
-        { href: 'tienda.html?cat=reparacion-envio', label: 'Reparación por envío' },
+        { href: 'enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('servicios', 'SERVICIOS', [
         { href: 'producto.html?id=ecu-uce-diagnostico', label: 'Diagnóstico ECU / UCE' },
@@ -120,7 +120,7 @@ function akHeaderHTML(active) {
         { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
         { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
         { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
-        { href: 'tienda.html?cat=reparacion-envio', label: 'Reparación por envío' },
+        { href: 'enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
         { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Reparación ECU' },
@@ -180,7 +180,7 @@ function akFooterHTML() {
         '<li><a href="quienes-somos.html">Quiénes somos</a></li>' +
         '<li><a href="tienda.html">Tienda</a></li>' +
         '<li><a href="tienda.html#servicios">Servicios</a></li>' +
-        '<li><a href="tienda.html?cat=reparacion-envio">Reparación por envío</a></li>' +
+        '<li><a href="enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
         '<li><a href="blog.html">Blog</a></li>' +
         '<li><a href="producto.html?id=software-licencias">Software</a></li>' +
         '<li><a href="#contacto">Contacto</a></li>' +

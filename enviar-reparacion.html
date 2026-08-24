@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://pbldwfzzyofpbpojzsjg.supabase.co">
+<title>Enviar una unidad a reparar — Autokeys Remaps Pro</title>
+<meta name="description" content="Solicita el diagnóstico y reparación de una ECU, TCU, ABS, airbag, cuadro, inmovilizador o módulo electrónico. Revisión previa antes del envío.">
+<link rel="canonical" href="https://www.autokeysremapspro.es/enviar-reparacion.html">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<header id="site-header" data-active="servicios"></header>
+<main id="main" class="repair-request-page">
+  <section class="repair-request-hero">
+    <div><div class="eyebrow">SOLICITUD DE LABORATORIO</div><h1>Envía tu unidad a reparar</h1><p>Explícanos el caso antes de enviar nada. Nuestro equipo revisará la información y te confirmará qué debes mandar y cómo hacerlo.</p></div>
+    <div class="repair-hero-note"><span data-icon="shield"></span><span><b>Sin pago anticipado de la reparación</b><small>Primero revisamos la solicitud y, cuando recibamos la unidad, confirmamos diagnóstico y presupuesto.</small></span></div>
+  </section>
+  <section class="repair-request-shell" id="request-shell">
+    <div class="request-progress" id="request-progress"></div>
+    <div id="auth-notice" class="request-notice" hidden></div>
+    <form id="repair-request-form" novalidate>
+      <section class="request-step active" data-step="1">
+        <div class="request-step-head"><span>01</span><div><h2>¿Qué unidad necesitas revisar?</h2><p>No hace falta que conozcas el nombre exacto del servicio.</p></div></div>
+        <div class="unit-grid" id="unit-grid"></div>
+        <div class="field full request-field-gap"><label for="trabajo">¿QUÉ NECESITAS?</label><select id="trabajo" required><option value="">Selecciona primero una unidad</option></select></div>
+      </section>
+      <section class="request-step" data-step="2">
+        <div class="request-step-head"><span>02</span><div><h2>Datos del vehículo y del módulo</h2><p>Los campos marcados con * son necesarios para revisar el caso.</p></div></div>
+        <div class="request-form-grid">
+          <div class="field"><label for="marca">MARCA *</label><input id="marca" maxlength="80" required placeholder="BMW, Audi, Renault…"></div><div class="field"><label for="modelo">MODELO *</label><input id="modelo" maxlength="100" required placeholder="Serie 3, A5, Megane…"></div>
+          <div class="field"><label for="anio">AÑO</label><input id="anio" type="number" min="1950" max="2100" placeholder="2016"></div><div class="field"><label for="motor">MOTORIZACIÓN</label><input id="motor" maxlength="120" placeholder="2.0 TDI, N47, K9K…"></div>
+          <div class="field"><label for="matricula">MATRÍCULA</label><input id="matricula" maxlength="20" placeholder="Opcional"></div><div class="field"><label for="vin">BASTIDOR / VIN</label><input id="vin" maxlength="40" placeholder="Opcional"></div>
+          <div class="field full"><label for="referencia">REFERENCIA DEL MÓDULO</label><input id="referencia" maxlength="160" placeholder="Bosch 0 281…, Continental…, referencia BMW/VAG…"></div>
+        </div>
+      </section>
+      <section class="request-step" data-step="3">
+        <div class="request-step-head"><span>03</span><div><h2>Cuéntanos qué ha ocurrido</h2><p>Cuanto mejor entendamos el caso, menos preguntas tendremos que hacer después.</p></div></div>
+        <div class="request-form-grid">
+          <div class="field full"><label for="averia">DESCRIPCIÓN DE LA AVERÍA *</label><textarea id="averia" minlength="20" maxlength="4000" required rows="6" placeholder="Describe los síntomas, qué ocurrió antes del fallo y qué pruebas se han realizado…"></textarea><small id="averia-count">Mínimo 20 caracteres</small></div>
+          <div class="field"><label for="arranca">¿EL VEHÍCULO ARRANCA?</label><select id="arranca"><option value="">No lo sé / no aplica</option><option value="true">Sí</option><option value="false">No</option></select></div><div class="field"><label for="manipulado">¿HA SIDO MANIPULADO ANTES?</label><select id="manipulado"><option value="false">No / no lo sé</option><option value="true">Sí</option></select></div>
+          <div class="field full"><label for="dtcs">CÓDIGOS DE AVERÍA</label><textarea id="dtcs" rows="3" maxlength="1500" placeholder="Ej.: P0606, 2F44, DF105…"></textarea></div>
+          <div class="field full"><label for="archivos">FOTOS O INFORME DE DIAGNOSIS</label><div class="request-upload"><span data-icon="plus"></span><div><b>Añadir hasta 5 archivos</b><small>JPG, PNG, WEBP, HEIC o PDF · máximo 5 MB por archivo</small></div><input id="archivos" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"></div><div id="file-list" class="request-file-list"></div></div>
+        </div>
+      </section>
+      <section class="request-step" data-step="4">
+        <div class="request-step-head"><span>04</span><div><h2>¿Qué vas a enviar?</h2><p>No envíes donantes o llaves hasta que confirmemos que son necesarios.</p></div></div>
+        <div class="send-items" id="send-items"></div><h3 class="request-subtitle">Forma de envío</h3>
+        <div class="method-grid"><label class="method-card active"><input type="radio" name="metodo_envio" value="cuenta_cliente" checked><span data-icon="box"></span><span><b>Lo envío por mi cuenta</b><small>Te facilitaremos dirección, hoja identificativa e instrucciones de embalaje.</small></span></label><label class="method-card"><input type="radio" name="metodo_envio" value="recogida_autokeys"><span data-icon="truck"></span><span><b>Solicitar recogida</b><small>Revisaremos la dirección y te confirmaremos el coste antes de generar la recogida.</small></span></label></div>
+        <div class="request-form-grid" id="pickup-fields" hidden><div class="field full"><label for="direccion">DIRECCIÓN DE RECOGIDA *</label><input id="direccion" maxlength="220"></div><div class="field"><label for="cp">CÓDIGO POSTAL *</label><input id="cp" maxlength="12"></div><div class="field"><label for="poblacion">POBLACIÓN *</label><input id="poblacion" maxlength="100"></div><div class="field"><label for="provincia">PROVINCIA *</label><input id="provincia" maxlength="100"></div><div class="field"><label for="contacto-recogida">PERSONA DE CONTACTO</label><input id="contacto-recogida" maxlength="120"></div></div>
+      </section>
+      <section class="request-step" data-step="5">
+        <div class="request-step-head"><span>05</span><div><h2>Contacto y confirmación</h2><p>Te enviaremos la confirmación y cualquier consulta a estos datos.</p></div></div>
+        <div class="request-form-grid"><div class="field"><label for="tipo-cliente">TIPO DE CLIENTE</label><select id="tipo-cliente"><option value="particular">Particular</option><option value="taller">Taller</option><option value="empresa">Empresa</option></select></div><div class="field"><label for="nombre">NOMBRE O EMPRESA *</label><input id="nombre" maxlength="120" required></div><div class="field"><label for="email">EMAIL *</label><input id="email" type="email" maxlength="254" required></div><div class="field"><label for="telefono">TELÉFONO *</label><input id="telefono" type="tel" maxlength="30" required></div></div>
+        <div class="request-summary" id="request-summary"></div>
+        <div class="request-consents"><label><input id="acepta-diagnostico" type="checkbox" required> Autorizo a AutoKeys a revisar la solicitud y entiendo que el diagnóstico o desmontaje, cuando tenga coste, se comunicará antes de realizarlo.</label><label><input id="acepta-condiciones" type="checkbox" required> Acepto las <a href="condiciones-venta.html" target="_blank">condiciones del servicio</a>.</label><label><input id="acepta-privacidad" type="checkbox" required> Acepto la <a href="politica-privacidad.html" target="_blank">política de privacidad</a>.</label></div>
+      </section>
+      <div class="request-actions"><button type="button" class="btn btn-secondary" id="prev-step" hidden><span data-icon="chevLeft"></span>Anterior</button><span class="request-save-note">La información se guarda en este dispositivo mientras completas el formulario.</span><button type="button" class="btn btn-primary" id="next-step">Continuar<span data-icon="arrowRight"></span></button><button type="submit" class="btn btn-primary" id="submit-request" hidden>Enviar solicitud<span data-icon="check"></span></button></div>
+    </form>
+  </section>
+  <section class="repair-request-shell request-success" id="request-success" hidden></section>
+</main>
+<footer id="site-footer"></footer>
+<script defer src="assets/js/catalog.js"></script><script defer src="assets/js/cart.js"></script><script defer src="assets/js/app.js"></script><script defer src="assets/js/vendor/supabase-js-2.112.3.min.js"></script><script defer src="assets/js/supabase-config.js"></script><script defer src="assets/js/reparacion-form.js"></script>
+</body></html>

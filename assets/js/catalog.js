@@ -17,9 +17,9 @@ const SERVICE_TYPES = [
 ];
 
 const GENERIC_PROCESS = [
-  { title: 'Realiza tu pedido', desc: 'Configura el servicio con los datos básicos.' },
-  { title: 'Envíanos tu unidad', desc: 'Prepara la unidad para el envío al laboratorio.' },
-  { title: 'Diagnosticamos', desc: 'Confirmamos el fallo y te damos presupuesto sin compromiso.' },
+  { title: 'Cuéntanos el caso', desc: 'Completa la solicitud y adjunta fotos de la unidad.' },
+  { title: 'Revisamos la información', desc: 'Confirmamos qué elementos necesitamos antes del envío.' },
+  { title: 'Recibimos y diagnosticamos', desc: 'Registramos la unidad y preparamos el presupuesto.' },
   { title: 'Reparamos y probamos', desc: 'Analizamos, recuperamos y verificamos en banco.' },
   { title: 'Devolución rápida', desc: 'Recibes la unidad lista, con garantía por escrito.' },
 ];
@@ -60,10 +60,6 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     stockActual: row.stock_actual,
     stockMinimo: row.stock_minimo,
     plazoEntrega: row.plazo_entrega,
-    requiereEnvio: !!row.requiere_envio,
-    pesoEnvioKg: Number(row.peso_envio_kg) || 0,
-    voluminoso: !!row.voluminoso,
-    excluidoEnvioGratis: !!row.excluido_envio_gratis,
     rating: valoracion ? Number(valoracion.media) : null,
     ratingCount: valoracion ? Number(valoracion.total) : 0,
     isProduct: !!row.is_product,
@@ -88,7 +84,6 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
       name: v.name,
       desc: v.description || '',
       price: Number(v.price) || 0,
-      pesoEnvioKg: v.peso_envio_kg === null || v.peso_envio_kg === undefined ? null : Number(v.peso_envio_kg),
     })),
   };
 }

@@ -73,7 +73,7 @@
       <p class="lead">Servicios expertos en centralitas, inmovilizadores, módulos y software. Reparación por envío rápida, segura y con garantía.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="tienda.html"><span data-icon="cart"></span>Ver tienda</a>
-        <a class="btn btn-secondary" href="tienda.html?cat=reparacion-envio"><span data-icon="truck"></span>Reparación por envío</a>
+        <a class="btn btn-secondary" href="enviar-reparacion.html"><span data-icon="truck"></span>Enviar una unidad</a>
       </div>
       <div class="hero-badges">
         <div class="hero-badge"><span data-icon="shield"></span><span><b>Garantía</b><span>Hasta 24 meses</span></span></div>
@@ -111,8 +111,8 @@
 
   <section class="section" id="proceso">
     <div class="eyebrow">CÓMO FUNCIONA</div>
-    <h2>Nuestro servicio de reparación por envío</h2>
-    <p class="section-desc">Un proceso claro, con seguimiento en cada paso.</p>
+    <h2>Cómo enviar una unidad al laboratorio</h2>
+    <p class="section-desc">Primero revisamos tu caso; después te indicamos exactamente qué debes enviar.</p>
     <div class="steps" id="steps-grid"></div>
   </section>
 </main>
@@ -130,7 +130,7 @@
     // category grid
     const catIcons = {
       'reparacion-ecu': 'ecu', 'inmovilizadores': 'key', 'modulos': 'module',
-      'herramientas': 'programmer', 'software': 'laptop', 'reparacion-envio': 'box',
+      'herramientas': 'programmer', 'software': 'laptop', 'casos': 'award',
     };
     const homeCats = [
       { id: 'reparacion-ecu', title: 'Centralitas ECU / TCU', desc: 'Recuperación, clonación y reparación.' },
@@ -138,10 +138,10 @@
       { id: 'modulos', title: 'Módulos confort / body', desc: 'Reparación y clonación de módulos.' },
       { id: 'herramientas', title: 'Herramientas y diagnóstico', desc: 'Programadores y equipos profesionales.' },
       { id: 'software', title: 'Software y licencias', desc: 'Herramientas propias para profesionales.' },
-      { id: 'reparacion-envio', title: 'Reparación por envío', desc: 'Envía tu unidad y sigue el proceso.' },
+      { id: 'casos', href: 'blog.html', title: 'Casos reales', desc: 'Trabajos documentados en nuestro laboratorio.' },
     ];
     document.getElementById('cat-grid').innerHTML = homeCats.map((c) =>
-      '<a class="cat-item" href="tienda.html?cat=' + c.id + '">' +
+      '<a class="cat-item" href="' + (c.href || ('tienda.html?cat=' + c.id)) + '">' +
         '<span class="icon">' + akIcon(catIcons[c.id]) + '</span>' +
         '<span><b>' + c.title + '</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">' + c.desc + '</p></span>' +
       '</a>'
