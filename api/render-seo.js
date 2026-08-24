@@ -99,15 +99,21 @@ function replaceTag(html, pattern, replacement) {
   return pattern.test(html) ? html.replace(pattern, replacement) : html.replace('</head>', `${replacement}\n</head>`);
 }
 
+function clipAtWord(value, max) {
+  const text = plainText(value);
+  if (text.length <= max) return text;
+  const clipped = text.slice(0, max + 1).replace(/\s+\S*$/, '').replace(/[,:;\-–—.]+$/, '').trim();
+  return clipped || text.slice(0, max).trim();
+}
+
 function compactTitle(name) {
   const base = plainText(name);
-  const full = `${base} | Autokeys Remaps Pro`;
-  if (full.length <= 60) return full;
-  const short = `${base} | Autokeys`;
-  if (short.length <= 60) return short;
-  const clean = base.split(/\s+[—–-]\s+/)[0].trim();
-  const compact = `${clean} | Autokeys`;
-  return compact.length <= 60 ? compact : `${clean.slice(0, 48).trim()} | Autokeys`;
+  const fullSuffix = ' | Autokeys Remaps Pro';
+  const shortSuffix = ' | Autokeys';
+  if ((base + fullSuffix).length <= 60) return base + fullSuffix;
+  if ((base + shortSuffix).length <= 60) return base + shortSuffix;
+  const available = 60 - shortSuffix.length;
+  return clipAtWord(base, available) + shortSuffix;
 }
 
 function metaDescription(row) {
@@ -118,7 +124,7 @@ function metaDescription(row) {
       : ' Diagnóstico profesional y servicio de laboratorio Autokeys Remaps Pro para clientes y talleres de toda España.';
     text = `${text}${extra}`.trim();
   }
-  return text.slice(0, 155).trim();
+  return clipAtWord(text, 155);
 }
 
 async function rest(resource) {
@@ -169,6 +175,7 @@ function serviceContext(row, categoryLabel) {
     `Antes de intervenir en ${name}, revisamos la referencia de la unidad, los síntomas descritos, los códigos de diagnosis disponibles y el trabajo realizado anteriormente. En electrónica del automóvil dos módulos con aspecto similar pueden utilizar hardware o software diferentes, por lo que identificar correctamente la unidad evita sustituciones innecesarias y permite elegir el procedimiento adecuado para el vehículo.`,
     `El trabajo se plantea desde un enfoque de laboratorio: primero diagnóstico y lectura de la información disponible, después reparación, recuperación, clonación o programación únicamente cuando el estado de la unidad y la compatibilidad lo permiten. Conservamos los datos originales que sean necesarios y verificamos la integridad del resultado antes de cerrar el servicio. En ${category} no aplicamos una solución genérica si el sistema requiere una comprobación específica.`,
     `Autokeys Remaps Pro trabaja desde Puente de Génave, Jaén, y recibe unidades de talleres, distribuidores y particulares de toda España. Si el servicio puede realizarse por envío, recomendamos solicitar valoración antes de desmontar o enviar nada. Con fotografías de la etiqueta, datos del vehículo y una descripción clara de la avería podemos indicar qué componentes necesitamos recibir y evitar paquetes o desmontajes innecesarios.`,
+    `Cuando recibimos la unidad, el trabajo queda asociado a la referencia y al caso comunicado. Si durante la comprobación aparece una incompatibilidad, un daño diferente al descrito o una intervención previa que cambie el procedimiento, se revisa antes de continuar. Esta trazabilidad es especialmente importante en centralitas, inmovilizadores y módulos de seguridad o confort, donde conservar correctamente la información original puede ser tan importante como la reparación física.`,
   ];
 }
 
@@ -278,6 +285,8 @@ function renderBody(template, seo) {
   if (seo.kind === 'product') {
     html = html.replace(/<nav class="breadcrumb" id="breadcrumb"[^>]*>[\s\S]*?<\/nav>/i, `<nav class="breadcrumb" id="breadcrumb" aria-label="Migas de pan">${seo.server.breadcrumb}</nav>`);
     html = html.replace(/<div id="detail-root"><\/div>/i, `<div id="detail-root">${seo.server.body}</div>`);
+    html = html.replace(/alt="" loading="lazy"/g, 'alt="Vista adicional del servicio Autokeys Remaps Pro" loading="lazy"');
+    html = html.replace("'<h1>' + product.name + '</h1>'", "'<h' + '1>' + product.name + '</h' + '1>'");
   } else if (seo.kind === 'category') {
     html = html.replace(/<div class="section" style="padding-bottom:0">[\s\S]*?<\/div>\s*<div class="store-layout">/i, `${seo.server.heading}\n<div class="store-layout">`);
     html = html.replace(/<div id="result-count"[^>]*><\/div>/i, `<div id="result-count" style="color:var(--muted);font-size:13px">${escapeHtml(seo.server.count)}</div>`);
@@ -328,7 +337,7 @@ async function categorySeo(slug) {
   if (!row) return null;
   const url = `${SITE}/categorias/${row.id}`;
   const focus = CATEGORY_FOCUS[row.id] || `Servicios y productos de ${String(row.label).toLowerCase()} en Autokeys Remaps Pro.`;
-  const description = `${focus} Servicio profesional desde Jaén y por envío en toda España.`.slice(0, 155);
+  const description = clipAtWord(`${focus} Servicio profesional desde Jaén y por envío en toda España.`, 155);
   return {
     kind: 'category', template: 'tienda.html', title: compactTitle(row.label), description, url, image: FALLBACK_IMAGE,
     server: serverCategoryBody(row, products),
@@ -341,7 +350,7 @@ async function articleSeo(slug) {
   const row = rows[0];
   if (!row) return null;
   const url = `${SITE}/guias/${row.slug}`;
-  const description = plainText(row.meta_description || row.resumen || row.contenido || '').slice(0, 155);
+  const description = clipAtWord(row.meta_description || row.resumen || row.contenido || '', 155);
   const rawTitle = plainText(row.meta_title || row.titulo);
   const title = /autokeys remaps pro/i.test(rawTitle) ? rawTitle : compactTitle(rawTitle);
   const image = absoluteImage(row.imagen_url);
