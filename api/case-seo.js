@@ -4,7 +4,7 @@ const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 
 const CASES = {
   'renault-megane-2008-perdida-total-llaves': {
-    title: 'Renault Mégane 2008 1.9 dCi F9Q: pérdida total de llaves',
+    title: 'Renault Mégane 2008: pérdida total de llaves',
     meta: 'Caso real en Autokeys Remaps Pro: Renault Mégane 2008 1.9 dCi F9Q con todas las llaves perdidas. Trabajo sobre UCH y alta de una nueva llave.',
     category: 'LLAVES · UCH · PÉRDIDA TOTAL',
     intro: 'Este Renault Mégane 2008 equipado con motor 1.9 dCi F9Q llegó a Autokeys Remaps Pro con pérdida total de llaves. El objetivo era recuperar una llave funcional sin basar el trabajo en suposiciones: primero había que identificar correctamente el sistema, acceder a la información necesaria de la UCH y comprobar que el vehículo podía volver a reconocer una llave nueva.',
@@ -88,7 +88,7 @@ const CASES = {
     ],
   },
   'bosch-edc17cp54-stage-1-plus-malaga': {
-    title: 'Bosch EDC17CP54: trabajo Stage 1+ gestionado desde Málaga',
+    title: 'Bosch EDC17CP54 Stage 1+ desde Málaga',
     meta: 'Caso real de Autokeys Remaps Pro con una ECU Bosch EDC17CP54 vinculada a un trabajo Stage 1+ gestionado desde Málaga y documentado por archivo.',
     category: 'BOSCH EDC17CP54 · TRABAJO A DISTANCIA',
     intro: 'Este caso corresponde a un trabajo con Bosch EDC17CP54 gestionado para un cliente de Málaga. La intervención se planteó como un proceso de archivo documentado: identificar correctamente la ECU y su software, conservar el original, preparar una calibración Stage 1+ sobre esa base y mantener separadas las versiones del trabajo.',
