@@ -252,8 +252,8 @@ img{max-width:100%;display:block}
 
 .legal-page h1{font-size:28px}
 .legal-content{max-width:760px;margin-top:28px}
-.legal-content h2{font-size:16px;margin:28px 0 10px;color:#fff}
-.legal-content h2:first-child{margin-top:0}
+.legal-content h2{font-size:16px;margin:28px 0 10px;color:#fff;padding-top:24px;border-top:1px solid var(--line)}
+.legal-content h2:first-child{margin-top:0;padding-top:0;border-top:0}
 .legal-content p{color:var(--muted);line-height:1.7;font-size:13.5px;margin:0 0 12px}
 .legal-content ul{color:var(--muted);line-height:1.7;font-size:13.5px;margin:0 0 12px;padding-left:20px}
 .legal-content li{margin-bottom:4px}
