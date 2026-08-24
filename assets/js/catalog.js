@@ -59,6 +59,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     stock: row.stock,
     stockActual: row.stock_actual,
     stockMinimo: row.stock_minimo,
+    plazoEntrega: row.plazo_entrega,
     rating: valoracion ? Number(valoracion.media) : null,
     ratingCount: valoracion ? Number(valoracion.total) : 0,
     isProduct: !!row.is_product,

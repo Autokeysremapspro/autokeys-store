@@ -208,8 +208,11 @@
       '<div class="eyebrow">' + (product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
       '<div class="price-big" id="price-big">' + akFormatPrice(selectedVariant.price) + '</div>' +
       '<div class="price-note">IVA incluido</div>' +
-      '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
-      (akStockUrgencia(product) ? '<div class="stock-urgente">' + akIcon('clock') + akStockUrgencia(product) + '</div>' : '') +
+      (product.isProduct && product.stock === 'encargo'
+        ? '<div class="stock-encargo">' + akIcon('clock') + 'Bajo pedido</div>' +
+          '<div class="stock-encargo-note">' + (product.plazoEntrega ? 'Entrega estimada: ' + product.plazoEntrega : 'Se encarga al proveedor tras confirmar tu pedido.') + '</div>'
+        : '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
+          (akStockUrgencia(product) ? '<div class="stock-urgente">' + akIcon('clock') + akStockUrgencia(product) + '</div>' : '')) +
       '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">1. SELECCIONA LA OPCIÓN</div>' +
       '<div class="variant-list" id="variant-list">' +
         product.variants.map((v, i) =>
