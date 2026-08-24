@@ -70,6 +70,21 @@
       return;
     }
 
+    const recoveryToken = params.get('recuperar');
+    if (recoveryToken) {
+      try {
+        const recoveryRes = await fetch('/api/recuperar-carrito?token=' + encodeURIComponent(recoveryToken));
+        const recovery = await recoveryRes.json();
+        if (!recoveryRes.ok || !Array.isArray(recovery.items)) throw new Error('recuperacion_no_disponible');
+        akCartSave(recovery.items);
+        localStorage.setItem('ak_cart_reminder_consent_v1', '1');
+        history.replaceState({}, '', 'carrito.html');
+        akToast('Hemos recuperado tu carrito. Revisa los productos y precios antes de continuar.');
+      } catch (e) {
+        akToast('Este enlace de recuperación ha caducado o el carrito ya se completó.');
+      }
+    }
+
     const removidos = akCartPruneInvalid();
     if (removidos > 0) {
       akToast(removidos === 1
@@ -298,7 +313,7 @@
       '</div>' +
       '<p style="color:var(--muted);font-size:11px;margin:6px 0 0">La factura se emitirá una vez confirmemos el pedido contigo.</p>' +
       '<label style="display:flex;gap:9px;align-items:flex-start;margin-top:18px;color:var(--muted);font-size:11.5px;line-height:1.45;cursor:pointer">' +
-        '<input type="checkbox" id="f-recordatorio" style="margin-top:2px">' +
+        '<input type="checkbox" id="f-recordatorio" style="margin-top:2px"' + (localStorage.getItem('ak_cart_reminder_consent_v1') === '1' ? ' checked' : '') + '>' +
         '<span>Si dejo este pedido sin terminar, acepto recibir <b style="color:var(--text)">un único recordatorio</b> por email. Opcional y desmarcado por defecto.</span>' +
       '</label>' +
       '<div style="border-top:1px solid var(--line-soft);margin-top:20px;padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">' +
@@ -422,6 +437,7 @@
     if (finishBtn) finishBtn.addEventListener('click', submitOrder);
     const reminder = document.getElementById('f-recordatorio');
     if (reminder) reminder.addEventListener('change', () => {
+      if (typeof akSetCartReminderConsent === 'function') akSetCartReminderConsent(reminder.checked);
       if (typeof akTrack === 'function') akTrack('view_cart', { consentimiento_recordatorio: reminder.checked });
     });
     document.querySelectorAll('[data-add-cross]').forEach((btn) => btn.addEventListener('click', () => {
