@@ -46,6 +46,7 @@
   let selectedVehiculoId = '';
   let showNewVehiculoForm = false;
   let appliedCupon = null;
+  let SHIPPING_QUOTE = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -77,8 +78,54 @@
         : removidos + ' productos de tu carrito ya no están disponibles y se han quitado.');
     }
 
+    await actualizarCotizacionEnvio();
     render();
   });
+
+  function itemsParaServidor() {
+    return akCartGet().map((item) => ({ productId: item.productId, variantId: item.variantId, qty: item.qty, extra: item.extra || null }));
+  }
+
+  function cotizacionLocal() {
+    const lines = akCartLines();
+    const subtotal = akCartSubtotal();
+    const descuento = cuponDescuento(subtotal);
+    let peso = 0;
+    let fisico = false;
+    let bloqueaGratis = false;
+    lines.forEach((line) => {
+      if (!line.product.requiereEnvio) return;
+      fisico = true;
+      const unit = line.variant.pesoEnvioKg === null ? line.product.pesoEnvioKg : line.variant.pesoEnvioKg;
+      peso += (unit > 0 ? unit : 1) * line.qty;
+      bloqueaGratis = bloqueaGratis || line.product.excluidoEnvioGratis;
+    });
+    if (fisico) peso += 0.3;
+    const base = subtotal - descuento;
+    const gratis = fisico && !bloqueaGratis && peso <= 10 && base >= 149;
+    const envio = !fisico || gratis ? 0 : peso <= 5 ? 9.95 : peso <= 10 ? 11.95 : 11.95 + Math.ceil(peso - 10) * 0.75;
+    return { subtotal, descuento, envio, total: base + envio, peso_total_kg: peso, tarifa_envio_codigo: !fisico ? 'DIGITAL' : gratis ? 'GRATIS_149' : 'ESTIMADA' };
+  }
+
+  async function actualizarCotizacionEnvio() {
+    if (!akCartGet().length) { SHIPPING_QUOTE = null; return; }
+    try {
+      const response = await fetch('/api/calcular-envio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: itemsParaServidor(),
+          codigo_postal: fieldVal('f-cp') || (PERFIL && PERFIL.codigo_postal) || '28001',
+          pais: fieldVal('f-pais') || (PERFIL && PERFIL.pais) || 'España',
+          cupon: appliedCupon ? appliedCupon.codigo : null,
+        }),
+      });
+      const data = await response.json();
+      SHIPPING_QUOTE = response.ok ? data : null;
+    } catch (error) {
+      SHIPPING_QUOTE = null;
+    }
+  }
 
   async function showPaymentReturn(pedidoId) {
     document.querySelectorAll('.cstep').forEach((s, i) => s.classList.toggle('active', i === 3));
@@ -131,10 +178,18 @@
       return;
     }
 
-    const subtotal = akCartSubtotal();
-    const ivaPortion = subtotal - subtotal / 1.21;
-    const descuento = cuponDescuento(subtotal);
-    const total = subtotal - descuento;
+    const quote = SHIPPING_QUOTE || cotizacionLocal();
+    const subtotal = Number(quote.subtotal);
+    const descuento = Number(quote.descuento);
+    const envio = Number(quote.envio);
+    const total = Number(quote.total);
+    const ivaPortion = total - total / 1.21;
+    const envioTexto = envio > 0 ? akFormatPrice(envio) : 'Gratis';
+    const avisoEnvio = quote.tarifa_envio_codigo === 'DIGITAL'
+      ? 'Este pedido no contiene productos físicos: no necesita transporte.'
+      : envio === 0
+        ? '¡Envío estándar gratuito! Tu pedido cumple las condiciones.'
+        : 'Transporte, preparación y gestión logística incluidos. Envío gratis desde 149 € hasta 10 kg.';
 
     document.getElementById('cart-root').innerHTML =
     '<div class="cart-layout">' +
@@ -153,11 +208,11 @@
           '<div class="totals">' +
             '<div class="row"><span>Subtotal</span><span>' + akFormatPrice(subtotal) + '</span></div>' +
             (descuento > 0 ? '<div class="row" style="color:var(--red)"><span>Descuento</span><span>−' + akFormatPrice(descuento) + '</span></div>' : '') +
-            '<div class="row"><span>Envío</span><span>Gratis</span></div>' +
+            '<div class="row"><span>Envío</span><span>' + envioTexto + '</span></div>' +
             '<div class="row"><span>IVA (21%, incluido)</span><span>' + akFormatPrice(ivaPortion) + '</span></div>' +
             '<div class="row total"><span>Total</span><span>' + akFormatPrice(total) + '</span></div>' +
           '</div>' +
-          '<div class="notice">' + akIcon('truck') + '¡Envío gratis! Tu pedido incluye envío gratuito a toda España peninsular.</div>' +
+          '<div class="notice">' + akIcon('truck') + avisoEnvio + '</div>' +
           '<ul class="trust-row">' +
             '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
             '<li>' + akIcon('shield') + 'Garantía hasta 24 meses</li>' +
@@ -386,23 +441,23 @@
   }
 
   function wireEvents() {
-    document.querySelectorAll('[data-qty]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-qty]').forEach((btn) => btn.addEventListener('click', async () => {
       const idx = Number(btn.dataset.idx);
       const lines = akCartLines();
       const line = lines.find((l) => l.index === idx);
       if (!line) return;
       const nextQty = btn.dataset.qty === 'up' ? line.qty + 1 : line.qty - 1;
       if (nextQty <= 0) akCartRemove(idx); else akCartSetQty(idx, nextQty);
-      render();
+      await actualizarCotizacionEnvio(); render();
     }));
-    document.querySelectorAll('[data-remove]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-remove]').forEach((btn) => btn.addEventListener('click', async () => {
       akCartRemove(Number(btn.dataset.remove));
-      render();
+      await actualizarCotizacionEnvio(); render();
     }));
     const couponBtn = document.getElementById('coupon-btn');
     if (couponBtn) couponBtn.addEventListener('click', applyCoupon);
     const couponRemoveBtn = document.getElementById('coupon-remove-btn');
-    if (couponRemoveBtn) couponRemoveBtn.addEventListener('click', () => { appliedCupon = null; render(); });
+    if (couponRemoveBtn) couponRemoveBtn.addEventListener('click', async () => { appliedCupon = null; await actualizarCotizacionEnvio(); render(); });
     document.querySelectorAll('[data-pay]').forEach((el) => el.addEventListener('click', () => {
       payMethod = el.dataset.pay;
       document.querySelectorAll('[data-pay]').forEach((x) => x.classList.remove('selected'));
@@ -415,12 +470,12 @@
     }));
     const finishBtn = document.getElementById('finish-btn');
     if (finishBtn) finishBtn.addEventListener('click', submitOrder);
-    document.querySelectorAll('[data-add-cross]').forEach((btn) => btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-add-cross]').forEach((btn) => btn.addEventListener('click', async () => {
       const product = akFindProduct(btn.dataset.addCross);
       if (!product) return;
       akCartAdd(product.id, product.variants[0].id, 1);
       akToast(product.name + ' añadido al carrito');
-      render();
+      await actualizarCotizacionEnvio(); render();
     }));
     const vehiculoSelect = document.getElementById('f-vehiculo');
     if (vehiculoSelect) {
@@ -508,28 +563,15 @@
       return;
     }
     if (!(await cuponSigueValido())) return;
-    const email = CURRENT_USER.email;
-
     const btn = document.getElementById('finish-btn');
     btn.disabled = true;
     const originalHtml = btn.innerHTML;
     btn.innerHTML = 'Enviando...';
 
-    const lines = akCartLines();
-    const subtotal = akCartSubtotal();
-    const ivaPortion = subtotal - subtotal / 1.21;
-    const descuento = cuponDescuento(subtotal);
-    const total = subtotal - descuento;
-    const pedidoId = crypto.randomUUID();
-    const numero = 'WEB-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-
-    const pedido = {
-      id: pedidoId,
-      numero,
-      usuario_id: CURRENT_USER.id,
+    const datosPedido = {
+      items: itemsParaServidor(),
       nombre: fieldVal('f-nombre'),
       apellidos: fieldVal('f-apellidos'),
-      email,
       telefono: fieldVal('f-telefono'),
       direccion: fieldVal('f-direccion'),
       codigo_postal: fieldVal('f-cp'),
@@ -540,36 +582,32 @@
       razon_social: fieldVal('f-razon') || null,
       metodo_pago: payMethod,
       cupon: appliedCupon ? appliedCupon.codigo : null,
-      subtotal,
-      envio: 0,
-      descuento,
-      iva_importe: ivaPortion,
-      total,
     };
 
     try {
       const client = akSupabase();
       const vehiculo = await resolveVehiculo();
-      const { error: pedidoError } = await client.from('tienda_pedidos').insert(pedido);
-      if (pedidoError) throw pedidoError;
-
-      const lineas = lines.map((l) => ({
-        pedido_id: pedidoId,
-        producto_id: l.product.id,
-        producto_nombre: l.product.name,
-        categoria: l.product.category,
-        variante_id: l.variant.id,
-        variante_nombre: l.variant.name,
-        cantidad: l.qty,
-        precio_unitario: l.variant.price,
-        vehiculo_id: vehiculo.id,
-        referencia_vehiculo: vehiculo.referencia,
-        referencia_pieza: (l.extra && l.extra.referencia_pieza) || null,
-        descripcion_problema: (l.extra && l.extra.descripcion_problema) || null,
-        observaciones: (l.extra && l.extra.observaciones) || null,
-      }));
-      const { error: lineasError } = await client.from('tienda_pedido_lineas').insert(lineas);
-      if (lineasError) console.error('No se pudieron guardar las líneas del pedido:', lineasError);
+      const { data: { session } } = await client.auth.getSession();
+      if (!session?.access_token) throw new Error('Sesión caducada');
+      datosPedido.vehiculo_id = vehiculo.id;
+      datosPedido.referencia_vehiculo = vehiculo.referencia;
+      const pedidoRes = await fetch('/api/crear-pedido', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+        body: JSON.stringify(datosPedido),
+      });
+      const pedidoData = await pedidoRes.json();
+      if (!pedidoRes.ok) {
+        const mensajes = {
+          destino_fuera_peninsula: 'El cálculo automático solo está disponible para España peninsular. Escríbenos para cotizar tu destino.',
+          envio_requiere_presupuesto: 'Este pedido contiene un producto voluminoso y requiere presupuesto de transporte.',
+          cupon_no_valido: 'El cupón ya no es válido. Revisa el pedido e inténtalo de nuevo.',
+        };
+        throw new Error(mensajes[pedidoData.error] || pedidoData.error || 'No se pudo crear el pedido');
+      }
+      const pedidoId = pedidoData.pedido_id;
+      const numero = pedidoData.numero;
+      const total = Number(pedidoData.total);
 
       akCartSave([]);
       appliedCupon = null;

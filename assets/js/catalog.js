@@ -60,6 +60,10 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     stockActual: row.stock_actual,
     stockMinimo: row.stock_minimo,
     plazoEntrega: row.plazo_entrega,
+    requiereEnvio: !!row.requiere_envio,
+    pesoEnvioKg: Number(row.peso_envio_kg) || 0,
+    voluminoso: !!row.voluminoso,
+    excluidoEnvioGratis: !!row.excluido_envio_gratis,
     rating: valoracion ? Number(valoracion.media) : null,
     ratingCount: valoracion ? Number(valoracion.total) : 0,
     isProduct: !!row.is_product,
@@ -84,6 +88,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
       name: v.name,
       desc: v.description || '',
       price: Number(v.price) || 0,
+      pesoEnvioKg: v.peso_envio_kg === null || v.peso_envio_kg === undefined ? null : Number(v.peso_envio_kg),
     })),
   };
 }
