@@ -137,6 +137,7 @@
       '<aside class="buybox metal-frame" id="buybox"></aside>' +
     '</div>';
     renderBuybox();
+    if (typeof akTrack === 'function') akTrack('view_item', { producto_id: product.id, variante_id: selectedVariant.id, valor: selectedVariant.price, carrito: false });
     wireGaleria();
   }
 
