@@ -22,6 +22,7 @@
     { "source": "/servicios/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/categorias/:slug", "destination": "/api/render-seo?type=category&slug=:slug" },
-    { "source": "/guias/:slug", "destination": "/api/guide-seo?slug=:slug" }
+    { "source": "/guias/:slug", "destination": "/api/guide-seo?slug=:slug" },
+    { "source": "/casos/:slug", "destination": "/api/case-seo?slug=:slug" }
   ]
 }
