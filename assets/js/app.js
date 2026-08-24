@@ -1,4 +1,10 @@
 /* AutoKeys Remaps Pro Store — shared UI: icons, header/footer, nav, search, toast */
+if (!document.querySelector('script[data-ak-conversion]')) {
+  const conversionScript = document.createElement('script');
+  conversionScript.src = '/assets/js/analytics.js';
+  conversionScript.dataset.akConversion = '1';
+  document.head.appendChild(conversionScript);
+}
 
 const AK_ICONS = {
   search: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.2" y2="16.2"/>',
