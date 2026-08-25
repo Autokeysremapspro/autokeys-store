@@ -64,6 +64,65 @@
     }).observe(document.body, { childList: true, subtree: true });
   }
 
+  function normalizeBrandConsistency() {
+    const run = () => {
+      const topbarItems = document.querySelectorAll('.topbar .tb-item');
+      if (topbarItems[1]) {
+        const span = topbarItems[1].querySelector('span');
+        if (span) span.textContent = 'Atención técnica L-V · 09:00–15:00';
+      }
+      if (topbarItems[2]) {
+        const span = topbarItems[2].querySelector('span');
+        if (span) span.textContent = 'Servicio por envío a toda España';
+      }
+
+      const features = document.querySelectorAll('.feature-strip > div');
+      const featureCopy = [
+        ['Laboratorio especializado', 'Electrónica del automóvil'],
+        ['Casos reales documentados', 'Procesos y resultados publicados'],
+        ['Equipamiento profesional', 'Diagnosis, programación y banco'],
+        ['Atención personalizada', 'Te acompañamos en el proceso'],
+        ['Garantía según servicio', 'Condiciones claras antes del trabajo']
+      ];
+      features.forEach((item, index) => {
+        const title = item.querySelector('b');
+        const text = item.querySelector('span');
+        if (featureCopy[index] && title) title.textContent = featureCopy[index][0];
+        if (featureCopy[index] && text) text.textContent = featureCopy[index][1];
+      });
+
+      const footerBrand = document.querySelector('.footer-brand p');
+      if (footerBrand) {
+        footerBrand.textContent = 'Laboratorio y tienda especializada en electrónica del automóvil. Servicios técnicos y trabajos por envío para particulares y profesionales.';
+      }
+
+      document.querySelectorAll('.contact-list li span').forEach((span) => {
+        if (/Lun\s*-\s*Dom/i.test(span.textContent || '')) span.textContent = 'Lun - Vie · 09:00 - 15:00';
+      });
+
+      const quickLinks = Array.from(document.querySelectorAll('.site-footer a'));
+      const software = quickLinks.find((link) => /^Software$/i.test((link.textContent || '').trim()));
+      if (software) software.setAttribute('href', '/categorias/software');
+
+      const quickList = Array.from(document.querySelectorAll('.site-footer h4')).find((h) => /ENLACES RÁPIDOS/i.test(h.textContent || ''));
+      const ul = quickList && quickList.nextElementSibling;
+      if (ul && !ul.querySelector('a[href="/profesionales.html"]')) {
+        const li = document.createElement('li');
+        li.innerHTML = '<a href="/profesionales.html">Servicio para profesionales</a>';
+        const about = ul.querySelector('a[href$="quienes-somos.html"]');
+        if (about && about.parentElement) about.parentElement.insertAdjacentElement('afterend', li);
+        else ul.prepend(li);
+      }
+
+      document.querySelectorAll('.pay-icons span').forEach((item) => {
+        if (/Bizum/i.test(item.textContent || '')) item.remove();
+      });
+    };
+
+    run();
+    setTimeout(run, 120);
+  }
+
   function enhanceHome() {
     if (!HOME_PATH.test(location.pathname) || document.documentElement.dataset.akGrowthHome === '1') return;
     const hero = document.querySelector('main .hero');
@@ -240,6 +299,7 @@
 
   function init() {
     setupCleanInternalLinks();
+    normalizeBrandConsistency();
     enhanceHome();
     enhanceServiceLanding();
     enhanceRepairForm();
