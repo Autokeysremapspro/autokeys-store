@@ -22,6 +22,7 @@ const STATIC_URLS = [
   '/casos/desarrollo-edc15p-multimapa-autokeys',
   '/casos/mercedes-2008-2009-ezs-inoperativo-dos-llaves',
   '/enviar-reparacion.html',
+  '/profesionales.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
   '/reparacion-centralitas-ecu',
@@ -40,23 +41,21 @@ const STATIC_URLS = [
   '/condiciones-venta.html',
 ];
 
-// Fechas reales de la última actualización del bloque SEO principal. Google usa
-// <lastmod> como señal de rastreo cuando la fecha representa cambios de contenido
-// significativos; evitamos generarla dinámicamente para no enviar fechas falsas.
 const STATIC_LASTMOD = {
-  '/': '2026-08-24',
+  '/': '2026-08-25',
   '/casos-reales.html': '2026-08-25',
-  '/enviar-reparacion.html': '2026-08-24',
+  '/enviar-reparacion.html': '2026-08-25',
+  '/profesionales.html': '2026-08-25',
   '/quienes-somos.html': '2026-08-24',
   '/electronica-automovil-jaen.html': '2026-08-24',
-  '/reparacion-centralitas-ecu': '2026-08-24',
-  '/clonacion-centralitas-ecu': '2026-08-24',
+  '/reparacion-centralitas-ecu': '2026-08-25',
+  '/clonacion-centralitas-ecu': '2026-08-25',
   '/reparacion-centralita-por-envio': '2026-08-24',
   '/programacion-llaves-coche': '2026-08-24',
-  '/perdida-total-llaves-coche': '2026-08-24',
+  '/perdida-total-llaves-coche': '2026-08-25',
   '/duplicado-llaves-coche-jaen': '2026-08-24',
-  '/bmw-fem-bdc': '2026-08-24',
-  '/mercedes-ezs-elv': '2026-08-24',
+  '/bmw-fem-bdc': '2026-08-25',
+  '/mercedes-ezs-elv': '2026-08-25',
   '/reparacion-airbag-srs': '2026-08-24',
   '/reprogramacion-centralitas-jaen': '2026-08-24',
   '/casos/seat-leon-mk1-1-8-pops-bangs': '2026-08-25',
