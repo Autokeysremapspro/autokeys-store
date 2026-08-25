@@ -46,7 +46,7 @@ const CASES = {
   },
   'seat-ibiza-6l-multimapa-hardcut': {
     title: 'Seat Ibiza 6L: Multimapa + hardcut',
-    meta: 'Caso real Seat Ibiza 6L en Autokeys Remaps Pro: desarrollo de una configuración multimapa con hardcut, manteniendo trazabilidad del archivo y comprobación final.',
+    meta: 'Caso real Seat Ibiza 6L: configuración multimapa con hardcut, archivo trazable y comprobación final del funcionamiento en el vehículo.',
     category: 'SEAT IBIZA 6L · MULTIMAPA · HARDCUT',
     intro: 'En este Seat Ibiza 6L se realizó un trabajo de calibración con sistema Multimapa y hardcut. La información que tenemos confirmada del caso no incluye una referencia concreta de ECU ni un código de motor, por lo que el artículo se centra únicamente en lo que sí quedó documentado: preparación multimapa, integración del hardcut y comprobación final del funcionamiento.',
     facts: ['Seat Ibiza 6L', 'Configuración Multimapa', 'Hardcut', 'Trabajo sobre calibración', 'Archivo trazable', 'Caso terminado'],
