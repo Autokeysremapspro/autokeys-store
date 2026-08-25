@@ -32,6 +32,7 @@
     { "source": "/casos/bmw-f36-420d-codificacion-levas", "destination": "/api/case-seo-extra2?slug=bmw-f36-420d-codificacion-levas" },
     { "source": "/casos/seat-leon-mk1-1-8-pops-bangs", "destination": "/api/case-seo-extra3?slug=seat-leon-mk1-1-8-pops-bangs" },
     { "source": "/casos/desarrollo-edc15p-multimapa-autokeys", "destination": "/api/case-seo-extra3?slug=desarrollo-edc15p-multimapa-autokeys" },
+    { "source": "/casos/mercedes-2008-2009-ezs-inoperativo-dos-llaves", "destination": "/api/case-seo-extra4?slug=mercedes-2008-2009-ezs-inoperativo-dos-llaves" },
     { "source": "/casos/:slug", "destination": "/api/case-seo?slug=:slug" }
   ]
 }
