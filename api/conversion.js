@@ -4,6 +4,7 @@ const EVENTOS = new Set([
   'page_view', 'view_item', 'add_to_cart', 'remove_from_cart',
   'view_cart', 'begin_checkout', 'order_created', 'purchase', 'repair_request',
   'whatsapp_click', 'phone_click', 'repair_cta_click',
+  'repair_form_start', 'repair_login_gate', 'checkout_login_gate',
 ]);
 
 async function body(req) {
@@ -45,6 +46,27 @@ function cleanItems(items) {
   })).filter((item) => item.productId && item.variantId);
 }
 
+function cleanMetadata(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+  const out = {};
+  const visitId = String(input.visit_id || '');
+  if (/^[0-9a-f-]{36}$/i.test(visitId)) out.visit_id = visitId;
+  const limits = {
+    landing_page: 500,
+    utm_source: 120,
+    utm_medium: 120,
+    utm_campaign: 180,
+    utm_content: 180,
+    utm_term: 180,
+    referrer_host: 180,
+  };
+  Object.entries(limits).forEach(([key, max]) => {
+    const value = String(input[key] || '').trim();
+    if (value) out[key] = value.slice(0, max);
+  });
+  return out;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'metodo_no_permitido' });
   try {
@@ -59,7 +81,7 @@ module.exports = async function handler(req, res) {
       producto_id: data.producto_id ? String(data.producto_id).slice(0, 120) : null,
       variante_id: data.variante_id ? String(data.variante_id).slice(0, 120) : null,
       valor: Number.isFinite(Number(data.valor)) ? Number(data.valor) : null,
-      metadata: {},
+      metadata: cleanMetadata(data.metadata),
     };
     await request('tienda_conversion_eventos', { method: 'POST', body: JSON.stringify(event) });
 
