@@ -35,6 +35,25 @@
     };
     fetch('/api/conversion', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
   };
+
+  function trackCommercialClick(event) {
+    const link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+    if (!link) return;
+    const href = String(link.getAttribute('href') || '').trim();
+    if (/^https?:\/\/(?:wa\.me|api\.whatsapp\.com)(?:\/|$)/i.test(href)) {
+      window.akTrack('whatsapp_click', { carrito: false });
+      return;
+    }
+    if (/^tel:/i.test(href)) {
+      window.akTrack('phone_click', { carrito: false });
+      return;
+    }
+    if (/(?:^|\/)enviar-reparacion\.html(?:[?#]|$)/i.test(href)) {
+      window.akTrack('repair_cta_click', { carrito: false });
+    }
+  }
+
+  document.addEventListener('click', trackCommercialClick, true);
   const init = () => window.akTrack('page_view', { carrito: false });
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 }());
