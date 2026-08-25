@@ -188,3 +188,36 @@ No publicar un trabajo solo porque se hizo. Publicarlo cuando tenga al menos una
 - Muestra autoridad técnica.
 - Tiene una transformación clara.
 - Refuerza un servicio que queremos vender.
+
+## Metricool — ventanas reales de audiencia (25-08-2026)
+Perfiles verificados en la marca Metricool: Instagram `@autokeys.pro` y TikTok `@autokeys.pro`.
+
+La importación histórica de posts/reels todavía estaba sincronizando al realizar la primera lectura, por lo que no se usan todavía rankings de contenidos antiguos. Sí estaban disponibles las ventanas de actividad de audiencia.
+
+### Instagram
+Ventana principal: **10:00–12:00**.
+Segunda ventana: **17:00–19:00**.
+Días más fuertes: **miércoles, jueves y viernes**.
+Picos observados: viernes 10:00, miércoles 10:00 y jueves 10:00.
+
+### TikTok
+Ventana principal: **10:00–12:00**.
+Segunda ventana: **17:00–19:00**.
+Días más fuertes: **miércoles, jueves y viernes**.
+Picos observados: jueves 10:00, miércoles 10:00 y viernes 10:00.
+
+### Cadencia base
+- Miércoles 10:00 — caso real de problema urgente.
+- Jueves 10:00 — autoridad técnica / diagnóstico / error común.
+- Viernes 10:00 — caso de alto valor comercial (ECU, BMW FEM/BDC, Mercedes EZS/ELV).
+- Lunes 18:00 — proceso de laboratorio, envío nacional o contenido B2B.
+- Stories: apoyo el mismo día del Reel/Post y recordatorio 6–8 h después.
+
+### Próxima secuencia editorial recomendada
+1. Renault Mégane 2008 — pérdida total de llaves.
+2. Mercedes 2008/2009 — EZS inoperativo y recuperación.
+3. BMW FEM/BDC — explicar síntomas antes de sustituir módulo.
+4. ECU que no comunica / escritura fallida — recuperación antes de comprar donante.
+5. Servicio nacional para talleres — “no conviertas tu taller en un laboratorio”.
+
+Cada pieza debe enlazar al caso o landing específica mediante UTM de la red correspondiente.
