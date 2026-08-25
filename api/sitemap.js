@@ -20,6 +20,7 @@ const STATIC_URLS = [
   '/casos/bmw-f36-420d-codificacion-levas',
   '/casos/seat-leon-mk1-1-8-pops-bangs',
   '/casos/desarrollo-edc15p-multimapa-autokeys',
+  '/casos/mercedes-2008-2009-ezs-inoperativo-dos-llaves',
   '/enviar-reparacion.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
