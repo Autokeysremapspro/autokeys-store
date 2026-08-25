@@ -10,6 +10,7 @@ const STATIC_URLS = [
   '/casos/renault-megane-2008-perdida-total-llaves',
   '/casos/bmw-418d-stage-1-sport-display',
   '/casos/bosch-edc17cp54-stage-1-plus-malaga',
+  '/casos/golf-6-gti-med17-5-electronica-corregida',
   '/enviar-reparacion.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
