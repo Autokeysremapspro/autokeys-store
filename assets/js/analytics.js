@@ -1,4 +1,12 @@
 /* Medición propia y respetuosa: no guarda IP, user-agent ni datos personales anónimos. */
+if (!document.querySelector('script[data-ak-growth-conversion]')) {
+  const growthScript = document.createElement('script');
+  growthScript.src = '/assets/js/growth-conversion.js';
+  growthScript.defer = true;
+  growthScript.dataset.akGrowthConversion = '1';
+  document.head.appendChild(growthScript);
+}
+
 (function () {
   const KEY = 'ak_conversion_session_v1';
   const REMINDER_KEY = 'ak_cart_reminder_consent_v1';
@@ -116,7 +124,7 @@
     const root = document.getElementById('cart-root');
     if (!root) return;
     const checkGate = () => {
-      if (/INICIA SESIÓN PARA CONTINUAR/i.test(root.textContent || '')) {
+      if (/INICIA SESIÓN PARA CONTINUAR|TU CARRITO ESTÁ GUARDADO/i.test(root.textContent || '')) {
         trackOnce('checkout_login_gate', 'checkout_login_gate');
       }
     };
