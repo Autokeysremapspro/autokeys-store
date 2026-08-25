@@ -3,6 +3,7 @@ const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const EVENTOS = new Set([
   'page_view', 'view_item', 'add_to_cart', 'remove_from_cart',
   'view_cart', 'begin_checkout', 'order_created', 'purchase', 'repair_request',
+  'whatsapp_click', 'phone_click', 'repair_cta_click',
 ]);
 
 async function body(req) {
