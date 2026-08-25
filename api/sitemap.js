@@ -18,6 +18,8 @@ const STATIC_URLS = [
   '/casos/golf-4-1-9-tdi-asz-stage-2-hardcut',
   '/casos/seat-ibiza-6l-multimapa-hardcut',
   '/casos/bmw-f36-420d-codificacion-levas',
+  '/casos/seat-leon-mk1-1-8-pops-bangs',
+  '/casos/desarrollo-edc15p-multimapa-autokeys',
   '/enviar-reparacion.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
@@ -70,23 +72,9 @@ module.exports = async function handler(req, res) {
       fetchJson('tienda_blog_posts?select=slug,updated_at&publicado=eq.true&order=publicado_en.desc'),
     ]);
 
-    categorias.forEach((c) => {
-      urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` });
-    });
-
-    productos.forEach((p) => {
-      urls.push({
-        loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`,
-        lastmod: p.updated_at,
-      });
-    });
-
-    blogPosts.forEach((p) => {
-      urls.push({
-        loc: `${SITE_URL}/guias/${encodeURIComponent(p.slug)}`,
-        lastmod: p.updated_at,
-      });
-    });
+    categorias.forEach((c) => urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` }));
+    productos.forEach((p) => urls.push({ loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`, lastmod: p.updated_at }));
+    blogPosts.forEach((p) => urls.push({ loc: `${SITE_URL}/guias/${encodeURIComponent(p.slug)}`, lastmod: p.updated_at }));
   } catch (err) {
     console.error('sitemap dynamic data:', err);
     res.setHeader('X-Sitemap-Partial', '1');
@@ -99,11 +87,9 @@ module.exports = async function handler(req, res) {
     return true;
   });
 
-  const body =
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+  const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    uniqueUrls.map(renderUrl).join('\n') +
-    '\n</urlset>\n';
+    uniqueUrls.map(renderUrl).join('\n') + '\n</urlset>\n';
 
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
