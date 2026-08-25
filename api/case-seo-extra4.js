@@ -4,10 +4,10 @@ const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 const CASES = {
   'mercedes-2008-2009-ezs-inoperativo-dos-llaves': {
     title: 'Mercedes 2008/2009: recuperación EZS y dos llaves',
-    meta: 'Caso real Mercedes 2008/2009: EZS inoperativo tras una intervención previa, recuperación de la información, extracción de password y alta de dos llaves.',
+    meta: 'Caso real Mercedes 2008/2009: EZS inoperativo tras una intervención previa, recuperación de datos, password y programación de dos llaves.',
     category: 'MERCEDES · EZS · ELV · LLAVES',
-    intro: 'Este Mercedes de 2008/2009 llegó a nuestro laboratorio a través de un taller con un problema claro: al introducir la llave no abría contacto. Durante una intervención previa el EZS había sido desmontado y quedó inoperativo. El trabajo de Autokeys Remaps Pro consistió en recuperar y trasladar la información necesaria del EZS, obtener los datos de autorización y dejar preparadas dos llaves funcionales. El ELV estaba averiado y el taller decidió resolver esa parte instalando un emulador, quedando finalmente el vehículo operativo de nuevo.',
-    facts: ['Mercedes 2008/2009', 'No abría contacto al introducir la llave', 'EZS inoperativo tras intervención previa', 'Recuperación y clonación de información EZS', 'Extracción de password', 'Dos llaves añadidas', 'ELV averiado', 'Vehículo funcional de nuevo'],
+    intro: 'Este Mercedes de 2008/2009 llegó a nuestro laboratorio a través de un taller con un problema claro: al introducir la llave no abría contacto. Durante una intervención previa el EZS había sido desmontado y quedó inoperativo. En Autokeys Remaps Pro trabajamos el conjunto en banco con Autel IM508 Pro, XP400 Pro y adaptador específico Mercedes, recuperamos y clonamos la información necesaria del EZS, extraímos el password mediante el cable IR específico de Autel y añadimos dos llaves. El ELV estaba averiado y el taller decidió resolver esa parte instalando un emulador, quedando finalmente el vehículo operativo de nuevo.',
+    facts: ['Mercedes 2008/2009', 'No abría contacto al introducir la llave', 'EZS inoperativo tras intervención previa', 'Autel IM508 Pro + XP400 Pro', 'Trabajo en banco con adaptador Mercedes', 'Password mediante cable IR Autel', 'Dos llaves añadidas', 'ELV averiado y resuelto por el taller con emulador'],
     sections: [
       {
         title: 'Situación inicial',
@@ -17,17 +17,24 @@ const CASES = {
         ]
       },
       {
-        title: 'Recuperación de la información del EZS',
+        title: 'Trabajo en banco sobre el EZS',
         paragraphs: [
-          'El trabajo se centró en preservar y trasladar la información válida contenida en el EZS. En lugar de tratar el módulo como una pieza genérica, se trabajó con los datos asociados a ese vehículo para mantener la coherencia del sistema de autorización.',
-          'Una vez recuperada la información necesaria, se completó la extracción de los datos de seguridad requeridos para continuar con la preparación de las llaves.'
+          'La intervención se realizó en banco utilizando Autel IM508 Pro junto con XP400 Pro y un adaptador específico para Mercedes. El objetivo era acceder de forma controlada a la información del EZS y recuperar los datos válidos del sistema.',
+          'En lugar de tratar el módulo como una pieza genérica, se trabajó con la información asociada a ese vehículo para mantener la coherencia del sistema de autorización.'
         ]
       },
       {
-        title: 'Preparación de dos llaves',
+        title: 'Extracción del password y recuperación de datos',
         paragraphs: [
-          'Con la información del sistema disponible se añadieron dos llaves para el vehículo. El objetivo era que el taller recibiera de nuevo un conjunto utilizable y no una reparación parcial que obligara a repetir el proceso de inmovilizador después.',
-          'La intervención se documentó manteniendo separados los datos originales y las versiones trabajadas, de forma que el proceso siguiera siendo trazable.'
+          'Una vez estabilizado el trabajo sobre el EZS, se utilizó el cable IR específico de Autel para obtener el password necesario para continuar con la preparación de las llaves.',
+          'Con esos datos se completó la recuperación y clonación de la información necesaria del EZS, manteniendo separado el contenido original de las versiones trabajadas para conservar trazabilidad durante todo el proceso.'
+        ]
+      },
+      {
+        title: 'Programación de dos llaves',
+        paragraphs: [
+          'Con la información del sistema ya recuperada se añadieron dos llaves al vehículo. El objetivo era que el taller recibiera de nuevo un conjunto utilizable y no una reparación parcial que obligara a repetir después todo el proceso de inmovilizador.',
+          'Tras completar la programación, la parte correspondiente a EZS y llaves quedó resuelta correctamente.'
         ]
       },
       {
@@ -40,8 +47,8 @@ const CASES = {
       {
         title: 'Resultado final',
         paragraphs: [
-          'Después de recuperar la información del EZS, completar los datos de autorización, preparar las dos llaves y resolver el taller el problema del ELV, el Mercedes volvió a quedar funcional.',
-          'El caso demuestra por qué los sistemas EZS/ELV de Mercedes requieren trabajar con método: identificar qué módulo está realmente afectado, conservar la información válida y separar la reparación electrónica de cualquier sustitución o adaptación posterior.'
+          'Después de recuperar la información del EZS, extraer el password, programar las dos llaves y resolver el taller el problema del ELV mediante emulador, el Mercedes volvió a quedar funcional.',
+          'El caso demuestra por qué los sistemas EZS/ELV de Mercedes requieren trabajar con método: identificar qué módulo está realmente afectado, conservar la información válida y separar la reparación electrónica de cualquier adaptación posterior.'
         ]
       }
     ],
