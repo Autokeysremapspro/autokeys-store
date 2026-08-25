@@ -32,6 +32,38 @@
     try { if (typeof akFillIcons === 'function') akFillIcons(root || document); } catch (_) {}
   }
 
+  function productRoute(product) {
+    if (!product || !product.id) return '';
+    return '/' + (product.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(product.id);
+  }
+
+  function rewriteLegacyProductLinks(root) {
+    const scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll('a[href*="producto.html?id="]').forEach((link) => {
+      try {
+        const parsed = new URL(link.getAttribute('href'), location.href);
+        const id = parsed.searchParams.get('id');
+        const product = typeof akFindProduct === 'function' ? akFindProduct(id) : null;
+        const route = productRoute(product);
+        if (route) link.setAttribute('href', route);
+      } catch (_) {}
+    });
+  }
+
+  function setupCleanInternalLinks() {
+    const run = () => rewriteLegacyProductLinks(document);
+    run();
+    if (typeof akCatalogReady === 'function') {
+      Promise.resolve(akCatalogReady()).then(run).catch(() => {});
+    }
+    let queued = false;
+    new MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      setTimeout(() => { queued = false; run(); }, 60);
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
   function enhanceHome() {
     if (!HOME_PATH.test(location.pathname) || document.documentElement.dataset.akGrowthHome === '1') return;
     const hero = document.querySelector('main .hero');
@@ -78,7 +110,7 @@
         '<p class="section-desc">No necesitas saber qué servicio contratar. Elige lo que más se parece a tu caso y te explicamos el siguiente paso.</p>' +
         '<div class="cat-grid">' +
           '<a class="cat-item" href="/reparacion-centralitas-ecu"><span class="icon">' + icon('ecu') + '</span><span><b>La ECU no comunica o falló una escritura</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Recuperación, diagnóstico y reparación antes de sustituir.</p></span></a>' +
-          '<a class="cat-item" href="/clonacion-centralitas-ecu"><span class="icon">' + icon('copy') + '</span><span><b>Necesito copiar una ECU a una donante</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Comprobamos compatibilidad y datos antes de clonar.</p></span></a>' +
+          '<a class="cat-item" href="/clonacion-centralitas-ecu"><span class="icon">' + icon('ecu') + '</span><span><b>Necesito copiar una ECU a una donante</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Comprobamos compatibilidad y datos antes de clonar.</p></span></a>' +
           '<a class="cat-item" href="/bmw-fem-bdc"><span class="icon">' + icon('module') + '</span><span><b>BMW con fallo FEM / BDC</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Arranque, recuperación, sustitución y llaves según sistema.</p></span></a>' +
           '<a class="cat-item" href="/mercedes-ezs-elv"><span class="icon">' + icon('lock') + '</span><span><b>Mercedes sin contacto o ELV bloqueado</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">EZS/EIS, ELV/ESL y problemas de reconocimiento de llave.</p></span></a>' +
           '<a class="cat-item" href="/perdida-total-llaves-coche"><span class="icon">' + icon('key') + '</span><span><b>He perdido todas las llaves</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Identificamos el inmovilizador y el procedimiento correcto.</p></span></a>' +
@@ -89,6 +121,25 @@
         '</div>' +
         '<p class="section-desc" style="margin-top:12px">Con marca, modelo, año, referencia o foto de la etiqueta y una descripción de los síntomas podemos orientarte antes de que desmontes o envíes nada.</p>';
       hero.insertAdjacentElement('afterend', section);
+    }
+
+    if (!document.getElementById('growth-professionals')) {
+      const target = document.getElementById('proceso') || document.querySelector('main section:last-of-type');
+      if (target) {
+        const section = document.createElement('section');
+        section.className = 'section';
+        section.id = 'growth-professionals';
+        section.innerHTML =
+          '<div class="eyebrow">PARA TALLERES Y PROFESIONALES</div>' +
+          '<h2>Tu laboratorio externo cuando la electrónica se complica</h2>' +
+          '<p class="section-desc">Puedes derivarnos ECU, TCU, inmovilizadores y módulos electrónicos sin montar toda la infraestructura de laboratorio en tu taller. Primero revisamos referencias y síntomas; después te indicamos qué enviar.</p>' +
+          '<div class="btn-row" style="margin-top:20px">' +
+            '<a class="btn btn-primary" href="/profesionales.html">' + icon('diag') + 'Servicio para talleres</a>' +
+            '<a class="btn btn-secondary" href="/enviar-reparacion.html?tipo=taller">' + icon('file') + 'Abrir caso profesional</a>' +
+          '</div>';
+        target.insertAdjacentElement('afterend', section);
+        fillIcons(section);
+      }
     }
     fillIcons(hero);
   }
@@ -123,6 +174,12 @@
   function enhanceRepairForm() {
     if (!/(?:^|\/)enviar-reparacion\.html$/i.test(location.pathname)) return;
     const notice = document.getElementById('auth-notice');
+    const typeSelect = document.getElementById('tipo-cliente');
+    const requestedType = new URLSearchParams(location.search).get('tipo');
+    if (typeSelect && ['taller', 'empresa', 'particular'].includes(requestedType)) {
+      typeSelect.value = requestedType;
+      typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     if (!notice) return;
     const update = () => {
       const text = notice.textContent || '';
@@ -158,11 +215,36 @@
     new MutationObserver(update).observe(root, { childList: true, subtree: true });
   }
 
+  function enhanceProductTrust() {
+    if (!/^\/(?:servicios|productos)\//i.test(location.pathname) || document.getElementById('growth-product-trust')) return;
+    const article = document.querySelector('article.seo-server-content, #detail-root article, #detail-root');
+    if (!article) return;
+    const isProduct = /^\/productos\//i.test(location.pathname);
+    const section = document.createElement('section');
+    section.id = 'growth-product-trust';
+    section.style.marginTop = '24px';
+    section.innerHTML =
+      '<div class="eyebrow">COMPATIBILIDAD Y TRAZABILIDAD</div>' +
+      '<h2>' + (isProduct ? 'Confirma que es la opción correcta antes de comprar' : 'Confirma el caso antes de enviar la unidad') + '</h2>' +
+      '<p class="section-desc">' + (isProduct
+        ? 'Si una herramienta, licencia o accesorio depende de referencia, vehículo o equipo, consúltanos antes del pedido. Preferimos confirmar compatibilidad a vender una opción que no corresponda.'
+        : 'Una misma familia puede montar hardware o software diferentes. Con referencia, fotografía de la etiqueta, vehículo y síntomas podemos revisar el alcance antes de que desmontes o envíes material.') + '</p>' +
+      '<div class="btn-row" style="margin-top:18px">' +
+        (isProduct
+          ? '<a class="btn btn-secondary" href="https://wa.me/34632982646?text=Hola%2C%20quiero%20confirmar%20la%20compatibilidad%20de%20un%20producto%20de%20Autokeys" target="_blank" rel="noopener">' + icon('whatsapp') + 'Consultar compatibilidad</a>'
+          : '<a class="btn btn-primary" href="/enviar-reparacion.html">' + icon('file') + 'Revisar mi caso</a>') +
+      '</div>';
+    article.appendChild(section);
+    fillIcons(section);
+  }
+
   function init() {
+    setupCleanInternalLinks();
     enhanceHome();
     enhanceServiceLanding();
     enhanceRepairForm();
     enhanceCheckoutGate();
+    enhanceProductTrust();
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
