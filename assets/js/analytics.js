@@ -53,7 +53,44 @@
     }
   }
 
+  function setupRepairRequestObserver() {
+    const success = document.getElementById('request-success');
+    if (!success) return;
+    let tracked = false;
+    const check = () => {
+      if (!tracked && success.hidden === false) {
+        tracked = true;
+        window.akTrack('repair_request', { carrito: false });
+      }
+    };
+    check();
+    new MutationObserver(check).observe(success, { attributes: true, attributeFilter: ['hidden'] });
+  }
+
+  function setupPurchaseObserver() {
+    if (!/(?:^|\/)carrito\.html$/i.test(location.pathname)) return;
+    const params = new URLSearchParams(location.search);
+    const pedidoId = params.get('pedido');
+    if (params.get('pago') !== 'retorno' || !pedidoId) return;
+    const root = document.getElementById('cart-root');
+    if (!root) return;
+    const purchaseKey = 'ak_purchase_tracked_' + pedidoId;
+    const check = () => {
+      if (localStorage.getItem(purchaseKey) === '1') return;
+      if (/Pago confirmado/i.test(root.textContent || '')) {
+        localStorage.setItem(purchaseKey, '1');
+        window.akTrack('purchase', { pedido_id: pedidoId, carrito: false });
+      }
+    };
+    check();
+    new MutationObserver(check).observe(root, { childList: true, subtree: true, characterData: true });
+  }
+
   document.addEventListener('click', trackCommercialClick, true);
-  const init = () => window.akTrack('page_view', { carrito: false });
+  const init = () => {
+    window.akTrack('page_view', { carrito: false });
+    setupRepairRequestObserver();
+    setupPurchaseObserver();
+  };
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 }());
