@@ -30,6 +30,8 @@
     { "source": "/casos/golf-4-1-9-tdi-asz-stage-2-hardcut", "destination": "/api/case-seo-extra2?slug=golf-4-1-9-tdi-asz-stage-2-hardcut" },
     { "source": "/casos/seat-ibiza-6l-multimapa-hardcut", "destination": "/api/case-seo-extra2?slug=seat-ibiza-6l-multimapa-hardcut" },
     { "source": "/casos/bmw-f36-420d-codificacion-levas", "destination": "/api/case-seo-extra2?slug=bmw-f36-420d-codificacion-levas" },
+    { "source": "/casos/seat-leon-mk1-1-8-pops-bangs", "destination": "/api/case-seo-extra3?slug=seat-leon-mk1-1-8-pops-bangs" },
+    { "source": "/casos/desarrollo-edc15p-multimapa-autokeys", "destination": "/api/case-seo-extra3?slug=desarrollo-edc15p-multimapa-autokeys" },
     { "source": "/casos/:slug", "destination": "/api/case-seo?slug=:slug" }
   ]
 }
