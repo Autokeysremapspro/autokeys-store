@@ -130,6 +130,48 @@ const CASES = {
     ],
     professionalLink: true,
   },
+  'golf-6-gti-med17-5-electronica-corregida': {
+    title: 'Golf 6 GTI MED17.5: electrónica corregida',
+    meta: 'Caso real Golf 6 GTI MED17.5: partimos de una calibración deficiente, leímos la ECU, analizamos el archivo en WinOLS y reconstruimos la electrónica.',
+    category: 'VOLKSWAGEN · MED17.5 · WINOLS',
+    intro: 'Este Volkswagen Golf 6 GTI fue adquirido con una electrónica que no estaba a la altura del conjunto. En lugar de dar por válida la calibración existente o sustituirla por un archivo genérico, comenzamos leyendo la ECU MED17.5 y analizando qué llevaba realmente el vehículo. A partir de esa lectura trabajamos la calibración en WinOLS y reconstruimos la electrónica hasta obtener un resultado claramente mejor y coherente con la configuración del coche.',
+    facts: ['Volkswagen Golf 6 GTI', 'ECU MED17.5', 'Calibración previa deficiente', 'Lectura de ECU', 'Trabajo con WinOLS', 'Stage 2 + decat + Pops & Bangs'],
+    sections: [
+      {
+        title: 'El punto de partida: una electrónica que no convencía',
+        paragraphs: [
+          'Cuando adquirimos el Golf 6 GTI, el vehículo ya llevaba una calibración modificada. El problema era que el comportamiento y la forma en la que estaba planteada esa electrónica no nos parecían correctos. Antes de cambiar nada necesitábamos saber qué había dentro de la ECU y dejar de trabajar sobre sensaciones o etiquetas como “Stage 2”.',
+          'Una calibración previa mal planteada obliga a extremar la trazabilidad. Si simplemente se vuelve a modificar el archivo existente, se corre el riesgo de acumular cambios sin saber qué proviene del software original y qué se añadió después. Por eso el primer paso fue leer la ECU MED17.5 y conservar el archivo obtenido como referencia del estado en el que recibimos el coche.',
+        ],
+      },
+      {
+        title: 'Lectura de la ECU y análisis en WinOLS',
+        paragraphs: [
+          'Con la lectura disponible pasamos al análisis del archivo en WinOLS. El objetivo no era buscar una única tabla y aumentar valores, sino revisar la lógica de la calibración existente y comprobar que las modificaciones tuvieran coherencia entre sí. En un motor turbo gasolina, distintas estrategias trabajan de forma relacionada y una calibración de calidad debe mantener ese equilibrio.',
+          'WinOLS nos permitió trabajar el archivo de forma estructurada, comparar zonas de calibración y rehacer el planteamiento sobre una base conocida. Esta fase es especialmente importante cuando no conocemos con certeza cómo se preparó el software anterior, porque permite separar el diagnóstico de la calibración del simple hecho de que el coche “ande más”.',
+        ],
+      },
+      {
+        title: 'Reconstrucción de la calibración',
+        paragraphs: [
+          'Una vez revisado el punto de partida, reconstruimos la electrónica para adaptarla a la configuración del vehículo. El resultado final quedó planteado como Stage 2, con decat y Pops & Bangs, pero el valor real del trabajo no está en esas tres etiquetas: está en haber corregido la base y hacer que las distintas modificaciones formen parte de una calibración coherente.',
+          'No publicamos cifras de potencia que no estén asociadas a una medición documentada. En este caso lo que sí podemos afirmar es que el comportamiento obtenido después de rehacer la electrónica fue muy satisfactorio y supuso una mejora clara respecto a la calibración con la que adquirimos el vehículo.',
+        ],
+      },
+      {
+        title: 'Por qué este caso es diferente a cargar un archivo',
+        paragraphs: [
+          'Este Golf 6 GTI muestra una parte del trabajo de reprogramación que muchas veces no se ve: corregir una electrónica ya modificada. Cuando un vehículo llega con software de procedencia desconocida, no basta con asumir que el archivo es una buena base. Hay que leer, identificar, analizar y decidir qué merece conservarse y qué debe rehacerse.',
+          'En Autokeys Remaps Pro utilizamos este enfoque cuando el caso lo exige: lectura de ECU, conservación de archivos, análisis técnico y trabajo de calibración con herramientas como WinOLS. El objetivo es que el resultado final responda al vehículo que tenemos delante y no a una receta reutilizada sin comprobar su origen.',
+        ],
+      },
+    ],
+    related: [
+      ['Reprogramación de centralitas', '/reprogramacion-centralitas-jaen'],
+      ['Reparación de centralitas ECU', '/reparacion-centralitas-ecu'],
+      ['Clonación de centralitas ECU', '/clonacion-centralitas-ecu'],
+    ],
+  },
 };
 
 function cleanSlug(value) {
