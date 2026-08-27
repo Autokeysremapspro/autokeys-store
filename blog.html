@@ -92,7 +92,7 @@
       return;
     }
     grid.innerHTML = data.map((p) =>
-      '<a class="blog-card" href="blog-post.html?slug=' + encodeURIComponent(p.slug) + '">' +
+      '<a class="blog-card" href="/guias/' + encodeURIComponent(p.slug) + '">' +
         '<div class="blog-card-media">' + (p.imagen_url ? '<img src="' + p.imagen_url + '" alt="' + akEscapeHtml(p.titulo) + '" loading="lazy">' : '<div style="display:grid;place-items:center;height:100%;color:#54545c">' + akIcon('file') + '</div>') + '</div>' +
         '<div class="blog-card-body">' +
           (p.categoria ? '<span class="blog-cat">' + akEscapeHtml(p.categoria) + '</span>' : '') +
