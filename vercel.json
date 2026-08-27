@@ -7,6 +7,18 @@
   "crons": [
     { "path": "/api/recordar-carritos", "schedule": "0 * * * *" }
   ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "https://www.autokeysremapspro.online/login",
+      "permanent": false
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "https://www.autokeysremapspro.online/:path*",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/blog-post.html", "destination": "/api/legacy-seo-redirect?type=blog" },
