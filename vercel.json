@@ -9,6 +9,8 @@
   ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/blog-post.html", "destination": "/api/legacy-seo-redirect?type=blog" },
+    { "source": "/producto.html", "destination": "/api/legacy-seo-redirect?type=product" },
     { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-landing?slug=reparacion-centralitas-ecu" },
     { "source": "/clonacion-centralitas-ecu", "destination": "/api/seo-landing?slug=clonacion-centralitas-ecu" },
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
