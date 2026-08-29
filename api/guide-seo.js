@@ -89,6 +89,45 @@ function articleParagraphs(value) {
   return paragraphs.filter(Boolean);
 }
 
+function cleanArticleHref(value) {
+  const href = String(value || '').trim();
+  if (!href) return '';
+  if (/^https?:\/\//i.test(href) || /^(?:mailto:|tel:)/i.test(href)) return href;
+  if (/^\/(?!\/)/.test(href)) return href;
+  if (/^index\.html#contacto$/i.test(href)) return '/enviar-reparacion.html';
+  const category = href.match(/^tienda\.html\?cat=([a-z0-9-]+)$/i);
+  if (category) return `/categorias/${category[1]}`;
+  if (/^[a-z0-9][a-z0-9._/-]*(?:[?#].*)?$/i.test(href)) return `/${href}`;
+  return '';
+}
+
+function safeArticleHtml(value) {
+  const allowed = new Set(['p', 'h2', 'h3', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'br', 'blockquote']);
+  let html = String(value == null ? '' : value)
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<(script|style|iframe|object|embed|form|svg|math)[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<(script|style|iframe|object|embed|form|svg|math)[^>]*\/?>/gi, '');
+
+  html = html.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (whole, rawName, attrs) => {
+    const name = String(rawName || '').toLowerCase();
+    if (!allowed.has(name)) return '';
+    const closing = /^<\//.test(whole);
+    if (closing) return `</${name}>`;
+    if (name === 'br') return '<br>';
+    if (name === 'a') {
+      const match = String(attrs || '').match(/\bhref\s*=\s*(["'])(.*?)\1/i);
+      const href = cleanArticleHref(match ? match[2] : '');
+      return href ? `<a href="${esc(href)}">` : '<a>';
+    }
+    return `<${name}>`;
+  });
+
+  if (!/<(?:p|h2|h3|ul|ol|li|blockquote)\b/i.test(html)) {
+    return articleParagraphs(value).map((p) => `<p>${esc(p)}</p>`).join('');
+  }
+  return html;
+}
+
 async function rest(resource) {
   const key = serviceKey();
   if (!key) throw new Error('missing_service_key');
@@ -151,7 +190,7 @@ function renderPage(row) {
   const image = absoluteImage(row.imagen_url);
   const articleTitle = plainText(row.titulo);
   const summary = plainText(row.resumen || '');
-  const paragraphs = articleParagraphs(row.contenido || '');
+  const articleHtml = safeArticleHtml(row.contenido || '');
   const category = plainText(row.categoria || 'GUÍA TÉCNICA');
   const links = relatedLinks(row.categoria_tienda_id);
   const published = row.publicado_en ? new Date(row.publicado_en).toISOString().slice(0, 10) : '';
@@ -199,6 +238,7 @@ function renderPage(row) {
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${esc(image)}">
+<base href="/">
 <link rel="stylesheet" href="/assets/css/style.css">
 <script type="application/ld+json">${jsonLd(schema)}</script>
 <script type="application/ld+json">${jsonLd(breadcrumb)}</script>
@@ -214,7 +254,7 @@ function renderPage(row) {
   <div class="blog-meta">${published ? `<span>Publicado ${esc(published)}</span>` : ''}${modified && modified !== published ? `<span> · Actualizado ${esc(modified)}</span>` : ''}</div>
   ${row.imagen_url ? `<img class="blog-post-hero" src="${esc(image)}" alt="${esc(articleTitle)}" loading="eager">` : ''}
   ${summary ? `<p class="lead">${esc(summary)}</p>` : ''}
-  <div class="blog-post-body">${paragraphs.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
+  <div class="blog-post-body">${articleHtml}</div>
   <div class="blog-post-cta"><div><b>¿Necesitas ayuda con este sistema?</b><p>Cuéntanos el caso y revisaremos qué servicio o unidad necesitamos.</p></div><a class="btn btn-primary" href="/enviar-reparacion.html">Solicitar valoración</a></div>
 </article>
 <section class="section">

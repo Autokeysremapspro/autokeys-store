@@ -7,6 +7,95 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
   document.head.appendChild(growthScript);
 }
 
+/*
+ * Las cabeceras y pies se generan desde app.js con algunas rutas históricas
+ * relativas. En páginas anidadas (/casos/, /guias/) el navegador podía
+ * resolverlas dentro de esa carpeta y dejar logo, navegación o CTAs rotos.
+ * Normalizamos únicamente la UI compartida y, de paso, evitamos saltos
+ * innecesarios por las antiguas URLs con ?id= / ?cat=.
+ */
+(function fixSharedNavigationPaths() {
+  const exactRoutes = new Map([
+    ['producto.html?id=bmw-fem-bdc', '/bmw-fem-bdc'],
+    ['producto.html?id=mercedes-ezs-elv', '/mercedes-ezs-elv'],
+    ['producto.html?id=llaves-copia-programacion', '/programacion-llaves-coche'],
+    ['producto.html?id=airbag-srs-reparacion', '/reparacion-airbag-srs'],
+    ['producto.html?id=clonacion-ecu-general', '/clonacion-centralitas-ecu'],
+    ['producto.html?id=reparacion-electronica-ecu-pcm', '/reparacion-centralitas-ecu'],
+    ['producto.html?id=reparacion-por-envio', '/reparacion-centralita-por-envio'],
+    ['producto.html?id=software-licencias', '/categorias/software'],
+    ['tienda.html?cat=reparacion-ecu', '/categorias/reparacion-ecu'],
+    ['tienda.html?cat=clonacion-ecu', '/categorias/clonacion-ecu'],
+    ['tienda.html?cat=software', '/categorias/software'],
+    ['tienda.html?cat=herramientas', '/categorias/herramientas'],
+  ]);
+  const productIds = new Set([
+    'edc15p-multimap-suite',
+    'programadores-multimarca',
+    'pack-autokeys-ecu-bench-starter',
+    'pack-autokeys-bmw-bench',
+  ]);
+
+  function cleanLocalRoute(raw) {
+    raw = String(raw || '').trim();
+    if (!raw || raw[0] === '#' || raw[0] === '/' || raw.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(raw)) return raw;
+    if (exactRoutes.has(raw)) return exactRoutes.get(raw);
+
+    if (/^tienda\.html\?cat=/i.test(raw)) {
+      const params = new URLSearchParams(raw.split('?')[1] || '');
+      const cat = params.get('cat');
+      if (cat) return '/categorias/' + encodeURIComponent(cat);
+    }
+
+    if (/^producto\.html\?id=/i.test(raw)) {
+      const params = new URLSearchParams(raw.split('?')[1] || '');
+      const id = params.get('id');
+      if (id) return '/' + (productIds.has(id) ? 'productos/' : 'servicios/') + encodeURIComponent(id);
+    }
+
+    if (raw === 'index.html') return '/';
+    return '/' + raw.replace(/^\.\//, '');
+  }
+
+  function normalizeSharedUi(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll('a[href]').forEach((el) => {
+      const raw = el.getAttribute('href');
+      const clean = cleanLocalRoute(raw);
+      if (clean && clean !== raw) el.setAttribute('href', clean);
+    });
+    root.querySelectorAll('form[action]').forEach((el) => {
+      const raw = el.getAttribute('action');
+      const clean = cleanLocalRoute(raw);
+      if (clean && clean !== raw) el.setAttribute('action', clean);
+    });
+    root.querySelectorAll('img[src]').forEach((el) => {
+      const raw = String(el.getAttribute('src') || '').trim();
+      if (raw && raw[0] !== '/' && !raw.startsWith('//') && !/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+        el.setAttribute('src', '/' + raw.replace(/^\.\//, ''));
+      }
+    });
+  }
+
+  function normalizeHomeCasesCard() {
+    const grid = document.getElementById('cat-grid');
+    if (!grid) return;
+    grid.querySelectorAll('a.cat-item').forEach((link) => {
+      if (/casos reales/i.test(link.textContent || '')) link.setAttribute('href', '/casos-reales.html');
+    });
+  }
+
+  function run() {
+    normalizeSharedUi(document.getElementById('site-header'));
+    normalizeSharedUi(document.getElementById('site-footer'));
+    normalizeHomeCasesCard();
+  }
+
+  const observer = new MutationObserver(() => run());
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', run) : run();
+}());
+
 (function () {
   const KEY = 'ak_conversion_session_v1';
   const REMINDER_KEY = 'ak_cart_reminder_consent_v1';
