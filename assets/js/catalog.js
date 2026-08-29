@@ -90,12 +90,29 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 
 let _akCatalogPromise = null;
 
+/* app.js carga analytics/growth de forma dinámica. En conexiones rápidas,
+   prerenderizados o Googlebot, una capa de UX puede pedir el catálogo unos
+   milisegundos antes de que supabase-config.js haya definido akSupabase().
+   Esperamos de forma acotada en vez de lanzar un ReferenceError que rompa el
+   renderizado del catálogo y ensucie el rastreo. */
+async function akWaitForSupabase() {
+  const started = Date.now();
+  while (typeof akSupabase !== 'function' && Date.now() - started < 5000) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return typeof akSupabase === 'function';
+}
+
 /* Carga (una sola vez) categorías/marcas/productos/variantes desde Supabase
    y rellena CATEGORIES/BRANDS/CATALOG. Todas las páginas que lean esas
    variables deben esperar esta promesa primero. */
 function akCatalogReady() {
   if (!_akCatalogPromise) {
     _akCatalogPromise = (async () => {
+      if (!(await akWaitForSupabase())) {
+        console.error('No se pudo cargar el catálogo: Supabase no está disponible.');
+        return;
+      }
       const client = akSupabase();
       const [{ data: cats, error: e1 }, { data: brands, error: e2 }, { data: productos, error: e3 }, { data: variantes, error: e4 }, { data: valoraciones }] =
         await Promise.all([
