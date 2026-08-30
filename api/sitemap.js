@@ -42,7 +42,7 @@ const STATIC_URLS = [
 ];
 
 const STATIC_LASTMOD = {
-  '/': '2026-08-25',
+  '/': '2026-08-30',
   '/casos-reales.html': '2026-08-25',
   '/enviar-reparacion.html': '2026-08-25',
   '/profesionales.html': '2026-08-25',
