@@ -57,9 +57,6 @@ function patchSchema(value) {
 
   const isCollection = type === 'CollectionPage' || (Array.isArray(type) && type.includes('CollectionPage'));
   if (isCollection && Array.isArray(value.mainEntity)) {
-    /* Las fichas individuales ya exponen Product/Offer completos. En la página
-       de categoría no publicamos Product parciales, porque generan schema
-       inválido (sin image/precio) y no aportan rich results adicionales. */
     value.mainEntity = value.mainEntity.filter((item) => {
       if (!item || typeof item !== 'object') return false;
       return item['@type'] !== 'Product';
@@ -76,15 +73,6 @@ function patchSchema(value) {
 function patchHtml(html) {
   let output = String(html || '');
 
-  /*
-   * Las páginas dinámicas viven en rutas como /servicios/:slug y
-   * /categorias/:slug, mientras que sus plantillas históricas usan assets
-   * relativos (assets/css/..., assets/js/...). Si el <base> aparece después
-   * del <link rel="stylesheet">, el navegador empieza a pedir
-   * /servicios/assets/... y la página queda completamente sin CSS. Ponemos el
-   * base al principio del head y, además, hacemos absolutos los assets locales
-   * para que el orden de parseo nunca vuelva a romper el diseño.
-   */
   output = output.replace(/<base\b[^>]*>/gi, '');
   output = output.replace(/<head([^>]*)>/i, '<head$1>\n<base href="/">');
   output = output.replace(/((?:href|src)=["'])\.?\/?assets\//gi, '$1/assets/');
@@ -119,7 +107,7 @@ function requestOrigin(req) {
   return `${proto}://${host}`;
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.setHeader('Allow', 'GET, HEAD');
     return res.status(405).send('Method not allowed');
@@ -153,4 +141,8 @@ module.exports = async function handler(req, res) {
     console.error('seo-health:', error);
     return res.status(500).send('No se pudo cargar la página');
   }
-};
+}
+
+handler.patchHtml = patchHtml;
+handler.patchSchema = patchSchema;
+module.exports = handler;
