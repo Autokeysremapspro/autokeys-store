@@ -1,6 +1,8 @@
 const { pagosConfigurados, createHostedCheckout, getPedido, updatePedido } = require('../lib/sumup-server');
 
 const SITE_URL = 'https://www.autokeysremapspro.es';
+const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
 
 async function readJsonBody(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -13,6 +15,17 @@ async function readJsonBody(req) {
   }
 }
 
+async function authenticatedUser(req) {
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) return null;
+  const user = await response.json();
+  return user?.id ? user : null;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'metodo_no_permitido' });
@@ -20,9 +33,13 @@ module.exports = async function handler(req, res) {
   }
 
   if (!pagosConfigurados()) {
-    // Pagos online todavía no configurados en este despliegue: el checkout
-    // cae de vuelta al flujo de "solicitud" existente sin bloquear al cliente.
     res.status(503).json({ error: 'pagos_no_configurados' });
+    return;
+  }
+
+  const user = await authenticatedUser(req);
+  if (!user) {
+    res.status(401).json({ error: 'no_autorizado' });
     return;
   }
 
@@ -34,11 +51,15 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // El importe y el número de pedido se leen del servidor, nunca del
-    // cuerpo de la petición del cliente — evita que alguien manipule el total a pagar.
+    // El importe se lee del pedido creado y recalculado en servidor. Además,
+    // solo el propietario autenticado puede abrir un checkout para ese pedido.
     const pedido = await getPedido(pedidoId);
     if (!pedido) {
       res.status(404).json({ error: 'pedido_no_encontrado' });
+      return;
+    }
+    if (pedido.usuario_id !== user.id) {
+      res.status(403).json({ error: 'pedido_no_pertenece_al_usuario' });
       return;
     }
     if (pedido.pago_estado === 'pagado') {
