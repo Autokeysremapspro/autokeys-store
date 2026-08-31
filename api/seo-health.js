@@ -76,6 +76,19 @@ function patchSchema(value) {
 function patchHtml(html) {
   let output = String(html || '');
 
+  /*
+   * Las páginas dinámicas viven en rutas como /servicios/:slug y
+   * /categorias/:slug, mientras que sus plantillas históricas usan assets
+   * relativos (assets/css/..., assets/js/...). Si el <base> aparece después
+   * del <link rel="stylesheet">, el navegador empieza a pedir
+   * /servicios/assets/... y la página queda completamente sin CSS. Ponemos el
+   * base al principio del head y, además, hacemos absolutos los assets locales
+   * para que el orden de parseo nunca vuelva a romper el diseño.
+   */
+  output = output.replace(/<base\b[^>]*>/gi, '');
+  output = output.replace(/<head([^>]*)>/i, '<head$1>\n<base href="/">');
+  output = output.replace(/((?:href|src)=["'])\.?\/?assets\//gi, '$1/assets/');
+
   if (!/<link[^>]+rel=["'](?:shortcut )?icon["']/i.test(output)) {
     output = output.replace(
       /<\/head>/i,
