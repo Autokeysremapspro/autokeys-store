@@ -1,10 +1,5 @@
 /* AutoKeys Remaps Pro Store — product/service catalog.
-   Loaded from Supabase (tienda_categorias / tienda_marcas / tienda_productos /
-   tienda_producto_variantes, public anon key, RLS: solo lectura pública de
-   productos activos) so it can be managed from autokeys-admin. Every page
-   must `await akCatalogReady()` before reading CATEGORIES / CATALOG / BRANDS —
-   the shape of each product object is unchanged from the old static file, so
-   nothing else in index.html / tienda.html / producto.html needs to change. */
+   Datos desde Supabase con recuperación defensiva de la dependencia cliente. */
 
 let CATEGORIES = [];
 let BRANDS = [];
@@ -30,8 +25,101 @@ const GENERIC_FAQS = [
   { q: '¿Incluye garantía?', a: 'Los trabajos validados incluyen garantía según el servicio realizado y el material recibido.' },
 ];
 
-/* Aviso de urgencia por stock bajo — solo para productos físicos con
-   stock_actual numérico, no para servicios (que no tienen unidades). */
+/*
+ * Algunas páginas SEO se generan desde funciones y no siempre incluyen los
+ * scripts de Supabase en el HTML original. Un fallo de carga no debe romper
+ * cabecera, footer, catálogo ni tracking. Dejamos un cliente nulo temporal y
+ * cargamos la dependencia real cuando falta. supabase-config.js sustituye el
+ * fallback al cargarse.
+ */
+(function akBootstrapSupabase() {
+  if (typeof window === 'undefined') return;
+
+  function nullQueryResult() {
+    return { data: null, error: { message: 'Supabase no disponible temporalmente' } };
+  }
+
+  function makeNullQuery() {
+    const target = {};
+    const proxy = new Proxy(target, {
+      get(_obj, prop) {
+        if (prop === 'then') {
+          return (resolve, reject) => Promise.resolve(nullQueryResult()).then(resolve, reject);
+        }
+        return () => proxy;
+      },
+    });
+    return proxy;
+  }
+
+  if (typeof window.akSupabase !== 'function') {
+    const fallback = function () {
+      return {
+        auth: {
+          getUser: async () => ({ data: { user: null }, error: null }),
+          getSession: async () => ({ data: { session: null }, error: null }),
+          signOut: async () => ({ error: null }),
+        },
+        rpc: async () => nullQueryResult(),
+        from: () => makeNullQuery(),
+      };
+    };
+    fallback.__akFallback = true;
+    window.akSupabase = fallback;
+  }
+
+  function scriptPresent(part) {
+    return Array.from(document.scripts || []).some((s) => String(s.src || '').includes(part));
+  }
+
+  function loadScript(src, marker) {
+    return new Promise((resolve, reject) => {
+      if (marker && scriptPresent(marker)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = false;
+      script.dataset.akAutoload = '1';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('No se pudo cargar ' + src));
+      document.head.appendChild(script);
+    });
+  }
+
+  window.__akSupabaseBoot = (async () => {
+    try {
+      if (!window.supabase) {
+        if (scriptPresent('supabase-js-2.112.3.min.js')) {
+          const started = Date.now();
+          while (!window.supabase && Date.now() - started < 5000) {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          }
+        } else {
+          await loadScript('/assets/js/vendor/supabase-js-2.112.3.min.js', 'supabase-js-2.112.3.min.js');
+        }
+      }
+
+      if (typeof window.akSupabase !== 'function' || window.akSupabase.__akFallback) {
+        if (scriptPresent('supabase-config.js')) {
+          const started = Date.now();
+          while ((typeof window.akSupabase !== 'function' || window.akSupabase.__akFallback) && Date.now() - started < 5000) {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          }
+        } else {
+          await loadScript('/assets/js/supabase-config.js', 'supabase-config.js');
+        }
+      }
+      return typeof window.akSupabase === 'function' && !window.akSupabase.__akFallback;
+    } catch (error) {
+      console.warn('Supabase no disponible en esta página:', error && error.message ? error.message : error);
+      return false;
+    }
+  })();
+}());
+
+/* Aviso de urgencia por stock bajo — solo para productos físicos. */
 function akStockUrgencia(product) {
   if (!product || !product.isProduct) return null;
   const actual = product.stockActual;
@@ -44,6 +132,25 @@ function akStockUrgencia(product) {
 
 function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
   const valoracion = (valoracionesByProducto || {})[row.id];
+  const rawVariants = (variantesByProducto && variantesByProducto[row.id]) || [];
+  const variants = rawVariants.map((v) => ({
+    id: v.variant_key,
+    name: v.name,
+    desc: v.description || '',
+    price: Number(v.price) || 0,
+  }));
+
+  /* Nunca dejar selectedVariant undefined: si una ficha activa no tiene aún
+     fila en tienda_producto_variantes, usamos price_from como opción base. */
+  if (!variants.length) {
+    variants.push({
+      id: 'base',
+      name: row.is_product ? 'Producto' : 'Servicio',
+      desc: '',
+      price: Number(row.price_from) || 0,
+    });
+  }
+
   return {
     id: row.id,
     name: row.name,
@@ -79,59 +186,62 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     warranty: row.warranty,
     faqs: row.faqs || [],
     related: row.related || [],
-    variants: (variantesByProducto[row.id] || []).map((v) => ({
-      id: v.variant_key,
-      name: v.name,
-      desc: v.description || '',
-      price: Number(v.price) || 0,
-    })),
+    variants,
   };
 }
 
 let _akCatalogPromise = null;
 
-/* app.js carga analytics/growth de forma dinámica. En conexiones rápidas,
-   prerenderizados o Googlebot, una capa de UX puede pedir el catálogo unos
-   milisegundos antes de que supabase-config.js haya definido akSupabase().
-   Esperamos de forma acotada en vez de lanzar un ReferenceError que rompa el
-   renderizado del catálogo y ensucie el rastreo. */
 async function akWaitForSupabase() {
+  try {
+    if (window.__akSupabaseBoot) await window.__akSupabaseBoot;
+  } catch (_) {}
+
   const started = Date.now();
-  while (typeof akSupabase !== 'function' && Date.now() - started < 5000) {
+  while (
+    (typeof window.akSupabase !== 'function' || window.akSupabase.__akFallback) &&
+    Date.now() - started < 5000
+  ) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
-  return typeof akSupabase === 'function';
+  return typeof window.akSupabase === 'function' && !window.akSupabase.__akFallback;
 }
 
-/* Carga (una sola vez) categorías/marcas/productos/variantes desde Supabase
-   y rellena CATEGORIES/BRANDS/CATALOG. Todas las páginas que lean esas
-   variables deben esperar esta promesa primero. */
 function akCatalogReady() {
   if (!_akCatalogPromise) {
     _akCatalogPromise = (async () => {
       if (!(await akWaitForSupabase())) {
-        console.error('No se pudo cargar el catálogo: Supabase no está disponible.');
+        console.warn('Catálogo no disponible temporalmente: Supabase no está listo.');
         return;
       }
-      const client = akSupabase();
-      const [{ data: cats, error: e1 }, { data: brands, error: e2 }, { data: productos, error: e3 }, { data: variantes, error: e4 }, { data: valoraciones }] =
-        await Promise.all([
-          client.from('tienda_categorias').select('id, label').order('sort_order'),
-          client.from('tienda_marcas').select('id, label').order('sort_order'),
-          client.from('tienda_productos').select('*').eq('activo', true).order('sort_order'),
-          client.from('tienda_producto_variantes').select('*').order('sort_order'),
-          client.from('tienda_producto_valoraciones').select('*'),
-        ]);
+      const client = window.akSupabase();
+      const [
+        { data: cats, error: e1 },
+        { data: brands, error: e2 },
+        { data: productos, error: e3 },
+        { data: variantes, error: e4 },
+        { data: valoraciones },
+      ] = await Promise.all([
+        client.from('tienda_categorias').select('id, label').order('sort_order'),
+        client.from('tienda_marcas').select('id, label').order('sort_order'),
+        client.from('tienda_productos').select('*').eq('activo', true).order('sort_order'),
+        client.from('tienda_producto_variantes').select('*').order('sort_order'),
+        client.from('tienda_producto_valoraciones').select('*'),
+      ]);
+
       if (e1 || e2 || e3 || e4) {
         console.error('No se pudo cargar el catálogo:', e1 || e2 || e3 || e4);
         return;
       }
+
       CATEGORIES = cats || [];
       BRANDS = brands || [];
+
       const variantesByProducto = {};
       (variantes || []).forEach((v) => {
         (variantesByProducto[v.producto_id] = variantesByProducto[v.producto_id] || []).push(v);
       });
+
       const valoracionesByProducto = {};
       (valoraciones || []).forEach((v) => { valoracionesByProducto[v.producto_id] = v; });
       CATALOG = (productos || []).map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
@@ -153,7 +263,9 @@ function akFindBrand(id) {
 }
 
 function akFormatPrice(n) {
-  return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  const value = Number(n);
+  const safe = Number.isFinite(value) ? value : 0;
+  return safe.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 }
 
 function akStarSvg(filled) {
@@ -161,7 +273,6 @@ function akStarSvg(filled) {
     (filled ? '#ef1f2b' : '#5f5f66') + '" stroke-width="1.6"><polygon points="12,2.5 15,9 22,10 16.8,14.7 18.2,21.5 12,18 5.8,21.5 7.2,14.7 2,10 9,9"/></svg>';
 }
 
-/* Fila de estrellas + nº de reseñas, o cadena vacía si el producto no tiene ninguna. */
 function akStarsHtml(rating, count) {
   if (!rating || !count) return '';
   const llenas = Math.round(rating);
@@ -171,8 +282,6 @@ function akStarsHtml(rating, count) {
     '<span class="stars-count">' + rating.toFixed(1) + ' (' + count + ')</span></span>';
 }
 
-/* Igual que akStarsHtml pero para una puntuación fija (1-5), sin contador —
-   usado en cada reseña individual y en el selector al escribir una nueva. */
 function akStarsPlain(n) {
   let stars = '';
   for (let i = 1; i <= 5; i++) stars += akStarSvg(i <= n);
