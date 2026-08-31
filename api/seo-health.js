@@ -107,6 +107,24 @@ function requestOrigin(req) {
   return `${proto}://${host}`;
 }
 
+async function sendStyledNotFound(req, res) {
+  try {
+    const notFoundResponse = await fetch(`${requestOrigin(req)}/404.html`, {
+      method: 'GET',
+      redirect: 'manual',
+    });
+    const notFoundBody = await notFoundResponse.text();
+    const html = patchHtml(notFoundBody);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    res.setHeader('X-AK-SEO-Health', '1');
+    if (req.method === 'HEAD') return res.status(404).end();
+    return res.status(404).send(html);
+  } catch (_) {
+    return res.status(404).send('Página no encontrada');
+  }
+}
+
 async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.setHeader('Allow', 'GET, HEAD');
@@ -126,6 +144,7 @@ async function handler(req, res) {
     });
     const body = await upstream.text();
 
+    if (upstream.status === 404) return sendStyledNotFound(req, res);
     if (!upstream.ok) {
       res.setHeader('Content-Type', upstream.headers.get('content-type') || 'text/plain; charset=utf-8');
       return res.status(upstream.status).send(body);
@@ -145,4 +164,5 @@ async function handler(req, res) {
 
 handler.patchHtml = patchHtml;
 handler.patchSchema = patchSchema;
+handler.sendStyledNotFound = sendStyledNotFound;
 module.exports = handler;
