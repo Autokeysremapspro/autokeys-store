@@ -48,6 +48,60 @@ jobs:
           node -e "require('./api/crear-pago.js'); require('./api/confirmar-pago.js'); require('./api/sumup-webhook.js'); require('./api/enviar-confirmacion-pedido.js'); require('./api/generar-envio.js'); console.log('requires resueltos correctamente');"
           echo "Todas las funciones de api/ y lib/ son sintácticamente válidas."
 
+      - name: Comprobar saneado de assets en rutas anidadas
+        run: |
+          node <<'NODE'
+          const health = require('./api/seo-health.js');
+          if (typeof health.patchHtml !== 'function') {
+            throw new Error('seo-health no expone patchHtml para smoke test');
+          }
+          const input = '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="assets/css/style.css"></head><body><img src="assets/img/logo.png"><script src="assets/js/app.js"></script></body></html>';
+          const out = health.patchHtml(input);
+          const basePos = out.indexOf('<base href="/">');
+          const cssPos = out.indexOf('href="/assets/css/style.css"');
+          if (basePos < 0 || cssPos < 0 || basePos > cssPos) {
+            throw new Error('El <base> debe aparecer antes del CSS en páginas anidadas');
+          }
+          for (const expected of [
+            'href="/assets/css/style.css"',
+            'src="/assets/img/logo.png"',
+            'src="/assets/js/app.js"',
+          ]) {
+            if (!out.includes(expected)) throw new Error('Asset no normalizado: ' + expected);
+          }
+          if (/(?:href|src)=["']assets\//i.test(out)) {
+            throw new Error('Quedan assets relativos que podrían pedir /servicios/assets/...');
+          }
+          console.log('Saneado de rutas anidadas OK.');
+          NODE
+
+      - name: Comprobar que los assets locales referenciados existen
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const files = fs.readdirSync('.').filter((f) => f.endsWith('.html'));
+          const missing = [];
+          for (const file of files) {
+            const html = fs.readFileSync(file, 'utf8');
+            const refs = [...html.matchAll(/(?:src|href)=["']([^"']+)["']/gi)].map((m) => m[1]);
+            for (let ref of refs) {
+              if (!/^\/?assets\//.test(ref)) continue;
+              ref = ref.replace(/^\//, '').split(/[?#]/)[0];
+              if (!fs.existsSync(path.resolve(ref))) missing.push(file + ' -> ' + ref);
+            }
+          }
+          if (missing.length) {
+            console.error('Assets locales inexistentes:\n' + missing.join('\n'));
+            process.exit(1);
+          }
+          const notFound = fs.readFileSync('404.html', 'utf8');
+          if (/(?:src|href)=["']assets\//i.test(notFound)) {
+            throw new Error('404.html contiene assets relativos y puede romperse en rutas anidadas');
+          }
+          console.log('Todos los assets locales referenciados existen y 404 es robusto.');
+          NODE
+
       - name: Comprobar que vercel.json y robots.txt son consistentes
         run: |
           node -e "JSON.parse(require('fs').readFileSync('vercel.json', 'utf8'))"
