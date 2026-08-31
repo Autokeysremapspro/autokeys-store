@@ -9,204 +9,6 @@
   ],
   "redirects": [
     {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "como-programar-una-llave-de-coche-perdida" }],
-      "destination": "/guias/como-programar-una-llave-de-coche-perdida",
-      "permanent": true
-    },
-    {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "que-es-un-inmovilizador-y-como-afecta-a-tu-coche" }],
-      "destination": "/guias/que-es-un-inmovilizador-y-como-afecta-a-tu-coche",
-      "permanent": true
-    },
-    {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "reparacion-de-centralitas-ecu-todo-lo-que-debes-saber" }],
-      "destination": "/guias/reparacion-de-centralitas-ecu-todo-lo-que-debes-saber",
-      "permanent": true
-    },
-    {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "testigo-airbag-encendido-que-hacer" }],
-      "destination": "/guias/testigo-airbag-encendido-que-hacer",
-      "permanent": true
-    },
-    {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "cuadro-instrumentos-averias-comunes" }],
-      "destination": "/guias/cuadro-instrumentos-averias-comunes",
-      "permanent": true
-    },
-    {
-      "source": "/blog-post.html",
-      "has": [{ "type": "query", "key": "slug", "value": "bmw-fem-bdc-cas-ews-diferencias" }],
-      "destination": "/guias/bmw-fem-bdc-cas-ews-diferencias",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "recuperacion-bosch-edc17cp54" }],
-      "destination": "/servicios/recuperacion-bosch-edc17cp54",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "reparacion-clonacion-abs-esp" }],
-      "destination": "/servicios/reparacion-clonacion-abs-esp",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "clonacion-programacion-tcu-tcm" }],
-      "destination": "/servicios/clonacion-programacion-tcu-tcm",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "clonacion-ecu-general" }],
-      "destination": "/servicios/clonacion-ecu-general",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "bmw-fem-bdc" }],
-      "destination": "/servicios/bmw-fem-bdc",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "immo-off-virginizacion-ecu" }],
-      "destination": "/servicios/immo-off-virginizacion-ecu",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "recuperacion-ecu-escritura-fallida" }],
-      "destination": "/servicios/recuperacion-ecu-escritura-fallida",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "mercedes-ezs-elv" }],
-      "destination": "/servicios/mercedes-ezs-elv",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "reparacion-audi-j518-elv" }],
-      "destination": "/servicios/reparacion-audi-j518-elv",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "reparacion-electronica-ecu-pcm" }],
-      "destination": "/servicios/reparacion-electronica-ecu-pcm",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "inmovilizadores-programacion" }],
-      "destination": "/servicios/inmovilizadores-programacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "reparacion-bmw-frm" }],
-      "destination": "/servicios/reparacion-bmw-frm",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "diagnostico-avanzado" }],
-      "destination": "/servicios/diagnostico-avanzado",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "ecu-uce-diagnostico" }],
-      "destination": "/servicios/ecu-uce-diagnostico",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "bmw-cas-ews-programacion" }],
-      "destination": "/servicios/bmw-cas-ews-programacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "audi-bcm2-kessy-reparacion-clonacion" }],
-      "destination": "/servicios/audi-bcm2-kessy-reparacion-clonacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "llaves-copia-programacion" }],
-      "destination": "/servicios/llaves-copia-programacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "modulos-confort-uch" }],
-      "destination": "/servicios/modulos-confort-uch",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "airbag-srs-reparacion" }],
-      "destination": "/servicios/airbag-srs-reparacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "cuadros-reparacion" }],
-      "destination": "/servicios/cuadros-reparacion",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "edc15p-multimap-suite" }],
-      "destination": "/productos/edc15p-multimap-suite",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "programadores-multimarca" }],
-      "destination": "/productos/programadores-multimarca",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "pack-autokeys-ecu-bench-starter" }],
-      "destination": "/productos/pack-autokeys-ecu-bench-starter",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "pack-autokeys-bmw-bench" }],
-      "destination": "/productos/pack-autokeys-bmw-bench",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "reparacion-por-envio" }],
-      "destination": "/reparacion-centralita-por-envio",
-      "permanent": true
-    },
-    {
-      "source": "/producto.html",
-      "has": [{ "type": "query", "key": "id", "value": "software-licencias" }],
-      "destination": "/categorias/software",
-      "permanent": true
-    },
-    {
-      "source": "/tienda.html",
-      "has": [{ "type": "query", "key": "cat", "value": "clonacion-ecu" }],
-      "destination": "/categorias/clonacion-ecu",
-      "permanent": true
-    },
-    {
       "source": "/admin",
       "destination": "https://www.autokeysremapspro.online/login",
       "permanent": false
@@ -219,8 +21,21 @@
   ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+
     { "source": "/blog-post.html", "destination": "/api/legacy-seo-redirect?type=blog" },
     { "source": "/producto.html", "destination": "/api/legacy-seo-redirect?type=product" },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat" }],
+      "destination": "/api/legacy-seo-redirect?type=shop"
+    },
+
+    { "source": "/guias/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
+    { "source": "/casos/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
+    { "source": "/servicios/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
+    { "source": "/productos/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
+    { "source": "/categorias/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
+
     { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-landing?slug=reparacion-centralitas-ecu" },
     { "source": "/clonacion-centralitas-ecu", "destination": "/api/seo-landing?slug=clonacion-centralitas-ecu" },
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
@@ -231,10 +46,12 @@
     { "source": "/mercedes-ezs-elv", "destination": "/api/seo-landing?slug=mercedes-ezs-elv" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-landing?slug=reparacion-airbag-srs" },
     { "source": "/reprogramacion-centralitas-jaen", "destination": "/reprogramacion-centralitas-jaen.html" },
+
     { "source": "/servicios/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/render-seo?type=product&slug=:slug" },
     { "source": "/categorias/:slug", "destination": "/api/render-seo?type=category&slug=:slug" },
     { "source": "/guias/:slug", "destination": "/api/guide-seo?slug=:slug" },
+
     { "source": "/casos/land-rover-discovery-4-2015-llave-rfa-autel", "destination": "/api/case-seo-extra?slug=land-rover-discovery-4-2015-llave-rfa-autel" },
     { "source": "/casos/opel-combo-md1cs003-recuperacion-arranque", "destination": "/api/case-seo-extra?slug=opel-combo-md1cs003-recuperacion-arranque" },
     { "source": "/casos/renault-kangoo-2007-uch-reparada", "destination": "/api/case-seo-extra?slug=renault-kangoo-2007-uch-reparada" },
