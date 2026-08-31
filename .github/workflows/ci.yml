@@ -40,13 +40,45 @@ jobs:
           done
           echo "Todos los .js son sintácticamente válidos."
 
-      - name: Comprobar sintaxis de las funciones serverless (api/) y sus dependencias (lib/)
+      - name: Comprobar sintaxis y dependencias de funciones serverless
         run: |
           for f in api/*.js lib/*.js; do
             node -c "$f" || exit 1
           done
-          node -e "require('./api/crear-pago.js'); require('./api/confirmar-pago.js'); require('./api/sumup-webhook.js'); require('./api/enviar-confirmacion-pedido.js'); require('./api/generar-envio.js'); console.log('requires resueltos correctamente');"
-          echo "Todas las funciones de api/ y lib/ son sintácticamente válidas."
+          node -e "
+            require('./api/crear-pago.js');
+            require('./api/confirmar-pago.js');
+            require('./api/sumup-webhook.js');
+            require('./api/enviar-confirmacion-pedido.js');
+            require('./api/generar-envio.js');
+            require('./api/calcular-envio.js');
+            require('./api/cotizar-pedido.js');
+            require('./api/crear-pedido.js');
+            require('./api/checkout-health.js');
+            require('./lib/order-pricing-server.js');
+            console.log('requires críticos resueltos correctamente');
+          "
+          test ! -f lib/orders-server.js || (echo 'No debe reaparecer un segundo motor de precios/pedidos' && exit 1)
+          echo "Todas las funciones de api/ y lib/ son válidas."
+
+      - name: Comprobar endurecimiento estático del checkout
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const client = fs.readFileSync('assets/js/supabase-config.js', 'utf8');
+          const orderApi = fs.readFileSync('api/crear-pedido.js', 'utf8');
+          const paymentApi = fs.readFileSync('api/crear-pago.js', 'utf8');
+          for (const marker of ['/api/cotizar-pedido', '/api/crear-pedido', "Authorization: 'Bearer '"]) {
+            if (!client.includes(marker)) throw new Error('Falta protección de checkout en cliente: ' + marker);
+          }
+          if (!orderApi.includes('quoteOrder(') || !orderApi.includes('authenticatedUser(req)')) {
+            throw new Error('crear-pedido debe recalcular el pedido y autenticar al usuario');
+          }
+          if (!paymentApi.includes('pedido.usuario_id !== user.id')) {
+            throw new Error('crear-pago debe verificar el propietario del pedido');
+          }
+          console.log('Endurecimiento del checkout presente.');
+          NODE
 
       - name: Comprobar saneado de assets en rutas anidadas
         run: |
