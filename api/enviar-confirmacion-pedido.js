@@ -1,10 +1,13 @@
 const { sendEmail } = require('../lib/resend-server');
 
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
 const FROM = 'Autokeys Remaps Pro Store <pedidos@autokeysremapspro.es>';
 
 const METODO_PAGO_LABEL = {
   tarjeta: 'Tarjeta (SumUp)',
+  paypal: 'PayPal',
+  bizum: 'Bizum',
   transferencia: 'Transferencia bancaria',
   contrarreembolso: 'Contrarreembolso',
 };
@@ -24,6 +27,17 @@ function getServiceRoleKey() {
   return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
 }
 
+async function authenticatedUser(req) {
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) return null;
+  const user = await response.json();
+  return user?.id ? user : null;
+}
+
 async function supabaseAdminRequest(path) {
   const key = getServiceRoleKey();
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -31,6 +45,15 @@ async function supabaseAdminRequest(path) {
   });
   if (!res.ok) throw new Error('No se pudo leer el pedido en Supabase');
   return res.json();
+}
+
+function esc(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function formatPrice(n) {
@@ -42,9 +65,9 @@ function lineaHtml(l) {
     ? `${l.producto_nombre} — ${l.variante_nombre}`
     : l.producto_nombre;
   return `<tr>
-    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#f6f6f7;font-size:13px">${nombre}${l.referencia_vehiculo ? `<br><span style="color:#85858e;font-size:11.5px">${l.referencia_vehiculo}</span>` : ''}</td>
-    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#85858e;font-size:13px;text-align:center">x${l.cantidad}</td>
-    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#f6f6f7;font-size:13px;text-align:right">${formatPrice(l.precio_unitario * l.cantidad)}</td>
+    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#f6f6f7;font-size:13px">${esc(nombre)}${l.referencia_vehiculo ? `<br><span style="color:#85858e;font-size:11.5px">${esc(l.referencia_vehiculo)}</span>` : ''}</td>
+    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#85858e;font-size:13px;text-align:center">x${Number(l.cantidad) || 1}</td>
+    <td style="padding:9px 0;border-bottom:1px solid #1f1f24;color:#f6f6f7;font-size:13px;text-align:right">${formatPrice(Number(l.precio_unitario) * Number(l.cantidad))}</td>
   </tr>`;
 }
 
@@ -83,26 +106,32 @@ function emailButton(href, label) {
 
 function pedidoHtml(pedido, lineas) {
   const filas = lineas.map(lineaHtml).join('');
-  const metodo = METODO_PAGO_LABEL[pedido.metodo_pago] || pedido.metodo_pago;
+  const metodo = METODO_PAGO_LABEL[pedido.metodo_pago] || esc(pedido.metodo_pago);
   const notaPago = pedido.metodo_pago === 'tarjeta'
     ? 'En cuanto se confirme el cobro con la tarjeta, te lo notificaremos.'
     : 'Nuestro equipo te contactará en breve para confirmar el pago y los detalles.';
 
+  const envioTexto = Number(pedido.envio) > 0
+    ? `<tr><td style="padding:2px 0;color:#a8a8b0">Envío</td><td style="text-align:right">${formatPrice(pedido.envio)}</td></tr>`
+    : `<tr><td style="padding:2px 0;color:#a8a8b0">Envío</td><td style="text-align:right">${pedido.tarifa_envio_codigo === 'NO_APLICA' ? 'No requiere' : 'Gratis'}</td></tr>`;
+
+  const direccion = [pedido.direccion, [pedido.codigo_postal, pedido.ciudad].filter(Boolean).join(' '), pedido.provincia].filter(Boolean).map(esc).join(', ');
   const body = `
-        <p style="font-size:14px;color:#a8a8b0;line-height:1.6;margin:0 0 24px">Hemos recibido tu pedido <b style="color:#f6f6f7">#${pedido.numero}</b> correctamente. ${notaPago}</p>
+        <p style="font-size:14px;color:#a8a8b0;line-height:1.6;margin:0 0 24px">Hemos recibido tu pedido <b style="color:#f6f6f7">#${esc(pedido.numero)}</b> correctamente. ${notaPago}</p>
 
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px">${filas}</table>
 
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#f6f6f7">
           <tr><td style="padding:2px 0;color:#a8a8b0">Subtotal</td><td style="text-align:right">${formatPrice(pedido.subtotal)}</td></tr>
-          ${Number(pedido.descuento) > 0 ? `<tr><td style="padding:2px 0;color:#39d17d">Descuento${pedido.cupon ? ` (${pedido.cupon})` : ''}</td><td style="text-align:right;color:#39d17d">-${formatPrice(pedido.descuento)}</td></tr>` : ''}
+          ${Number(pedido.descuento) > 0 ? `<tr><td style="padding:2px 0;color:#39d17d">Descuento${pedido.cupon ? ` (${esc(pedido.cupon)})` : ''}</td><td style="text-align:right;color:#39d17d">-${formatPrice(pedido.descuento)}</td></tr>` : ''}
+          ${envioTexto}
           <tr><td style="padding:10px 0 0;font-weight:800;color:#f6f6f7;border-top:1px solid #1f1f24">Total</td><td style="text-align:right;padding:10px 0 0;font-weight:800;color:#f6f6f7;border-top:1px solid #1f1f24">${formatPrice(pedido.total)}</td></tr>
         </table>
 
         <p style="font-size:12px;color:#85858e;margin:24px 0 0">Método de pago: ${metodo}</p>
-        <p style="font-size:12px;color:#85858e;margin:4px 0 0">Envío a: ${pedido.direccion}, ${pedido.codigo_postal} ${pedido.ciudad}, ${pedido.provincia}</p>
+        ${direccion ? `<p style="font-size:12px;color:#85858e;margin:4px 0 0">Envío a: ${direccion}</p>` : ''}
 
-        ${emailButton(`https://www.autokeysremapspro.es/seguimiento.html?id=${pedido.id}`, 'Seguir mi pedido')}`;
+        ${emailButton(`https://www.autokeysremapspro.es/seguimiento.html?id=${encodeURIComponent(pedido.id)}`, 'Seguir mi pedido')}`;
 
   return emailShell('Pedido recibido', '¡Gracias por tu pedido!', body);
 }
@@ -110,6 +139,12 @@ function pedidoHtml(pedido, lineas) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'metodo_no_permitido' });
+    return;
+  }
+
+  const user = await authenticatedUser(req);
+  if (!user) {
+    res.status(401).json({ error: 'no_autorizado' });
     return;
   }
 
@@ -128,6 +163,10 @@ module.exports = async function handler(req, res) {
     const pedido = pedidos[0];
     if (!pedido || !pedido.email) {
       res.status(404).json({ error: 'pedido_no_encontrado' });
+      return;
+    }
+    if (pedido.usuario_id !== user.id) {
+      res.status(403).json({ error: 'pedido_no_pertenece_al_usuario' });
       return;
     }
 
