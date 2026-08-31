@@ -247,7 +247,10 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
 
         fetch('/api/enviar-confirmacion-pedido', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + session.access_token,
+          },
           body: JSON.stringify({ pedido_id: pedido.pedido_id }),
         }).catch((e) => console.error('No se pudo enviar el email de confirmación:', e));
 
@@ -255,7 +258,10 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
           try {
             const pagoRes = await fetch('/api/crear-pago', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + session.access_token,
+              },
               body: JSON.stringify({ pedido_id: pedido.pedido_id }),
             });
             const pagoData = await pagoRes.json().catch(() => ({}));
