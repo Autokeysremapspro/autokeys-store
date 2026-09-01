@@ -16,6 +16,126 @@
       "permanent": true
     },
     {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "ecu-uce" }],
+      "destination": "/categorias/ecu-uce",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "clonacion-ecu" }],
+      "destination": "/categorias/clonacion-ecu",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "reparacion-ecu" }],
+      "destination": "/categorias/reparacion-ecu",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "inmovilizadores" }],
+      "destination": "/categorias/inmovilizadores",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "llaves" }],
+      "destination": "/categorias/llaves",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "bmw-fem-bdc" }],
+      "destination": "/categorias/bmw-fem-bdc",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "bmw-cas-ews" }],
+      "destination": "/categorias/bmw-cas-ews",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "mercedes-ezs-elv" }],
+      "destination": "/categorias/mercedes-ezs-elv",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "modulos" }],
+      "destination": "/categorias/modulos",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "abs-esp" }],
+      "destination": "/categorias/abs-esp",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "tcu-tcm" }],
+      "destination": "/categorias/tcu-tcm",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "audi-j518-elv" }],
+      "destination": "/categorias/audi-j518-elv",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "bmw-frm" }],
+      "destination": "/categorias/bmw-frm",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "airbag-srs" }],
+      "destination": "/categorias/airbag-srs",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "cuadros" }],
+      "destination": "/categorias/cuadros",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "software" }],
+      "destination": "/categorias/software",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "reparacion-envio" }],
+      "destination": "/categorias/reparacion-envio",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "diagnostico" }],
+      "destination": "/categorias/diagnostico",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "herramientas" }],
+      "destination": "/categorias/herramientas",
+      "permanent": true
+    },
+    {
+      "source": "/tienda.html",
+      "has": [{ "type": "query", "key": "cat", "value": "audi-bcm2-kessy" }],
+      "destination": "/categorias/audi-bcm2-kessy",
+      "permanent": true
+    },
+    {
       "source": "/admin",
       "destination": "https://www.autokeysremapspro.online/login",
       "permanent": false
