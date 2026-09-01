@@ -1,4 +1,5 @@
-const FALLBACK_IMAGE = 'https://www.autokeysremapspro.es/assets/img/logo.png';
+const SITE = 'https://www.autokeysremapspro.es';
+const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 
 const CASE_ENDPOINTS = new Map([
   ['land-rover-discovery-4-2015-llave-rfa-autel', 'case-seo-extra'],
@@ -11,6 +12,21 @@ const CASE_ENDPOINTS = new Map([
   ['seat-leon-mk1-1-8-pops-bangs', 'case-seo-extra3'],
   ['desarrollo-edc15p-multimapa-autokeys', 'case-seo-extra3'],
   ['mercedes-2008-2009-ezs-inoperativo-dos-llaves', 'case-seo-extra4'],
+]);
+
+/*
+ * Algunas fichas transaccionales tienen la misma intención principal que una
+ * landing editorial/comercial reforzada. La ficha sigue operativa (precio,
+ * variantes y carrito), pero todas sus señales SEO apuntan a una sola URL para
+ * evitar canibalización entre dos páginas de Autokeys.
+ */
+const PREFERRED_PRODUCT_CANONICALS = new Map([
+  ['clonacion-ecu-general', '/clonacion-centralitas-ecu'],
+  ['reparacion-electronica-ecu-pcm', '/reparacion-centralitas-ecu'],
+  ['llaves-copia-programacion', '/programacion-llaves-coche'],
+  ['bmw-fem-bdc', '/bmw-fem-bdc'],
+  ['mercedes-ezs-elv', '/mercedes-ezs-elv'],
+  ['airbag-srs-reparacion', '/reparacion-airbag-srs'],
 ]);
 
 function cleanSlug(value) {
@@ -27,6 +43,12 @@ function endpointFor(kind, slug) {
     return `/api/${endpoint}?slug=${encodeURIComponent(slug)}`;
   }
   return '';
+}
+
+function preferredCanonical(kind, slug) {
+  if (kind !== 'product') return '';
+  const path = PREFERRED_PRODUCT_CANONICALS.get(slug);
+  return path ? `${SITE}${path}` : '';
 }
 
 function ensureOrganizationLogo(value) {
@@ -101,6 +123,22 @@ function patchHtml(html) {
   return output;
 }
 
+function patchPreferredCanonical(html, kind, slug) {
+  const canonical = preferredCanonical(kind, slug);
+  if (!canonical) return { html, canonical: '' };
+
+  const oldCanonical = `${SITE}/servicios/${slug}`;
+  let output = String(html || '').split(oldCanonical).join(canonical);
+
+  /* El JS de producto recalcula canonical/OG/schema tras cargar el catálogo.
+     Lo fijamos también ahí para que el DOM renderizado conserve la misma URL
+     preferida que el HTML servido inicialmente. */
+  const runtimeUrlLine = "const url = 'https://www.autokeysremapspro.es/' + (product.isProduct ? 'productos/' : 'servicios/') + product.id;";
+  output = output.replace(runtimeUrlLine, `const url = '${canonical}';`);
+
+  return { html: output, canonical };
+}
+
 function requestOrigin(req) {
   const proto = String(req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim();
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || 'www.autokeysremapspro.es').split(',')[0].trim();
@@ -150,10 +188,13 @@ async function handler(req, res) {
       return res.status(upstream.status).send(body);
     }
 
-    const html = patchHtml(body);
+    const baseHtml = patchHtml(body);
+    const preferred = patchPreferredCanonical(baseHtml, kind, slug);
+    const html = preferred.html;
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', upstream.headers.get('cache-control') || 'public, s-maxage=300, stale-while-revalidate=3600');
     res.setHeader('X-AK-SEO-Health', '1');
+    if (preferred.canonical) res.setHeader('X-AK-Preferred-Canonical', preferred.canonical);
     if (req.method === 'HEAD') return res.status(200).end();
     return res.status(200).send(html);
   } catch (error) {
@@ -164,5 +205,6 @@ async function handler(req, res) {
 
 handler.patchHtml = patchHtml;
 handler.patchSchema = patchSchema;
+handler.patchPreferredCanonical = patchPreferredCanonical;
 handler.sendStyledNotFound = sendStyledNotFound;
 module.exports = handler;
