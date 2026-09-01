@@ -35,6 +35,7 @@ const STATIC_URLS = [
   '/bmw-fem-bdc',
   '/mercedes-ezs-elv',
   '/reparacion-airbag-srs',
+  '/reparacion-cuadro-instrumentos',
   '/reprogramacion-centralitas-jaen',
   '/aviso-legal.html',
   '/politica-privacidad.html',
@@ -53,6 +54,7 @@ const CONSOLIDATED_SERVICE_IDS = new Set([
   'bmw-fem-bdc',
   'mercedes-ezs-elv',
   'airbag-srs-reparacion',
+  'cuadros-reparacion',
 ]);
 
 const STATIC_LASTMOD = {
@@ -72,6 +74,7 @@ const STATIC_LASTMOD = {
   '/bmw-fem-bdc': '2026-09-01',
   '/mercedes-ezs-elv': '2026-09-01',
   '/reparacion-airbag-srs': '2026-09-01',
+  '/reparacion-cuadro-instrumentos': '2026-09-01',
   '/reprogramacion-centralitas-jaen': '2026-09-01',
   '/casos/seat-leon-mk1-1-8-pops-bangs': '2026-08-25',
   '/casos/desarrollo-edc15p-multimapa-autokeys': '2026-08-25',
