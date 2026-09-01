@@ -24,6 +24,7 @@ const PREFERRED_PRODUCT_CANONICALS = new Map([
   ['clonacion-ecu-general', '/clonacion-centralitas-ecu'],
   ['reparacion-electronica-ecu-pcm', '/reparacion-centralitas-ecu'],
   ['llaves-copia-programacion', '/programacion-llaves-coche'],
+  ['inmovilizadores-programacion', '/inmovilizador-coche'],
   ['bmw-fem-bdc', '/bmw-fem-bdc'],
   ['mercedes-ezs-elv', '/mercedes-ezs-elv'],
   ['airbag-srs-reparacion', '/reparacion-airbag-srs'],
