@@ -31,6 +31,49 @@ const PREFERRED_PRODUCT_CANONICALS = new Map([
   ['cuadros-reparacion', '/reparacion-cuadro-instrumentos'],
 ]);
 
+/* Categorías de tienda que duplican exactamente una landing comercial. Las
+   mantenemos navegables, pero sus señales SEO se consolidan en la página que
+   queremos posicionar. */
+const PREFERRED_CATEGORY_CANONICALS = new Map([
+  ['airbag-srs', '/reparacion-airbag-srs'],
+  ['bmw-fem-bdc', '/bmw-fem-bdc'],
+  ['clonacion-ecu', '/clonacion-centralitas-ecu'],
+  ['cuadros', '/reparacion-cuadro-instrumentos'],
+  ['mercedes-ezs-elv', '/mercedes-ezs-elv'],
+  ['reparacion-envio', '/reparacion-centralita-por-envio'],
+]);
+
+/* Enlaces server-side desde hubs que Google ya conoce hacia páginas técnicas
+   con valor comercial que Search Console ha descubierto pero aún no rastrea.
+   Esto aumenta señales internas sin depender de JavaScript. */
+const DISCOVERY_LINKS = new Map([
+  ['category:ecu-uce', [
+    ['/reparacion-centralitas-ecu', 'Reparación de centralitas ECU'],
+    ['/clonacion-centralitas-ecu', 'Clonación de centralitas ECU'],
+    ['/servicios/diagnostico-avanzado', 'Diagnóstico avanzado de electrónica'],
+    ['/servicios/recuperacion-ecu-escritura-fallida', 'Recuperación de ECU tras escritura fallida'],
+    ['/servicios/recuperacion-bosch-edc17cp54', 'Recuperación Bosch EDC17CP54'],
+    ['/servicios/immo-off-virginizacion-ecu', 'Virginización y trabajos de inmovilizador en ECU'],
+    ['/productos/pack-autokeys-ecu-bench-starter', 'Pack AutoKeys ECU Bench Starter'],
+  ]],
+  ['category:audi-bcm2-kessy', [
+    ['/servicios/reparacion-audi-j518-elv', 'Reparación Audi J518 / ELV'],
+    ['/inmovilizador-coche', 'Diagnóstico de inmovilizador y arranque'],
+    ['/programacion-llaves-coche', 'Programación de llaves de coche'],
+  ]],
+  ['category:bmw-frm', [
+    ['/servicios/reparacion-bmw-frm', 'Reparación BMW / MINI FRM'],
+    ['/bmw-fem-bdc', 'BMW FEM / BDC'],
+    ['/inmovilizador-coche', 'Diagnóstico de sistemas de arranque'],
+  ]],
+  ['category:llaves', [
+    ['/programacion-llaves-coche', 'Programación de llaves de coche'],
+    ['/perdida-total-llaves-coche', 'Pérdida total de llaves'],
+    ['/duplicado-llaves-coche-jaen', 'Duplicado de llaves de coche en Jaén'],
+    ['/inmovilizador-coche', 'Inmovilizador del coche'],
+  ]],
+]);
+
 function cleanSlug(value) {
   const slug = String(value || '').trim();
   return /^[a-z0-9][a-z0-9-]{0,180}$/.test(slug) ? slug : '';
@@ -48,8 +91,13 @@ function endpointFor(kind, slug) {
 }
 
 function preferredCanonical(kind, slug) {
-  if (kind !== 'product') return '';
-  const path = PREFERRED_PRODUCT_CANONICALS.get(slug);
+  const map = kind === 'product'
+    ? PREFERRED_PRODUCT_CANONICALS
+    : kind === 'category'
+      ? PREFERRED_CATEGORY_CANONICALS
+      : null;
+  if (!map) return '';
+  const path = map.get(slug);
   return path ? `${SITE}${path}` : '';
 }
 
@@ -129,16 +177,35 @@ function patchPreferredCanonical(html, kind, slug) {
   const canonical = preferredCanonical(kind, slug);
   if (!canonical) return { html, canonical: '' };
 
-  const oldCanonical = `${SITE}/servicios/${slug}`;
+  const oldCanonical = kind === 'category'
+    ? `${SITE}/categorias/${slug}`
+    : `${SITE}/servicios/${slug}`;
   let output = String(html || '').split(oldCanonical).join(canonical);
 
-  /* El JS de producto recalcula canonical/OG/schema tras cargar el catálogo.
-     Lo fijamos también ahí para que el DOM renderizado conserve la misma URL
-     preferida que el HTML servido inicialmente. */
-  const runtimeUrlLine = "const url = 'https://www.autokeysremapspro.es/' + (product.isProduct ? 'productos/' : 'servicios/') + product.id;";
-  output = output.replace(runtimeUrlLine, `const url = '${canonical}';`);
+  /* El JS de producto/categoría recalcula canonical/OG/schema tras cargar el
+     catálogo. Lo fijamos también ahí para que el DOM renderizado conserve la
+     misma URL preferida que el HTML servido inicialmente. */
+  if (kind === 'product') {
+    const runtimeUrlLine = "const url = 'https://www.autokeysremapspro.es/' + (product.isProduct ? 'productos/' : 'servicios/') + product.id;";
+    output = output.replace(runtimeUrlLine, `const url = '${canonical}';`);
+  }
+  if (kind === 'category') {
+    const runtimeCategoryUrlLine = "const url = 'https://www.autokeysremapspro.es/categorias/' + encodeURIComponent(catId);";
+    output = output.replace(runtimeCategoryUrlLine, `const url = '${canonical}';`);
+  }
 
   return { html: output, canonical };
+}
+
+function injectDiscoveryLinks(html, kind, slug) {
+  const links = DISCOVERY_LINKS.get(`${kind}:${slug}`);
+  if (!links || !links.length || !/<\/main>/i.test(html)) return html;
+
+  const cards = links.map(([href, label]) =>
+    `<a class="cat-item" href="${href}"><span><b>${label}</b></span></a>`,
+  ).join('');
+  const block = `<section class="section seo-discovery-links"><div class="eyebrow">SERVICIOS ESPECIALIZADOS</div><h2>Trabajos relacionados</h2><p class="section-desc">Accesos directos a servicios técnicos relacionados de Autokeys Remaps Pro.</p><div class="cat-grid">${cards}</div></section>`;
+  return html.replace(/<\/main>/i, `${block}</main>`);
 }
 
 function requestOrigin(req) {
@@ -192,7 +259,7 @@ async function handler(req, res) {
 
     const baseHtml = patchHtml(body);
     const preferred = patchPreferredCanonical(baseHtml, kind, slug);
-    const html = preferred.html;
+    const html = injectDiscoveryLinks(preferred.html, kind, slug);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', upstream.headers.get('cache-control') || 'public, s-maxage=300, stale-while-revalidate=3600');
     res.setHeader('X-AK-SEO-Health', '1');
@@ -208,5 +275,6 @@ async function handler(req, res) {
 handler.patchHtml = patchHtml;
 handler.patchSchema = patchSchema;
 handler.patchPreferredCanonical = patchPreferredCanonical;
+handler.injectDiscoveryLinks = injectDiscoveryLinks;
 handler.sendStyledNotFound = sendStyledNotFound;
 module.exports = handler;
