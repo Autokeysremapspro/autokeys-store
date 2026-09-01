@@ -57,6 +57,18 @@ const CONSOLIDATED_SERVICE_IDS = new Set([
   'cuadros-reparacion',
 ]);
 
+/* Categorías que tienen exactamente la misma intención que una landing
+   comercial reforzada. Siguen disponibles para navegar por la tienda, pero
+   Google debe concentrar las señales en la landing principal. */
+const CONSOLIDATED_CATEGORY_IDS = new Set([
+  'airbag-srs',
+  'bmw-fem-bdc',
+  'clonacion-ecu',
+  'cuadros',
+  'mercedes-ezs-elv',
+  'reparacion-envio',
+]);
+
 const STATIC_LASTMOD = {
   '/': '2026-09-01',
   '/casos-reales.html': '2026-08-25',
@@ -117,7 +129,10 @@ module.exports = async function handler(req, res) {
       fetchJson('tienda_blog_posts?select=slug,updated_at&publicado=eq.true&order=publicado_en.desc'),
     ]);
 
-    categorias.forEach((c) => urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` }));
+    categorias.forEach((c) => {
+      if (CONSOLIDATED_CATEGORY_IDS.has(c.id)) return;
+      urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` });
+    });
     productos.forEach((p) => {
       if (!p.is_product && CONSOLIDATED_SERVICE_IDS.has(p.id)) return;
       urls.push({ loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`, lastmod: p.updated_at });
