@@ -44,9 +44,20 @@ async function productKind(id) {
 }
 
 function specialProductPath(id) {
+  /* URLs antiguas que Search Console todavía puede conservar. Se envían
+     directamente a la landing canónica para evitar cadenas intermedias y
+     concentrar las señales históricas en una única URL. */
   const special = {
     'reparacion-por-envio': '/reparacion-centralita-por-envio',
     'software-licencias': '/categorias/software',
+    'clonacion-ecu-general': '/clonacion-centralitas-ecu',
+    'reparacion-electronica-ecu-pcm': '/reparacion-centralitas-ecu',
+    'llaves-copia-programacion': '/programacion-llaves-coche',
+    'inmovilizadores-programacion': '/inmovilizador-coche',
+    'bmw-fem-bdc': '/bmw-fem-bdc',
+    'mercedes-ezs-elv': '/mercedes-ezs-elv',
+    'airbag-srs-reparacion': '/reparacion-airbag-srs',
+    'cuadros-reparacion': '/reparacion-cuadro-instrumentos',
   };
   return special[id] || '';
 }
@@ -112,7 +123,7 @@ async function redirectNested(req, res) {
     profesionales: '/profesionales.html',
     'electronica-automovil-jaen': '/electronica-automovil-jaen.html',
     'enviar-reparacion': '/enviar-reparacion.html',
-    'reprogramacion-centralitas-jaen': '/reprogramacion-centralitas-jaen.html',
+    'reprogramacion-centralitas-jaen': '/reprogramacion-centralitas-jaen',
   };
 
   const destination = staticPaths[file];
