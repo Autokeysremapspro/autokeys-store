@@ -167,7 +167,18 @@
       email,
       password: pass,
       options: {
-        data: { nombre },
+        // El trigger de Supabase crea el perfil de tienda dentro de la misma
+        // transacción que el usuario. Enviamos aquí todos los campos porque,
+        // si la confirmación por email está activa, aún no existe una sesión
+        // autenticada con la que completar el perfil mediante RLS.
+        data: {
+          nombre,
+          apellidos,
+          tipo_usuario: 'cliente_tienda',
+          tipo_cliente: regTipo,
+          razon_social: razonSocial || null,
+          nif_cif: cif || null,
+        },
         emailRedirectTo: window.location.origin + '/login.html',
       },
     });
@@ -176,10 +187,13 @@
       akToast(/already/i.test(error.message) ? 'Ese email ya tiene una cuenta. Inicia sesión.' : 'No se pudo crear la cuenta: ' + error.message);
       return;
     }
-    if (data.user) {
-      const perfil = { apellidos, tipo_cliente: regTipo };
-      if (esEmpresa) { perfil.razon_social = razonSocial; perfil.nif_cif = cif; }
-      await akSupabase().from('tienda_clientes').update(perfil).eq('id', data.user.id);
+    // Supabase no revela por seguridad si un email ya está registrado: puede
+    // devolver un usuario ofuscado sin identidades. No debemos mostrar en ese
+    // caso un falso mensaje de cuenta creada.
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      akToast('Ese email ya tiene una cuenta. Inicia sesión o recupera tu contraseña.');
+      setTab('login');
+      return;
     }
     if (data.session) {
       akToast('Cuenta creada. ¡Bienvenido!');
