@@ -199,15 +199,10 @@ function akFooterHTML() {
         '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
         '<li><a href="/blog.html">Blog</a></li>' +
-        '<li><a href="/tienda.html?cat=software">Software</a></li>' +
-        '<li><a href="#contacto">Contacto</a></li>' +
-      '</ul></div>' +
-      '<div><h4>INFORMACIÓN</h4><ul>' +
         '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +
-        '<li><a href="/condiciones-venta.html">Envíos y devoluciones</a></li>' +
-        '<li><a href="/condiciones-venta.html">Términos y condiciones</a></li>' +
-        '<li><a href="/politica-privacidad.html">Política de privacidad</a></li>' +
-        '<li><a href="/politica-cookies.html">Política de cookies</a></li>' +
+        '<li><a href="/condiciones-venta.html">Condiciones de venta</a></li>' +
+        '<li><a href="/politica-privacidad.html">Privacidad</a></li>' +
+        '<li><a href="/politica-cookies.html">Cookies</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
         '<li><a href="tel:+34953852778">' + akIcon('phone') + '<span>+34 953 85 27 78</span></a></li>' +
