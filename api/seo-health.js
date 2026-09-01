@@ -28,6 +28,7 @@ const PREFERRED_PRODUCT_CANONICALS = new Map([
   ['bmw-fem-bdc', '/bmw-fem-bdc'],
   ['mercedes-ezs-elv', '/mercedes-ezs-elv'],
   ['airbag-srs-reparacion', '/reparacion-airbag-srs'],
+  ['cuadros-reparacion', '/reparacion-cuadro-instrumentos'],
 ]);
 
 function cleanSlug(value) {
