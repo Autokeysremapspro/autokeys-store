@@ -41,8 +41,20 @@ const STATIC_URLS = [
   '/condiciones-venta.html',
 ];
 
+/* Fichas transaccionales cuyo contenido principal ya tiene una landing
+   canónica reforzada. Se conservan operativas para comprar/solicitar el
+   servicio, pero no se duplican en el sitemap. */
+const CONSOLIDATED_SERVICE_IDS = new Set([
+  'clonacion-ecu-general',
+  'reparacion-electronica-ecu-pcm',
+  'llaves-copia-programacion',
+  'bmw-fem-bdc',
+  'mercedes-ezs-elv',
+  'airbag-srs-reparacion',
+]);
+
 const STATIC_LASTMOD = {
-  '/': '2026-08-30',
+  '/': '2026-09-01',
   '/casos-reales.html': '2026-08-25',
   '/enviar-reparacion.html': '2026-08-25',
   '/profesionales.html': '2026-08-25',
@@ -100,7 +112,10 @@ module.exports = async function handler(req, res) {
     ]);
 
     categorias.forEach((c) => urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` }));
-    productos.forEach((p) => urls.push({ loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`, lastmod: p.updated_at }));
+    productos.forEach((p) => {
+      if (!p.is_product && CONSOLIDATED_SERVICE_IDS.has(p.id)) return;
+      urls.push({ loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`, lastmod: p.updated_at });
+    });
     blogPosts.forEach((p) => urls.push({ loc: `${SITE_URL}/guias/${encodeURIComponent(p.slug)}`, lastmod: p.updated_at }));
   } catch (err) {
     console.error('sitemap dynamic data:', err);
