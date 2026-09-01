@@ -102,54 +102,54 @@ function akHeaderHTML(active) {
   return '' +
   '<div class="topbar"><div class="container">' +
     '<div class="tb-item">' + akIcon('award') + '<span>Especialistas en electrónica automotriz</span></div>' +
-    '<div class="tb-item">' + akIcon('headset') + '<span>Soporte técnico experto 7 días a la semana</span></div>' +
-    '<div class="tb-item">' + akIcon('truck') + '<span>Envíos rápidos a toda España y UE</span><span class="tb-flag">🇪🇸</span></div>' +
+    '<div class="tb-item">' + akIcon('headset') + '<span>Atención profesional · L-V</span></div>' +
+    '<div class="tb-item">' + akIcon('truck') + '<span>Envíos a toda España</span><span class="tb-flag">🇪🇸</span></div>' +
   '</div></div>' +
   '<header class="site-header"><div class="container">' +
-    '<a class="brand" href="index.html">' +
-      '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+    '<a class="brand" href="/">' +
+      '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
     '</a>' +
     '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav">' +
       dropdown('tienda', 'TIENDA', [
-        { href: 'tienda.html', label: 'Ver todo el catálogo' },
-        { href: 'tienda.html?cat=reparacion-ecu', label: 'Reparación ECU' },
-        { href: 'tienda.html?cat=clonacion-ecu', label: 'Clonación ECU' },
-        { href: 'tienda.html?brand=bmw', label: 'BMW' },
-        { href: 'tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
-        { href: 'enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
+        { href: '/tienda.html', label: 'Ver todo el catálogo' },
+        { href: '/tienda.html?cat=reparacion-ecu', label: 'Reparación ECU — catálogo' },
+        { href: '/tienda.html?cat=clonacion-ecu', label: 'Clonación ECU — catálogo' },
+        { href: '/tienda.html?brand=bmw', label: 'BMW' },
+        { href: '/tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
+        { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('servicios', 'SERVICIOS', [
-        { href: 'producto.html?id=ecu-uce-diagnostico', label: 'Diagnóstico ECU / UCE' },
-        { href: 'producto.html?id=modulos-confort-uch', label: 'Módulos confort / UCH' },
-        { href: 'producto.html?id=airbag-srs-reparacion', label: 'Airbag / SRS' },
-        { href: 'producto.html?id=cuadros-reparacion', label: 'Cuadros de instrumentos' },
-        { href: 'producto.html?id=diagnostico-avanzado', label: 'Diagnóstico avanzado' },
-        { href: 'producto.html?id=inmovilizadores-programacion', label: 'Inmovilizadores' },
-        { href: 'producto.html?id=llaves-copia-programacion', label: 'Llaves — copia y programación' },
-        { href: 'enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
+        { href: '/programacion-llaves-coche', label: 'Programación de llaves' },
+        { href: '/perdida-total-llaves-coche', label: 'Pérdida total de llaves' },
+        { href: '/duplicado-llaves-coche-jaen', label: 'Duplicado de llaves en Jaén' },
+        { href: '/reprogramacion-centralitas-jaen', label: 'Reprogramación de centralitas en Jaén' },
+        { href: '/reparacion-airbag-srs', label: 'Airbag / SRS' },
+        { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
+        { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
-        { href: 'producto.html?id=recuperacion-bosch-edc17cp54', label: 'Reparación ECU' },
-        { href: 'producto.html?id=clonacion-ecu-general', label: 'Clonación ECU' },
-        { href: 'producto.html?id=bmw-fem-bdc', label: 'BMW FEM / BDC' },
-        { href: 'producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
-        { href: 'producto.html?id=mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
+        { href: '/reparacion-centralitas-ecu', label: 'Reparación ECU' },
+        { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU' },
+        { href: '/reparacion-centralita-por-envio', label: 'Reparación por envío' },
+        { href: '/bmw-fem-bdc', label: 'BMW FEM / BDC' },
+        { href: '/producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
+        { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
-      navLink('tienda.html?cat=software', 'software', 'SOFTWARE') +
-      navLink('tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
-      navLink('blog.html', 'blog', 'BLOG') +
-      navLink('login.html', 'profesional', 'ÁREA PROFESIONAL') +
+      navLink('/tienda.html?cat=software', 'software', 'SOFTWARE') +
+      navLink('/tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
+      navLink('/blog.html', 'blog', 'BLOG') +
+      navLink('/login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul></nav>' +
-    '<form class="search-form" action="tienda.html" method="get">' +
+    '<form class="search-form" action="/tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
       '<button type="submit" aria-label="Buscar">' + akIcon('search') + '</button>' +
     '</form>' +
     '<div class="head-actions">' +
-      '<a class="search-icon-btn" href="tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
-      '<a class="head-action" href="login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
+      '<a class="search-icon-btn" href="/tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
+      '<a class="head-action" href="/login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
       '<button class="head-action" id="logout-link" data-action="logout" style="display:none;border:0;background:transparent">' + akIcon('close') + '<span>Salir</span></button>' +
-      '<a class="head-action" href="carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
+      '<a class="head-action" href="/carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
       '<button class="burger" type="button" data-nav-toggle aria-label="Menú">' + akIcon('plus') + '</button>' +
     '</div>' +
   '</div></header>';
@@ -160,11 +160,11 @@ function akHeaderHTML(active) {
 function akFooterHTML() {
   return '' +
   '<div class="feature-strip">' +
-    '<div>' + akIcon('award') + '<div><b>Expertos en electrónica</b><span>Más de 10 años de experiencia</span></div></div>' +
-    '<div>' + akIcon('checkCircle') + '<div><b>Miles de unidades reparadas</b><span>Resultados comprobados</span></div></div>' +
-    '<div>' + akIcon('programmer') + '<div><b>Equipos y herramientas premium</b><span>Tecnología de última generación</span></div></div>' +
-    '<div>' + akIcon('headset') + '<div><b>Atención personalizada</b><span>Te acompañamos en todo el proceso</span></div></div>' +
-    '<div>' + akIcon('shield') + '<div><b>Garantía por escrito</b><span>Tranquilidad total en tu reparación</span></div></div>' +
+    '<div>' + akIcon('award') + '<div><b>Especialistas en electrónica</b><span>Diagnóstico y trabajo de laboratorio</span></div></div>' +
+    '<div>' + akIcon('checkCircle') + '<div><b>Casos reales documentados</b><span>Trazabilidad del trabajo realizado</span></div></div>' +
+    '<div>' + akIcon('programmer') + '<div><b>Equipos profesionales</b><span>Programación y diagnosis multimarca</span></div></div>' +
+    '<div>' + akIcon('headset') + '<div><b>Atención personalizada</b><span>Consulta técnica antes de enviar</span></div></div>' +
+    '<div>' + akIcon('shield') + '<div><b>Laboratorio especializado</b><span>Puente de Génave · Jaén</span></div></div>' +
   '</div>' +
   '<footer class="site-footer" id="contacto"><div class="container">' +
     '<div class="newsletter-strip">' +
@@ -176,35 +176,45 @@ function akFooterHTML() {
     '</div>' +
     '<div class="footer-grid">' +
       '<div class="footer-brand">' +
-        '<a class="brand" href="index.html" style="margin-bottom:12px">' +
-          '<img class="logo-img" src="assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+        '<a class="brand" href="/" style="margin-bottom:12px">' +
+          '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
         '</a>' +
-        '<p>Tu tienda y taller especializado en electrónica automotriz. Soluciones profesionales, rápidas y garantizadas.</p>' +
+        '<p>Laboratorio de electrónica del automóvil y tienda especializada. Reparación, programación y soluciones por envío desde Puente de Génave (Jaén).</p>' +
         '<div class="footer-social" id="footer-social"></div>' +
       '</div>' +
+      '<div><h4>SERVICIOS PRINCIPALES</h4><ul>' +
+        '<li><a href="/reparacion-centralitas-ecu">Reparación de centralitas ECU</a></li>' +
+        '<li><a href="/clonacion-centralitas-ecu">Clonación de centralitas ECU</a></li>' +
+        '<li><a href="/programacion-llaves-coche">Programación de llaves</a></li>' +
+        '<li><a href="/perdida-total-llaves-coche">Pérdida total de llaves</a></li>' +
+        '<li><a href="/duplicado-llaves-coche-jaen">Duplicado de llaves en Jaén</a></li>' +
+        '<li><a href="/reprogramacion-centralitas-jaen">Reprogramación en Jaén</a></li>' +
+        '<li><a href="/bmw-fem-bdc">BMW FEM / BDC</a></li>' +
+        '<li><a href="/mercedes-ezs-elv">Mercedes EZS / ELV</a></li>' +
+      '</ul></div>' +
       '<div><h4>ENLACES RÁPIDOS</h4><ul>' +
-        '<li><a href="quienes-somos.html">Quiénes somos</a></li>' +
-        '<li><a href="electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
-        '<li><a href="tienda.html">Tienda</a></li>' +
-        '<li><a href="tienda.html#servicios">Servicios</a></li>' +
-        '<li><a href="enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
-        '<li><a href="blog.html">Blog</a></li>' +
-        '<li><a href="producto.html?id=software-licencias">Software</a></li>' +
+        '<li><a href="/quienes-somos.html">Quiénes somos</a></li>' +
+        '<li><a href="/electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
+        '<li><a href="/tienda.html">Tienda</a></li>' +
+        '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
+        '<li><a href="/casos-reales.html">Casos reales</a></li>' +
+        '<li><a href="/blog.html">Blog</a></li>' +
+        '<li><a href="/tienda.html?cat=software">Software</a></li>' +
         '<li><a href="#contacto">Contacto</a></li>' +
       '</ul></div>' +
       '<div><h4>INFORMACIÓN</h4><ul>' +
-        '<li><a href="aviso-legal.html">Aviso legal</a></li>' +
-        '<li><a href="condiciones-venta.html">Envíos y devoluciones</a></li>' +
-        '<li><a href="condiciones-venta.html">Términos y condiciones</a></li>' +
-        '<li><a href="politica-privacidad.html">Política de privacidad</a></li>' +
-        '<li><a href="politica-cookies.html">Política de cookies</a></li>' +
+        '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +
+        '<li><a href="/condiciones-venta.html">Envíos y devoluciones</a></li>' +
+        '<li><a href="/condiciones-venta.html">Términos y condiciones</a></li>' +
+        '<li><a href="/politica-privacidad.html">Política de privacidad</a></li>' +
+        '<li><a href="/politica-cookies.html">Política de cookies</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
         '<li><a href="tel:+34953852778">' + akIcon('phone') + '<span>+34 953 85 27 78</span></a></li>' +
         '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es</span></a></li>' +
-        '<li id="footer-direccion">' + akIcon('mapPin') + '<span>España</span></li>' +
-        '<li>' + akIcon('clock') + '<span>Lun - Dom · 09:00 - 20:00</span></li>' +
+        '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
+        '<li>' + akIcon('clock') + '<span>L-V · 09:00-15:00 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +
@@ -283,12 +293,12 @@ async function akUpdateAuthUI() {
     const logout = document.getElementById('logout-link');
     if (!link) return;
     if (user) {
-      link.setAttribute('href', 'cuenta.html');
+      link.setAttribute('href', '/cuenta.html');
       const span = link.querySelector('span');
       if (span) span.textContent = 'Mi cuenta';
       if (logout) logout.style.display = 'flex';
     } else {
-      link.setAttribute('href', 'login.html');
+      link.setAttribute('href', '/login.html');
       if (logout) logout.style.display = 'none';
     }
   } catch (e) {
@@ -320,7 +330,7 @@ function akMostrarBannerCookies(onAceptar) {
   el.className = 'cookie-banner';
   el.innerHTML =
     '<p>Usamos cookies técnicas necesarias para el funcionamiento de la tienda y, si lo aceptas, cookies de analítica para entender cómo mejorar el sitio. ' +
-    '<a href="politica-cookies.html">Más información</a>.</p>' +
+    '<a href="/politica-cookies.html">Más información</a>.</p>' +
     '<div class="cookie-banner-actions">' +
       '<button type="button" class="btn btn-secondary btn-sm" data-cookie="rechazar">Solo esenciales</button>' +
       '<button type="button" class="btn btn-primary btn-sm" data-cookie="aceptar">Aceptar</button>' +
@@ -380,7 +390,7 @@ function akActivarScriptsAnalitica(empresa) {
 async function akLogout() {
   if (!window.supabase) return;
   await akSupabase().auth.signOut();
-  window.location.href = 'index.html';
+  window.location.href = '/';
 }
 
 /* ---------------- Boot ---------------- */
