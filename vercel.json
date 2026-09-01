@@ -47,12 +47,13 @@
     { "source": "/reprogramacion-centralitas-jaen", "destination": "/api/seo-priority?slug=reprogramacion-centralitas-jaen" },
     { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-priority?slug=reparacion-centralitas-ecu" },
 
-    { "source": "/clonacion-centralitas-ecu", "destination": "/api/seo-landing?slug=clonacion-centralitas-ecu" },
+    { "source": "/programacion-llaves-coche", "destination": "/api/seo-priority2?slug=programacion-llaves-coche" },
+    { "source": "/perdida-total-llaves-coche", "destination": "/api/seo-priority2?slug=perdida-total-llaves-coche" },
+    { "source": "/clonacion-centralitas-ecu", "destination": "/api/seo-priority2?slug=clonacion-centralitas-ecu" },
+    { "source": "/bmw-fem-bdc", "destination": "/api/seo-priority2?slug=bmw-fem-bdc" },
+    { "source": "/mercedes-ezs-elv", "destination": "/api/seo-priority2?slug=mercedes-ezs-elv" },
+
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
-    { "source": "/programacion-llaves-coche", "destination": "/api/seo-landing?slug=programacion-llaves-coche" },
-    { "source": "/perdida-total-llaves-coche", "destination": "/api/seo-landing?slug=perdida-total-llaves-coche" },
-    { "source": "/bmw-fem-bdc", "destination": "/api/seo-landing?slug=bmw-fem-bdc" },
-    { "source": "/mercedes-ezs-elv", "destination": "/api/seo-landing?slug=mercedes-ezs-elv" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-landing?slug=reparacion-airbag-srs" },
 
     { "source": "/servicios/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
