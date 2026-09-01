@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/render-seo.js": {
       "includeFiles": "{producto.html,tienda.html,blog-post.html}"
@@ -8,6 +9,12 @@
     { "path": "/api/recordar-carritos", "schedule": "0 * * * *" }
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "autokeysremapspro.es" }],
+      "destination": "https://www.autokeysremapspro.es/:path*",
+      "permanent": true
+    },
     {
       "source": "/admin",
       "destination": "https://www.autokeysremapspro.online/login",
@@ -36,16 +43,17 @@
     { "source": "/productos/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
     { "source": "/categorias/:file.html", "destination": "/api/legacy-seo-redirect?type=nested&file=:file" },
 
-    { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-landing?slug=reparacion-centralitas-ecu" },
+    { "source": "/duplicado-llaves-coche-jaen", "destination": "/api/seo-priority?slug=duplicado-llaves-coche-jaen" },
+    { "source": "/reprogramacion-centralitas-jaen", "destination": "/api/seo-priority?slug=reprogramacion-centralitas-jaen" },
+    { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-priority?slug=reparacion-centralitas-ecu" },
+
     { "source": "/clonacion-centralitas-ecu", "destination": "/api/seo-landing?slug=clonacion-centralitas-ecu" },
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
     { "source": "/programacion-llaves-coche", "destination": "/api/seo-landing?slug=programacion-llaves-coche" },
     { "source": "/perdida-total-llaves-coche", "destination": "/api/seo-landing?slug=perdida-total-llaves-coche" },
-    { "source": "/duplicado-llaves-coche-jaen", "destination": "/api/seo-landing?slug=duplicado-llaves-coche-jaen" },
     { "source": "/bmw-fem-bdc", "destination": "/api/seo-landing?slug=bmw-fem-bdc" },
     { "source": "/mercedes-ezs-elv", "destination": "/api/seo-landing?slug=mercedes-ezs-elv" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-landing?slug=reparacion-airbag-srs" },
-    { "source": "/reprogramacion-centralitas-jaen", "destination": "/reprogramacion-centralitas-jaen.html" },
 
     { "source": "/servicios/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
