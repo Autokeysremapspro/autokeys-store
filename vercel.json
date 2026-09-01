@@ -56,6 +56,7 @@
 
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-search-growth?slug=reparacion-airbag-srs" },
+    { "source": "/reparacion-cuadro-instrumentos", "destination": "/api/seo-cluster" },
 
     { "source": "/servicios/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
