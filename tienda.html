@@ -247,7 +247,14 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('result-count').textContent = 'Cargando servicios…';
+    document.getElementById('store-grid').innerHTML = '<div class="catalog-loading" role="status"><span class="catalog-spinner" aria-hidden="true"></span><b>Preparando el catálogo</b><small>Estamos cargando servicios, opciones y precios actualizados.</small></div>';
     await akCatalogReady();
+    if (!CATALOG.length) {
+      document.getElementById('result-count').textContent = 'Catálogo no disponible';
+      document.getElementById('store-grid').innerHTML = '<div class="empty-state"><h3>No hemos podido cargar el catálogo</h3><p>La conexión está tardando más de lo normal. Puedes reintentarlo sin perder ningún dato.</p><button class="btn btn-primary" type="button" onclick="location.reload()">Reintentar</button></div>';
+      return;
+    }
     MAX_PRICE = Math.max(1, ...CATALOG.map((p) => p.priceFrom)) + 1;
     state.maxPrice = MAX_PRICE;
     initFromURL();
