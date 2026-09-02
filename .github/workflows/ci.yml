@@ -33,6 +33,9 @@ jobs:
           console.log('Todos los <script> inline son sintácticamente válidos.');
           "
 
+      - name: Ejecutar tests unitarios (lib/)
+        run: node --test test/*.js
+
       - name: Comprobar sintaxis de los .js de assets/js
         run: |
           for f in assets/js/*.js; do
