@@ -46,6 +46,7 @@ const AK_ICONS = {
   eyeOff: '<path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="3" x2="21" y2="21"/>',
   ticket: '<path d="M3 9a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 1 0-4V5H3z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2 2"/>',
   file: '<path d="M6 2.5h9l4 4V21.5H6z"/><polyline points="15 2.5 15 6.5 19 6.5"/>',
+  download: '<path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 19h16"/>',
   car: '<path d="M4 16.5V12l2.5-5h9L18 12v4.5"/><path d="M4 16.5h14"/><circle cx="7.5" cy="16.7" r="1.6"/><circle cx="15.5" cy="16.7" r="1.6"/>',
   gear: '<circle cx="12" cy="12" r="3.2"/><line x1="12" y1="2.5" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="21.5" y2="12"/><line x1="5.5" y1="5.5" x2="7.6" y2="7.6"/><line x1="16.4" y1="16.4" x2="18.5" y2="18.5"/><line x1="5.5" y1="18.5" x2="7.6" y2="16.4"/><line x1="16.4" y1="7.6" x2="18.5" y2="5.5"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/>',

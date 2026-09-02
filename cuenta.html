@@ -40,6 +40,7 @@
   const NAV_ITEMS = [
     { id: 'resumen', label: 'Resumen', icon: 'diag' },
     { id: 'pedidos', label: 'Mis pedidos', icon: 'box' },
+    { id: 'descargas', label: 'Mis descargas', icon: 'download' },
     { id: 'favoritos', label: 'Favoritos', icon: 'heart' },
     { id: 'soporte', label: 'Soporte', icon: 'ticket' },
     { id: 'perfil', label: 'Perfil', icon: 'user' },
@@ -70,6 +71,7 @@
   let PEDIDOS = [];
   let TICKETS = [];
   let FAVORITOS = [];
+  let DESCARGAS = [];
   let showNewTicketForm = false;
   let openTicketId = null;
   let openTicketMensajes = [];
@@ -127,6 +129,20 @@
       PEDIDOS.map((p) => '<tr><td>#' + p.numero + '</td><td>' + new Date(p.created_at).toLocaleDateString('es-ES') + '</td><td>' + akFormatPrice(p.total) + '</td><td>' + pill(p.estado) + '</td><td><span style="color:var(--muted);font-size:11.5px">' + (p.lineas || 0) + ' producto' + (p.lineas === 1 ? '' : 's') + '</span></td><td><a class="link-red" href="seguimiento.html?id=' + p.id + '">Ver seguimiento' + akIcon('arrowRight') + '</a></td></tr>').join('') +
       '</tbody></table></div>' +
       '<div class="notice" style="margin-top:16px">' + akIcon('headset') + 'Nuestro equipo revisa cada pedido y te contacta para confirmar el pago y los detalles.</div>';
+  }
+
+  function renderDescargas() {
+    return panelHeader('Mis descargas', 'Productos digitales disponibles en tu cuenta.') +
+      (DESCARGAS.length
+        ? '<div class="fav-grid">' + DESCARGAS.map((item) => {
+            const limite = item.max_descargas ? item.descargas_usadas + ' de ' + item.max_descargas + ' descargas usadas' : item.descargas_usadas + ' descargas';
+            return '<div class="fav-item"><span class="ph-box">' + akIcon('file') + '</span>' +
+              '<span style="flex:1"><b>' + akEscapeHtml(item.nombre) + '</b><span>' +
+                (item.version ? 'Versión ' + akEscapeHtml(item.version) + ' · ' : '') + limite + '</span></span>' +
+              '<button class="btn btn-primary" data-download-product="' + item.producto_id + '" ' +
+                ((!item.activo || (item.max_descargas && item.descargas_usadas >= item.max_descargas)) ? 'disabled' : '') + '>Descargar</button></div>';
+          }).join('') + '</div>'
+        : '<div class="empty-state">' + akIcon('download') + '<h3>Aún no tienes descargas</h3><p>Los productos digitales de pago aparecerán aquí cuando se confirme el pago.</p><a class="btn btn-primary" style="margin-top:16px" href="tienda.html">Ver tienda</a></div>');
   }
 
   function ticketPill(estadoKey) {
@@ -231,7 +247,7 @@
     return '<div style="margin-bottom:20px"><h1 style="font-size:22px;margin:0 0 6px">' + title + '</h1><p style="color:var(--muted);font-size:13px;margin:0">' + desc + '</p></div>';
   }
 
-  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, favoritos: renderFavoritos, soporte: renderSoporte, perfil: renderPerfil };
+  const RENDERERS = { resumen: renderResumen, pedidos: renderPedidos, descargas: renderDescargas, favoritos: renderFavoritos, soporte: renderSoporte, perfil: renderPerfil };
 
   function render() {
     renderNav();
@@ -377,6 +393,14 @@
       .eq('cliente_id', CURRENT_USER.id)
       .order('created_at', { ascending: false });
     FAVORITOS = (favData || []).map((f) => Object.assign({}, f, { producto: akFindProduct(f.producto_id) })).filter((f) => f.producto);
+
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const response = await fetch('/api/mis-descargas', { headers: token ? { Authorization: 'Bearer ' + token } : {} });
+      const payload = await response.json().catch(() => ({}));
+      DESCARGAS = response.ok && Array.isArray(payload.descargas) ? payload.descargas : [];
+    } catch (_) { DESCARGAS = []; }
   }
 
   function renderFavoritos() {
@@ -440,8 +464,38 @@
         e.preventDefault();
         removeFavorito(removeFavBtn.dataset.removeFav);
       }
+      const downloadBtn = e.target.closest('[data-download-product]');
+      if (downloadBtn) {
+        e.preventDefault();
+        downloadOwnedProduct(downloadBtn.dataset.downloadProduct, downloadBtn);
+      }
     });
   });
+
+  async function downloadOwnedProduct(productoId, btn) {
+    btn.disabled = true;
+    try {
+      const { data } = await akSupabase().auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) throw new Error('no_autorizado');
+      const response = await fetch('/api/descargar-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ producto_id: productoId }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'descarga_no_disponible');
+      const item = DESCARGAS.find((download) => download.producto_id === productoId);
+      if (item) item.descargas_usadas += 1;
+      window.location.assign(payload.url);
+    } catch (error) {
+      const message = error.message === 'limite_descargas_alcanzado'
+        ? 'Has alcanzado el límite de descargas. Contacta con soporte.'
+        : 'No se pudo preparar la descarga.';
+      akToast(message);
+      btn.disabled = false;
+    }
+  }
 
   async function removeFavorito(productoId) {
     const { error } = await akSupabase().from('tienda_favoritos').delete()

@@ -166,21 +166,20 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
         return;
       }
 
-      const required = [
-        ['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos'], ['f-telefono', 'Teléfono'],
-        ['f-direccion', 'Dirección'], ['f-cp', 'Código postal'], ['f-ciudad', 'Ciudad'], ['f-provincia', 'Provincia'],
-      ];
+      const quote = await akRefreshCheckoutQuote();
+      if (!quote) {
+        akToast('No se ha podido validar el total del pedido. Inténtalo de nuevo.');
+        return;
+      }
+
+      const required = quote.requiere_envio
+        ? [['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos'], ['f-telefono', 'Teléfono'], ['f-direccion', 'Dirección'], ['f-cp', 'Código postal'], ['f-ciudad', 'Ciudad'], ['f-provincia', 'Provincia']]
+        : [['f-nombre', 'Nombre'], ['f-apellidos', 'Apellidos']];
       const missing = required.find(([id]) => !fieldVal(id));
       if (missing) {
         akToast('Falta un campo obligatorio: ' + missing[1]);
         const el = document.getElementById(missing[0]);
         if (el) el.focus();
-        return;
-      }
-
-      const quote = await akRefreshCheckoutQuote();
-      if (!quote) {
-        akToast('No se ha podido validar el total del pedido. Inténtalo de nuevo.');
         return;
       }
 

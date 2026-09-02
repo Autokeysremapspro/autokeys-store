@@ -207,14 +207,15 @@
   function renderBuybox() {
     const box = document.getElementById('buybox');
     box.innerHTML =
-      '<div class="eyebrow">' + (product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
-      '<div class="price-big" id="price-big">' + akFormatPrice(selectedVariant.price) + '</div>' +
-      '<div class="price-note">IVA incluido</div>' +
+      '<div class="eyebrow">' + (product.isDigital ? 'PRODUCTO DIGITAL' : product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
+      '<div class="price-big" id="price-big">' + (product.digitalFree ? 'Gratis' : akFormatPrice(selectedVariant.price)) + '</div>' +
+      '<div class="price-note">' + (product.digitalFree ? 'Descarga sin coste' : 'IVA incluido') + '</div>' +
       (product.isProduct && product.stock === 'encargo'
         ? '<div class="stock-encargo">' + akIcon('clock') + 'Bajo pedido</div>' +
           '<div class="stock-encargo-note">' + (product.plazoEntrega ? 'Entrega estimada: ' + product.plazoEntrega : 'Se encarga al proveedor tras confirmar tu pedido.') + '</div>'
         : '<div class="stock-ok">' + akIcon('checkCircle') + 'Disponible</div>' +
           (akStockUrgencia(product) ? '<div class="stock-urgente">' + akIcon('clock') + akStockUrgencia(product) + '</div>' : '')) +
+      (product.digitalVersion ? '<div class="notice" style="margin-top:12px">' + akIcon('file') + 'Versión ' + akEscapeHtml(product.digitalVersion) + '</div>' : '') +
       '<div style="margin-top:18px;font-size:11px;color:var(--muted2);font-weight:800;letter-spacing:.5px">1. SELECCIONA LA OPCIÓN</div>' +
       '<div class="variant-list" id="variant-list">' +
         product.variants.map((v, i) =>
@@ -238,11 +239,11 @@
             '<div class="field full"><label for="pb-problema">Describe el problema</label><textarea id="pb-problema" maxlength="2000" placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
           '</div>') +
       '<div style="display:flex;gap:8px;margin-top:18px">' +
-        '<button class="btn btn-primary btn-block" id="add-cart-btn">' + akIcon('cart') + 'Añadir al carrito</button>' +
+        '<button class="btn btn-primary btn-block" id="add-cart-btn">' + akIcon(product.digitalFree ? 'download' : 'cart') + (product.digitalFree ? 'Descargar gratis' : 'Añadir al carrito') + '</button>' +
         '<button class="btn btn-secondary" id="fav-btn" title="Guardar en favoritos" style="padding:0 14px;color:' + (isFavorito ? 'var(--red)' : '') + '">' + akIcon('heart') + '</button>' +
       '</div>' +
       '<ul class="buybox-trust">' +
-        '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
+        '<li>' + akIcon('lock') + (product.isDigital ? 'Descarga protegida' : 'Pago 100% seguro') + '</li>' +
         '<li>' + akIcon('shield') + (product.warranty || 'Garantía incluida') + '</li>' +
         '<li>' + akIcon('headset') + (product.isSoftware ? (product.support || 'Soporte técnico incluido') : 'Soporte experto 7 días') + '</li>' +
       '</ul>';
@@ -252,15 +253,48 @@
       box.querySelectorAll('.variant').forEach((x) => x.classList.remove('selected'));
       el.classList.add('selected');
       el.querySelector('input').checked = true;
-      document.getElementById('price-big').textContent = akFormatPrice(selectedVariant.price);
+      document.getElementById('price-big').textContent = product.digitalFree ? 'Gratis' : akFormatPrice(selectedVariant.price);
     }));
 
-    document.getElementById('add-cart-btn').addEventListener('click', () => {
+    document.getElementById('add-cart-btn').addEventListener('click', async () => {
+      if (product.digitalFree) {
+        await descargarProductoDigital(product.id);
+        return;
+      }
       akCartAdd(product.id, selectedVariant.id, 1, buyboxExtra());
       akToast(product.name + ' añadido al carrito');
     });
 
     document.getElementById('fav-btn').addEventListener('click', toggleFavorito);
+  }
+
+  async function descargarProductoDigital(productoId) {
+    const btn = document.getElementById('add-cart-btn');
+    if (btn) btn.disabled = true;
+    try {
+      let token = '';
+      try {
+        const session = await akSupabase().auth.getSession();
+        token = session?.data?.session?.access_token || '';
+      } catch (_) {}
+      const response = await fetch('/api/descargar-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+        body: JSON.stringify({ producto_id: productoId }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'descarga_no_disponible');
+      window.location.assign(payload.url);
+    } catch (error) {
+      const messages = {
+        no_autorizado: 'Inicia sesión con la cuenta que realizó la compra.',
+        compra_requerida: 'Este producto requiere una compra confirmada.',
+        limite_descargas_alcanzado: 'Has alcanzado el límite de descargas. Contacta con soporte.',
+      };
+      akToast(messages[error.message] || 'La descarga no está disponible en este momento.');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
   }
 
   async function toggleFavorito() {
