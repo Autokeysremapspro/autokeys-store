@@ -141,8 +141,8 @@
       buttons[0].innerHTML = '<span data-icon="file"></span>Revisar mi caso';
     }
     if (buttons[1]) {
-      buttons[1].setAttribute('href', '/casos-reales.html');
-      buttons[1].innerHTML = '<span data-icon="award"></span>Ver casos reales';
+      buttons[1].setAttribute('href', '/enviar-reparacion.html?envio=recogida');
+      buttons[1].innerHTML = '<span data-icon="truck"></span>Solicitar recogida';
     }
 
     const badges = hero.querySelectorAll('.hero-badge');
@@ -173,6 +173,7 @@
           '<a class="cat-item" href="/bmw-fem-bdc"><span class="icon">' + icon('module') + '</span><span><b>BMW con fallo FEM / BDC</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Arranque, recuperación, sustitución y llaves según sistema.</p></span></a>' +
           '<a class="cat-item" href="/mercedes-ezs-elv"><span class="icon">' + icon('lock') + '</span><span><b>Mercedes sin contacto o ELV bloqueado</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">EZS/EIS, ELV/ESL y problemas de reconocimiento de llave.</p></span></a>' +
           '<a class="cat-item" href="/perdida-total-llaves-coche"><span class="icon">' + icon('key') + '</span><span><b>He perdido todas las llaves</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Identificamos el inmovilizador y el procedimiento correcto.</p></span></a>' +
+          '<a class="cat-item" href="/electronica-maquinaria-agricola-industrial.html"><span class="icon">' + icon('gear') + '</span><span><b>Falla una ECU de maquinaria</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Agrícola, industrial y maquinaria especializada.</p></span></a>' +
         '</div>' +
         '<div class="btn-row" style="margin-top:22px">' +
           '<a class="btn btn-primary" href="/enviar-reparacion.html">' + icon('file') + 'No sé cuál es: revisar mi caso</a>' +
