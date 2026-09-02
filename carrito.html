@@ -163,7 +163,7 @@
           (appliedCupon
             ? '<div class="coupon-row"><span style="display:flex;align-items:center;gap:8px;font-size:13px"><b style="color:var(--red)">' + esc(appliedCupon.codigo) + '</b> aplicado</span><button class="btn btn-secondary" id="coupon-remove-btn">Quitar</button></div>'
             : '<div class="coupon-row">' +
-              '<input type="text" id="coupon-input" placeholder="Introduce tu código de descuento">' +
+              '<input type="text" id="coupon-input" aria-label="Código de descuento" placeholder="Introduce tu código de descuento">' +
               '<button class="btn btn-secondary" id="coupon-btn">Aplicar cupón</button>' +
             '</div>') +
           '<div class="totals">' +

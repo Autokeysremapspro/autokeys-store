@@ -46,14 +46,14 @@
   <div class="eyebrow">TIENDA AUTOKEYS</div>
   <h1>Catálogo de servicios y productos</h1>
   <p class="section-desc">Soluciones profesionales en electrónica automotriz. Selecciona el servicio o producto que necesitas.</p>
-  <div class="catalog-entry-grid" id="catalog-entry-grid" aria-label="Elegir tipo de catálogo">
-    <button type="button" class="catalog-entry active" data-segment="servicios">
+  <div class="catalog-entry-grid" id="catalog-entry-grid" role="tablist" aria-label="Elegir tipo de catálogo">
+    <button type="button" class="catalog-entry active" data-segment="servicios" role="tab" aria-selected="true">
       <span data-icon="ecu"></span><span><b>Servicios de laboratorio</b><small>Diagnóstico, reparación, clonación y programación</small></span>
     </button>
-    <button type="button" class="catalog-entry" data-segment="productos">
+    <button type="button" class="catalog-entry" data-segment="productos" role="tab" aria-selected="false">
       <span data-icon="programmer"></span><span><b>Productos y herramientas</b><small>Equipos, packs y material profesional</small></span>
     </button>
-    <button type="button" class="catalog-entry" data-segment="software">
+    <button type="button" class="catalog-entry" data-segment="software" role="tab" aria-selected="false">
       <span data-icon="laptop"></span><span><b>Programas y descargas</b><small>Software gratuito y licencias digitales</small></span>
     </button>
   </div>
@@ -63,8 +63,8 @@
   <aside class="filters" id="filters"></aside>
   <div>
     <div class="store-toolbar">
-      <div id="result-count" style="color:var(--muted);font-size:13px"></div>
-      <select id="sort-select" class="filter-select" style="max-width:220px">
+      <div id="result-count" style="color:var(--muted);font-size:13px" role="status" aria-live="polite" aria-atomic="true"></div>
+      <select id="sort-select" class="filter-select" style="max-width:220px" aria-label="Ordenar resultados por">
         <option value="popularidad">Recomendados</option>
         <option value="precio-asc">Precio: menor a mayor</option>
         <option value="precio-desc">Precio: mayor a menor</option>
@@ -157,15 +157,15 @@
     const stockLabels = { stock: 'En stock', encargo: 'Por encargo', envio: 'Servicio por envío' };
     document.getElementById('filters').innerHTML =
       '<h4 style="margin-top:0">BUSCAR</h4>' +
-      '<input type="text" class="filter-select" data-role="search" placeholder="ECU, FEM, EZS, airbag..." value="' + (state.q || '').replace(/"/g, '&quot;') + '">' +
+      '<input type="text" class="filter-select" data-role="search" aria-label="Buscar en el catálogo" placeholder="ECU, FEM, EZS, airbag..." value="' + (state.q || '').replace(/"/g, '&quot;') + '">' +
       '<h4>CATEGORÍA</h4><div class="filter-group">' +
         '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todas las categorías<span class="count">' + CATALOG.filter((p) => productSegment(p) === state.segment).length + '</span></label>' +
         CATEGORIES.filter((cat) => (c.cats[cat.id] || 0) > 0).map((cat) =>
           '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + (c.cats[cat.id] || 0) + '</span></label>'
         ).join('') +
       '</div>' +
-      '<h4>MARCA</h4>' +
-      '<select class="filter-select" data-role="brand">' +
+      '<h4 id="filter-brand-label">MARCA</h4>' +
+      '<select class="filter-select" data-role="brand" aria-labelledby="filter-brand-label">' +
         '<option value="all">Todas las marcas</option>' +
         BRANDS.map((b) => '<option value="' + b.id + '" ' + (state.brand === b.id ? 'selected' : '') + '>' + b.label + '</option>').join('') +
       '</select>' +
@@ -174,8 +174,8 @@
           '<label class="' + (state.types.has(t.id) ? 'active' : '') + '"><input type="checkbox" data-role="type" value="' + t.id + '" ' + (state.types.has(t.id) ? 'checked' : '') + '>' + t.label + '<span class="count">' + (c.types[t.id] || 0) + '</span></label>'
         ).join('') +
       '</div>' +
-      '<h4>RANGO DE PRECIO</h4>' +
-      '<input type="range" min="0" max="' + MAX_PRICE + '" value="' + state.maxPrice + '" data-role="price">' +
+      '<h4 id="filter-price-label">RANGO DE PRECIO</h4>' +
+      '<input type="range" min="0" max="' + MAX_PRICE + '" value="' + state.maxPrice + '" data-role="price" aria-labelledby="filter-price-label" aria-valuetext="hasta €' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '') + '">' +
       '<div class="range-labels"><span>€0</span><span id="price-label">€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '') + '</span></div>' +
       '<h4>DISPONIBILIDAD</h4><div class="filter-group">' +
         Object.keys(stockLabels).map((s) =>
@@ -244,7 +244,11 @@
   }
 
   function render() {
-    document.querySelectorAll('[data-segment]').forEach((button) => button.classList.toggle('active', button.dataset.segment === state.segment));
+    document.querySelectorAll('[data-segment]').forEach((button) => {
+      const active = button.dataset.segment === state.segment;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
     renderFilters();
     renderGrid();
   }
@@ -337,8 +341,10 @@
     document.body.addEventListener('input', (e) => {
       if (e.target.dataset.role === 'price') {
         state.maxPrice = Number(e.target.value);
+        const priceText = '€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '');
         const label = document.getElementById('price-label');
-        if (label) label.textContent = '€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '');
+        if (label) label.textContent = priceText;
+        e.target.setAttribute('aria-valuetext', 'hasta ' + priceText);
         renderGrid();
       } else if (e.target.dataset.role === 'search') {
         state.q = e.target.value;
