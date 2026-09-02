@@ -115,7 +115,7 @@ module.exports = async function handler(req, res) {
 
     const nombre = text(body.nombre, 120, true);
     const apellidos = text(body.apellidos, 160, true);
-    const telefono = text(body.telefono, 40, true);
+    const telefono = text(body.telefono, 40, quote.requiere_envio);
     const direccion = text(body.direccion, 220, quote.requiere_envio);
     const codigoPostal = text(body.codigo_postal, 20, quote.requiere_envio);
     const ciudad = text(body.ciudad, 120, quote.requiere_envio);
@@ -181,6 +181,7 @@ module.exports = async function handler(req, res) {
       precio_unitario: line.precio_unitario,
       requiere_envio: line.requiere_envio,
       peso_unitario_kg: line.peso_unitario_kg,
+      es_digital: line.es_digital,
       vehiculo_id: vehicle?.id || null,
       referencia_vehiculo: referenciaVehiculo,
       referencia_pieza: extras[index]?.referencia_pieza || null,
