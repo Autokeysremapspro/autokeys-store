@@ -171,6 +171,10 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     ratingCount: valoracion ? Number(valoracion.total) : 0,
     isProduct: !!row.is_product,
     isSoftware: !!row.is_software,
+    isDigital: !!row.es_digital,
+    digitalFree: !!row.digital_gratis,
+    digitalVersion: row.digital_version || null,
+    digitalInstructions: row.digital_instrucciones || '',
     keywords: row.keywords || [],
     shortDesc: row.short_desc || '',
     longDesc: row.long_desc || '',
@@ -191,7 +195,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 }
 
 let _akCatalogPromise = null;
-const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v1';
+const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v2';
 const AK_CATALOG_CACHE_TTL = 15 * 60 * 1000;
 
 function akApplyCatalogPayload(payload) {
