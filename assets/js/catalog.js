@@ -191,6 +191,79 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 }
 
 let _akCatalogPromise = null;
+const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v1';
+const AK_CATALOG_CACHE_TTL = 15 * 60 * 1000;
+
+function akApplyCatalogPayload(payload) {
+  if (!payload || !Array.isArray(payload.products)) return false;
+
+  CATEGORIES = Array.isArray(payload.categories) ? payload.categories : [];
+  BRANDS = Array.isArray(payload.brands) ? payload.brands : [];
+
+  const variantesByProducto = {};
+  (payload.variants || []).forEach((v) => {
+    (variantesByProducto[v.producto_id] = variantesByProducto[v.producto_id] || []).push(v);
+  });
+
+  const valoracionesByProducto = {};
+  (payload.ratings || []).forEach((v) => { valoracionesByProducto[v.producto_id] = v; });
+  CATALOG = payload.products.map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
+  return CATALOG.length > 0;
+}
+
+function akReadCatalogCache() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(AK_CATALOG_CACHE_KEY) || 'null');
+    if (!cached || !cached.savedAt || Date.now() - cached.savedAt > AK_CATALOG_CACHE_TTL) return null;
+    return cached.payload || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function akWriteCatalogCache(payload) {
+  try {
+    localStorage.setItem(AK_CATALOG_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), payload }));
+  } catch (_) {}
+}
+
+async function akFetchCatalogEndpoint() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 22000);
+  try {
+    const response = await fetch('/api/catalogo', {
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error('catalogo_endpoint_' + response.status);
+    const payload = await response.json();
+    if (!payload || !Array.isArray(payload.products)) throw new Error('catalogo_respuesta_invalida');
+    return payload;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function akFetchCatalogDirect() {
+  if (!(await akWaitForSupabase())) throw new Error('supabase_no_disponible');
+  const client = window.akSupabase();
+  const [catsResult, brandsResult, productsResult, variantsResult, ratingsResult] = await Promise.all([
+    client.from('tienda_categorias').select('id, label').order('sort_order'),
+    client.from('tienda_marcas').select('id, label').order('sort_order'),
+    client.from('tienda_productos').select('*').eq('activo', true).order('sort_order'),
+    client.from('tienda_producto_variantes').select('*').order('sort_order'),
+    client.from('tienda_producto_valoraciones').select('*'),
+  ]);
+  const criticalError = catsResult.error || brandsResult.error || productsResult.error || variantsResult.error;
+  if (criticalError) throw criticalError;
+  return {
+    categories: catsResult.data || [],
+    brands: brandsResult.data || [],
+    products: productsResult.data || [],
+    variants: variantsResult.data || [],
+    ratings: ratingsResult.data || [],
+  };
+}
 
 async function akWaitForSupabase() {
   try {
@@ -210,41 +283,25 @@ async function akWaitForSupabase() {
 function akCatalogReady() {
   if (!_akCatalogPromise) {
     _akCatalogPromise = (async () => {
-      if (!(await akWaitForSupabase())) {
-        console.warn('Catálogo no disponible temporalmente: Supabase no está listo.');
-        return;
-      }
-      const client = window.akSupabase();
-      const [
-        { data: cats, error: e1 },
-        { data: brands, error: e2 },
-        { data: productos, error: e3 },
-        { data: variantes, error: e4 },
-        { data: valoraciones },
-      ] = await Promise.all([
-        client.from('tienda_categorias').select('id, label').order('sort_order'),
-        client.from('tienda_marcas').select('id, label').order('sort_order'),
-        client.from('tienda_productos').select('*').eq('activo', true).order('sort_order'),
-        client.from('tienda_producto_variantes').select('*').order('sort_order'),
-        client.from('tienda_producto_valoraciones').select('*'),
-      ]);
+      const cached = akReadCatalogCache();
+      if (cached && akApplyCatalogPayload(cached)) return;
 
-      if (e1 || e2 || e3 || e4) {
-        console.error('No se pudo cargar el catálogo:', e1 || e2 || e3 || e4);
+      try {
+        const payload = await akFetchCatalogEndpoint();
+        if (!akApplyCatalogPayload(payload)) throw new Error('catalogo_vacio');
+        akWriteCatalogCache(payload);
         return;
+      } catch (endpointError) {
+        console.warn('Ruta rápida del catálogo no disponible; usando conexión directa.', endpointError);
       }
 
-      CATEGORIES = cats || [];
-      BRANDS = brands || [];
-
-      const variantesByProducto = {};
-      (variantes || []).forEach((v) => {
-        (variantesByProducto[v.producto_id] = variantesByProducto[v.producto_id] || []).push(v);
-      });
-
-      const valoracionesByProducto = {};
-      (valoraciones || []).forEach((v) => { valoracionesByProducto[v.producto_id] = v; });
-      CATALOG = (productos || []).map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
+      try {
+        const payload = await akFetchCatalogDirect();
+        if (!akApplyCatalogPayload(payload)) throw new Error('catalogo_vacio');
+        akWriteCatalogCache(payload);
+      } catch (directError) {
+        console.error('No se pudo cargar el catálogo:', directError);
+      }
     })();
   }
   return _akCatalogPromise;
