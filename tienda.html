@@ -60,6 +60,9 @@
 </div>
 
 <div class="store-layout">
+  <button type="button" id="filters-toggle" class="filters-toggle-btn" aria-expanded="false" aria-controls="filters">
+    <span data-icon="menu"></span><span>Filtros</span>
+  </button>
   <aside class="filters" id="filters"></aside>
   <div>
     <div class="store-toolbar">
@@ -305,6 +308,17 @@
       state.sort = e.target.value;
       renderGrid();
     });
+    const filtersToggle = document.getElementById('filters-toggle');
+    const filtersPanel = document.getElementById('filters');
+    function setFiltersOpen(open) {
+      filtersPanel.classList.toggle('open', open);
+      filtersToggle.setAttribute('aria-expanded', String(open));
+      filtersToggle.querySelector('span:last-child').textContent = open ? 'Ocultar filtros' : 'Filtros';
+    }
+    function closeFiltersOnMobile() {
+      if (window.innerWidth <= 980) setFiltersOpen(false);
+    }
+    filtersToggle.addEventListener('click', () => setFiltersOpen(!filtersPanel.classList.contains('open')));
     document.querySelectorAll('[data-segment]').forEach((button) => button.addEventListener('click', () => {
       state.segment = button.dataset.segment;
       state.cats.clear();
@@ -323,9 +337,11 @@
       if (role === 'cat-all') {
         state.cats.clear();
         render();
+        closeFiltersOnMobile();
       } else if (role === 'cat') {
         e.target.checked ? state.cats.add(e.target.value) : state.cats.delete(e.target.value);
         render();
+        closeFiltersOnMobile();
       } else if (role === 'brand') {
         state.brand = e.target.value;
         render();
