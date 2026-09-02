@@ -115,6 +115,18 @@
     segment: 'servicios',
   };
 
+  const CATEGORY_GROUPS = [
+    { label: 'Centralitas ECU y TCU', ids: ['ecu-uce', 'clonacion-ecu', 'reparacion-ecu', 'tcu-tcm'] },
+    { label: 'Llaves e inmovilizadores', ids: ['llaves', 'inmovilizadores'] },
+    { label: 'BMW', ids: ['bmw-fem-bdc', 'bmw-cas-ews', 'bmw-frm'] },
+    { label: 'Mercedes-Benz', ids: ['mercedes-ezs-elv'] },
+    { label: 'Audi y Grupo VAG', ids: ['audi-j518-elv', 'audi-bcm2-kessy'] },
+    { label: 'Módulos electrónicos', ids: ['modulos', 'abs-esp', 'airbag-srs', 'cuadros'] },
+    { label: 'Diagnóstico y programación', ids: ['diagnostico'] },
+    { label: 'Herramientas y equipamiento', ids: ['herramientas'] },
+    { label: 'Programas y descargas', ids: ['software'] },
+  ];
+
   const COMMERCIAL_ORDER = [
     'diagnostico-avanzado', 'ecu-uce-diagnostico', 'llaves-copia-programacion',
     'clonacion-ecu-general', 'airbag-srs-reparacion', 'modulos-confort-uch',
@@ -152,6 +164,24 @@
     return c;
   }
 
+  function renderGroupedCategories(c) {
+    const visible = CATEGORIES.filter((cat) => (c.cats[cat.id] || 0) > 0);
+    const groupedIds = new Set(CATEGORY_GROUPS.flatMap((group) => group.ids));
+    const groups = CATEGORY_GROUPS.map((group) => {
+      const categories = visible.filter((cat) => group.ids.includes(cat.id));
+      if (!categories.length) return '';
+      return '<div class="filter-family">' + group.label + '</div>' + categories.map((cat) =>
+        '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + c.cats[cat.id] + '</span></label>'
+      ).join('');
+    }).join('');
+    const others = visible.filter((cat) => !groupedIds.has(cat.id));
+    return groups + (others.length
+      ? '<div class="filter-family">Otras categorías</div>' + others.map((cat) =>
+          '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + c.cats[cat.id] + '</span></label>'
+        ).join('')
+      : '');
+  }
+
   function renderFilters() {
     const c = counts();
     const stockLabels = { stock: 'En stock', encargo: 'Por encargo', envio: 'Servicio por envío' };
@@ -160,9 +190,7 @@
       '<input type="text" class="filter-select" data-role="search" placeholder="ECU, FEM, EZS, airbag..." value="' + (state.q || '').replace(/"/g, '&quot;') + '">' +
       '<h4>CATEGORÍA</h4><div class="filter-group">' +
         '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todas las categorías<span class="count">' + CATALOG.filter((p) => productSegment(p) === state.segment).length + '</span></label>' +
-        CATEGORIES.filter((cat) => (c.cats[cat.id] || 0) > 0).map((cat) =>
-          '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + (c.cats[cat.id] || 0) + '</span></label>'
-        ).join('') +
+        renderGroupedCategories(c) +
       '</div>' +
       '<h4>MARCA</h4>' +
       '<select class="filter-select" data-role="brand">' +
