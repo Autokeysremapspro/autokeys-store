@@ -200,7 +200,7 @@
           (akStarsHtml(p.rating, p.ratingCount) ? '<div>' + akStarsHtml(p.rating, p.ratingCount) + '</div>' : '') +
           '<p>' + p.features.slice(0, 3).map((f) => '<span style="display:flex;align-items:center;gap:6px;margin-bottom:3px">' + akIcon('check') + f + '</span>').join('') + '</p>' +
           '<div class="product-price-row">' +
-            '<div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
+            '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : 'DESDE') + '</small><b>' + (p.digitalFree ? 'Gratis' : akFormatPrice(p.priceFrom)) + '</b></div>' +
             '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">' + (p.isProduct ? 'Ver producto' : 'Ver servicio') + '</a>' +
           '</div>' +
         '</div>' +
