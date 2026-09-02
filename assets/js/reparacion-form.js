@@ -38,7 +38,30 @@
     document.getElementById('send-items').innerHTML = SEND_ITEMS.map((label, i) =>
       '<label><input type="checkbox" value="' + label + '"' + (i === 0 ? ' checked' : '') + '><span>' + label + '</span></label>'
     ).join('');
-    restoreDraft(); wireEvents(); await Promise.all([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
+    restoreDraft(); wireEvents(); applyUrlIntent(); await Promise.all([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
+  }
+
+  function applyUrlIntent() {
+    const params = new URLSearchParams(window.location.search);
+    const requestedUnit = params.get('unidad');
+    const requestedWork = params.get('trabajo');
+    const requestedType = params.get('tipo');
+    if (requestedUnit && WORKS[requestedUnit]) selectUnit(requestedUnit);
+    if (requestedWork && selectedUnit && WORKS[selectedUnit].includes(requestedWork)) {
+      document.getElementById('trabajo').value = requestedWork;
+    }
+    if (['taller', 'empresa', 'particular'].includes(requestedType)) {
+      document.getElementById('tipo-cliente').value = requestedType;
+    }
+    if (params.get('envio') === 'recogida') {
+      const pickup = document.querySelector('input[name="metodo_envio"][value="recogida_autokeys"]');
+      if (pickup) {
+        pickup.checked = true;
+        document.querySelectorAll('.method-card').forEach((card) => card.classList.toggle('active', card.contains(pickup)));
+        togglePickup();
+      }
+    }
+    saveDraft();
   }
 
   function wireEvents() {

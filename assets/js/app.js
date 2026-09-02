@@ -124,6 +124,7 @@ function akHeaderHTML(active) {
         { href: '/duplicado-llaves-coche-jaen', label: 'Duplicado de llaves en Jaén' },
         { href: '/reprogramacion-centralitas-jaen', label: 'Reprogramación de centralitas en Jaén' },
         { href: '/reparacion-airbag-srs', label: 'Airbag / SRS' },
+        { href: '/electronica-maquinaria-agricola-industrial.html', label: 'Maquinaria agrícola e industrial' },
         { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
@@ -195,6 +196,7 @@ function akFooterHTML() {
       '<div><h4>ENLACES RÁPIDOS</h4><ul>' +
         '<li><a href="/quienes-somos.html">Quiénes somos</a></li>' +
         '<li><a href="/electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
+        '<li><a href="/electronica-maquinaria-agricola-industrial.html">Maquinaria agrícola e industrial</a></li>' +
         '<li><a href="/tienda.html">Tienda</a></li>' +
         '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
