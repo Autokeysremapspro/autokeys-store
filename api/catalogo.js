@@ -43,8 +43,8 @@ module.exports = async function handler(req, res) {
     ]);
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
-    res.setHeader('CDN-Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    res.setHeader('CDN-Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     if (req.method === 'HEAD') return res.status(200).end();
     return res.status(200).json({ categories, brands, products, variants, ratings });
   } catch (error) {
