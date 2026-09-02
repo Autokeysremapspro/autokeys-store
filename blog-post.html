@@ -127,7 +127,7 @@
               '<p>' + akEscapeHtml(p.shortDesc) + '</p>' +
               '<div class="product-price-row">' +
                 '<div class="price-block"><small>DESDE</small><b>' + akFormatPrice(p.priceFrom) + '</b></div>' +
-                '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
+                '<a class="btn btn-primary btn-sm" href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
               '</div>' +
             '</div>' +
           '</article>'
@@ -150,7 +150,7 @@
         '<h3 style="margin:0 0 4px">Más artículos</h3>' +
         '<div class="blog-grid">' +
           data.map((p) =>
-            '<a class="blog-card" href="blog-post.html?slug=' + encodeURIComponent(p.slug) + '">' +
+            '<a class="blog-card" href="/guias/' + encodeURIComponent(p.slug) + '">' +
               '<div class="blog-card-media">' + (p.imagen_url ? '<img src="' + p.imagen_url + '" alt="' + akEscapeHtml(p.titulo) + '" loading="lazy">' : '<div style="display:grid;place-items:center;height:100%;color:#54545c">' + akIcon('file') + '</div>') + '</div>' +
               '<div class="blog-card-body">' +
                 (p.categoria ? '<span class="blog-cat">' + akEscapeHtml(p.categoria) + '</span>' : '') +

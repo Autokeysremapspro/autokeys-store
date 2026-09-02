@@ -134,7 +134,7 @@ function akHeaderHTML(active) {
         { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU' },
         { href: '/reparacion-centralita-por-envio', label: 'Reparación por envío' },
         { href: '/bmw-fem-bdc', label: 'BMW FEM / BDC' },
-        { href: '/producto.html?id=bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
+        { href: '/servicios/bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
         { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +

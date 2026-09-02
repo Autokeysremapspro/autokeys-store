@@ -249,7 +249,7 @@
           '<p>' + p.shortDesc + '</p>' +
           '<div class="product-price-row">' +
             '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : 'DESDE') + '</small><b>' + (p.digitalFree ? 'Gratis' : akFormatPrice(p.priceFrom)) + '</b></div>' +
-            '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
+            '<a class="btn btn-primary btn-sm" href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
           '</div>' +
         '</div>' +
       '</article>'

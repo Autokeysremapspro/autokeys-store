@@ -408,7 +408,7 @@
       (FAVORITOS.length
         ? '<div class="fav-grid">' + FAVORITOS.map((f) =>
             '<div class="fav-item">' +
-              '<a href="producto.html?id=' + f.producto.id + '">' +
+              '<a href="/' + (f.producto.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(f.producto.id) + '">' +
                 '<span class="ph-box">' + akIcon(f.producto.icon || 'box') + '</span>' +
                 '<span><b>' + esc(f.producto.name) + '</b><span>' + akFormatPrice(f.producto.priceFrom) + '</span></span>' +
               '</a>' +

@@ -204,9 +204,9 @@
       '<div class="cross-sell-grid">' +
         sugeridos.slice(0, 3).map((p) =>
           '<div class="cross-sell-item">' +
-            '<a href="producto.html?id=' + p.id + '" class="ph-box">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : akIcon(p.icon)) + '</a>' +
+            '<a href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '" class="ph-box">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : akIcon(p.icon)) + '</a>' +
             '<div class="cs-body">' +
-              '<a href="producto.html?id=' + p.id + '"><b>' + p.name + '</b></a>' +
+              '<a href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '"><b>' + p.name + '</b></a>' +
               '<span>' + akFormatPrice(p.priceFrom) + '</span>' +
             '</div>' +
             '<button class="btn btn-secondary btn-sm" data-add-cross="' + p.id + '">' + akIcon('plus') + '</button>' +

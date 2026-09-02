@@ -144,6 +144,12 @@
       "source": "/admin/:path*",
       "destination": "https://www.autokeysremapspro.online/:path*",
       "permanent": false
+    },
+    {
+      "source": "/blog-post.html",
+      "has": [{ "type": "query", "key": "slug", "value": "(?<slug>.*)" }],
+      "destination": "/guias/:slug",
+      "permanent": true
     }
   ],
   "rewrites": [

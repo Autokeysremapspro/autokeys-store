@@ -300,7 +300,7 @@
 
   async function toggleFavorito() {
     if (!CURRENT_USER) {
-      window.location.href = 'login.html?redirect=' + encodeURIComponent('producto.html?id=' + product.id);
+      window.location.href = 'login.html?redirect=' + encodeURIComponent((product.isProduct ? '/productos/' : '/servicios/') + product.id);
       return;
     }
     const btn = document.getElementById('fav-btn');
@@ -380,7 +380,7 @@
       '</div>' +
       '<aside class="related"><div class="eyebrow">SERVICIOS RELACIONADOS</div><h3 style="margin:8px 0 4px">También puede interesarte</h3>' +
         related.map((r) =>
-          '<a class="related-item" href="producto.html?id=' + r.id + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
+          '<a class="related-item" href="/' + (r.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(r.id) + '"><span class="ph-box">' + akIcon(r.icon) + '</span><span style="flex:1"><b>' + r.name + '</b></span><span>Ver ' + (r.isProduct ? 'producto' : 'servicio') + '</span></a>'
         ).join('') +
       '</aside>';
   }
@@ -398,7 +398,7 @@
       '<div class="eyebrow">APRENDE MÁS</div><h2 style="margin-bottom:14px">Artículos relacionados</h2>' +
       '<div class="related">' +
         data.map((p) =>
-          '<a class="related-item" href="blog-post.html?slug=' + encodeURIComponent(p.slug) + '">' +
+          '<a class="related-item" href="/guias/' + encodeURIComponent(p.slug) + '">' +
             '<span class="ph-box">' + akIcon('file') + '</span>' +
             '<span style="flex:1"><b>' + akEscapeHtml(p.titulo) + '</b></span>' +
             '<span>Leer artículo</span>' +
