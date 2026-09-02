@@ -46,6 +46,17 @@
   <div class="eyebrow">TIENDA AUTOKEYS</div>
   <h1>Catálogo de servicios y productos</h1>
   <p class="section-desc">Soluciones profesionales en electrónica automotriz. Selecciona el servicio o producto que necesitas.</p>
+  <div class="catalog-entry-grid" id="catalog-entry-grid" aria-label="Elegir tipo de catálogo">
+    <button type="button" class="catalog-entry active" data-segment="servicios">
+      <span data-icon="ecu"></span><span><b>Servicios de laboratorio</b><small>Diagnóstico, reparación, clonación y programación</small></span>
+    </button>
+    <button type="button" class="catalog-entry" data-segment="productos">
+      <span data-icon="programmer"></span><span><b>Productos y herramientas</b><small>Equipos, packs y material profesional</small></span>
+    </button>
+    <button type="button" class="catalog-entry" data-segment="software">
+      <span data-icon="laptop"></span><span><b>Programas y descargas</b><small>Software gratuito y licencias digitales</small></span>
+    </button>
+  </div>
 </div>
 
 <div class="store-layout">
@@ -54,7 +65,7 @@
     <div class="store-toolbar">
       <div id="result-count" style="color:var(--muted);font-size:13px"></div>
       <select id="sort-select" class="filter-select" style="max-width:220px">
-        <option value="popularidad">Más vendidos</option>
+        <option value="popularidad">Recomendados</option>
         <option value="precio-asc">Precio: menor a mayor</option>
         <option value="precio-desc">Precio: mayor a menor</option>
         <option value="nombre">Nombre A-Z</option>
@@ -101,21 +112,39 @@
     maxPrice: MAX_PRICE,
     q: '',
     sort: 'popularidad',
+    segment: 'servicios',
   };
+
+  const COMMERCIAL_ORDER = [
+    'diagnostico-avanzado', 'ecu-uce-diagnostico', 'llaves-copia-programacion',
+    'clonacion-ecu-general', 'airbag-srs-reparacion', 'modulos-confort-uch',
+    'reparacion-bmw-frm', 'bmw-cas-ews-programacion', 'reparacion-audi-j518-elv',
+  ];
+
+  function productSegment(p) {
+    if (p.isDigital || p.isSoftware) return 'software';
+    return p.isProduct ? 'productos' : 'servicios';
+  }
 
   function initFromURL() {
     const routeCat = location.pathname.match(/^\/categorias\/([^/]+)\/?$/);
     const cat = akQueryParam('cat') || (routeCat ? decodeURIComponent(routeCat[1]) : '');
     const brand = akQueryParam('brand');
     const q = akQueryParam('q');
+    const segment = akQueryParam('ver');
     if (cat) state.cats.add(cat);
+    if (cat) {
+      const categoryProduct = CATALOG.find((p) => p.category === cat);
+      if (categoryProduct) state.segment = productSegment(categoryProduct);
+    }
     if (brand) state.brand = brand;
     if (q) state.q = q;
+    if (['servicios', 'productos', 'software'].includes(segment)) state.segment = segment;
   }
 
   function counts() {
     const c = { cats: {}, types: {}, stock: {} };
-    CATALOG.forEach((p) => {
+    CATALOG.filter((p) => productSegment(p) === state.segment).forEach((p) => {
       c.cats[p.category] = (c.cats[p.category] || 0) + 1;
       c.types[p.type] = (c.types[p.type] || 0) + 1;
       c.stock[p.stock] = (c.stock[p.stock] || 0) + 1;
@@ -130,8 +159,8 @@
       '<h4 style="margin-top:0">BUSCAR</h4>' +
       '<input type="text" class="filter-select" data-role="search" placeholder="ECU, FEM, EZS, airbag..." value="' + (state.q || '').replace(/"/g, '&quot;') + '">' +
       '<h4>CATEGORÍA</h4><div class="filter-group">' +
-        '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todos los servicios<span class="count">' + CATALOG.length + '</span></label>' +
-        CATEGORIES.map((cat) =>
+        '<label class="' + (state.cats.size === 0 ? 'active' : '') + '"><input type="checkbox" data-role="cat-all" ' + (state.cats.size === 0 ? 'checked' : '') + '>Todas las categorías<span class="count">' + CATALOG.filter((p) => productSegment(p) === state.segment).length + '</span></label>' +
+        CATEGORIES.filter((cat) => (c.cats[cat.id] || 0) > 0).map((cat) =>
           '<label class="' + (state.cats.has(cat.id) ? 'active' : '') + '"><input type="checkbox" data-role="cat" value="' + cat.id + '" ' + (state.cats.has(cat.id) ? 'checked' : '') + '>' + cat.label + '<span class="count">' + (c.cats[cat.id] || 0) + '</span></label>'
         ).join('') +
       '</div>' +
@@ -159,6 +188,7 @@
 
   function filteredSorted() {
     let list = CATALOG.filter((p) => {
+      if (productSegment(p) !== state.segment) return false;
       if (state.cats.size > 0 && !state.cats.has(p.category)) return false;
       if (state.brand !== 'all' && p.brand !== state.brand && p.brand !== 'multi') return false;
       if (state.types.size > 0 && !state.types.has(p.type)) return false;
@@ -173,7 +203,12 @@
     if (state.sort === 'precio-asc') list.sort((a, b) => a.priceFrom - b.priceFrom);
     else if (state.sort === 'precio-desc') list.sort((a, b) => b.priceFrom - a.priceFrom);
     else if (state.sort === 'nombre') list.sort((a, b) => a.name.localeCompare(b.name));
-    else list.sort((a, b) => b.popularity - a.popularity);
+    else list.sort((a, b) => {
+      const ai = COMMERCIAL_ORDER.indexOf(a.id);
+      const bi = COMMERCIAL_ORDER.indexOf(b.id);
+      if (ai !== -1 || bi !== -1) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      return b.popularity - a.popularity;
+    });
     return list;
   }
 
@@ -193,7 +228,7 @@
     if (prevEmpty) prevEmpty.remove();
     grid.innerHTML = list.map((p) =>
       '<article class="product-card">' +
-        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.stock === 'encargo' ? '<span class="tag-encargo">Bajo pedido</span>' : (akStockUrgencia(p) ? '<span class="tag-stock">' + akStockUrgencia(p) + '</span>' : '')) + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
+        '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.stock === 'encargo' && !/bajo pedido/i.test(p.badge || '') ? '<span class="tag-encargo">Bajo pedido</span>' : (akStockUrgencia(p) ? '<span class="tag-stock">' + akStockUrgencia(p) + '</span>' : '')) + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
           '<div class="product-cat">' + (akFindCategory(p.category) || {}).label + '</div>' +
           '<h3>' + p.name + '</h3>' +
@@ -209,6 +244,7 @@
   }
 
   function render() {
+    document.querySelectorAll('[data-segment]').forEach((button) => button.classList.toggle('active', button.dataset.segment === state.segment));
     renderFilters();
     renderGrid();
   }
@@ -265,6 +301,17 @@
       state.sort = e.target.value;
       renderGrid();
     });
+    document.querySelectorAll('[data-segment]').forEach((button) => button.addEventListener('click', () => {
+      state.segment = button.dataset.segment;
+      state.cats.clear();
+      state.types.clear();
+      state.stock.clear();
+      const url = new URL(location.href);
+      url.searchParams.set('ver', state.segment);
+      url.searchParams.delete('cat');
+      history.replaceState({}, '', url);
+      render();
+    }));
 
     document.body.addEventListener('change', (e) => {
       const role = e.target.dataset.role;
