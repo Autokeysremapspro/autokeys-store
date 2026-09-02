@@ -206,6 +206,7 @@
 <script defer src="assets/js/supabase-config.js"></script>
 <script defer>
   document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('destacados-grid').innerHTML = '<div class="catalog-loading" role="status"><span class="catalog-spinner" aria-hidden="true"></span><b>Cargando servicios destacados</b><small>Consultando disponibilidad y precios actualizados.</small></div>';
     await akCatalogReady();
     const catIcons = {
       'reparacion-ecu': 'ecu', 'inmovilizadores': 'key', 'modulos': 'module',
@@ -227,6 +228,9 @@
     ).join('');
 
     const top = [...CATALOG].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
+    if (!top.length) {
+      document.getElementById('destacados-grid').innerHTML = '<div class="empty-state"><h3>Servicios temporalmente no disponibles</h3><p>Puedes consultar el catálogo completo o contactar con nosotros mientras recuperamos la conexión.</p><a class="btn btn-primary" href="tienda.html">Reintentar en la tienda</a></div>';
+    } else {
     document.getElementById('destacados-grid').innerHTML = top.map((p) =>
       '<article class="product-card">' +
         '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.stock === 'encargo' ? '<span class="tag-encargo">Bajo pedido</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
@@ -241,6 +245,7 @@
         '</div>' +
       '</article>'
     ).join('');
+    }
 
     document.getElementById('steps-grid').innerHTML = GENERIC_PROCESS.map((s, i) =>
       '<div class="step"><div class="num">0' + (i + 1) + '</div><h3>' + s.title + '</h3><p>' + s.desc + '</p></div>'
