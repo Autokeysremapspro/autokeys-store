@@ -80,6 +80,15 @@
     if (!iso) return '';
     return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   }
+  const BLOG_COVER_BY_SLUG = {
+    'perdida-total-de-llaves-de-coche-que-hacer-cuando-no-queda-ninguna': '/assets/img/blog/perdida-total-llaves.webp',
+    'clonacion-de-centralitas-ecu-cuando-es-necesaria-y-como-funciona': '/assets/img/blog/clonacion-centralitas-ecu.webp',
+    'mercedes-ezs-elv-que-es-y-como-se-soluciona-un-fallo-de-arranque': '/assets/img/blog/mercedes-ezs-elv.webp',
+  };
+  function blogCover(post) {
+    const src = post.imagen_url || BLOG_COVER_BY_SLUG[post.slug] || '';
+    return src && !/^https?:\/\//i.test(src) ? '/' + src.replace(/^\//, '') : src;
+  }
   async function loadPosts() {
     const { data, error } = await akSupabase()
       .from('tienda_blog_posts')
@@ -91,17 +100,19 @@
       grid.insertAdjacentHTML('afterend', '<div class="blog-empty">' + akIcon('file') + '<p style="margin-top:10px">Todavía no hay artículos publicados. Vuelve pronto.</p></div>');
       return;
     }
-    grid.innerHTML = data.map((p) =>
+    grid.innerHTML = data.map((p) => {
+      const image = blogCover(p);
+      return (
       '<a class="blog-card" href="/guias/' + encodeURIComponent(p.slug) + '">' +
-        '<div class="blog-card-media">' + (p.imagen_url ? '<img src="' + p.imagen_url + '" alt="' + akEscapeHtml(p.titulo) + '" loading="lazy">' : '<div style="display:grid;place-items:center;height:100%;color:#54545c">' + akIcon('file') + '</div>') + '</div>' +
+        '<div class="blog-card-media">' + (image ? '<img src="' + image + '" alt="' + akEscapeHtml(p.titulo) + '" loading="lazy">' : '<div style="display:grid;place-items:center;height:100%;color:#54545c">' + akIcon('file') + '</div>') + '</div>' +
         '<div class="blog-card-body">' +
           (p.categoria ? '<span class="blog-cat">' + akEscapeHtml(p.categoria) + '</span>' : '') +
           '<h3>' + akEscapeHtml(p.titulo) + '</h3>' +
           '<p>' + akEscapeHtml(p.resumen || '') + '</p>' +
           '<div class="blog-meta">' + akIcon('calendar') + '<span>' + formatFecha(p.publicado_en) + '</span></div>' +
         '</div>' +
-      '</a>'
-    ).join('');
+      '</a>');
+    }).join('');
   }
   document.addEventListener('DOMContentLoaded', loadPosts);
 </script>
