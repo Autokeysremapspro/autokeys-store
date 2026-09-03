@@ -69,7 +69,7 @@
       const topbarItems = document.querySelectorAll('.topbar .tb-item');
       if (topbarItems[1]) {
         const span = topbarItems[1].querySelector('span');
-        if (span) span.textContent = 'Atención técnica L-V · 09:00–15:00';
+        if (span) span.textContent = 'Atención técnica L-V · 09:00–14:00 · 16:00–20:30';
       }
       if (topbarItems[2]) {
         const span = topbarItems[2].querySelector('span');
@@ -97,7 +97,7 @@
       }
 
       document.querySelectorAll('.contact-list li span').forEach((span) => {
-        if (/Lun\s*-\s*Dom/i.test(span.textContent || '')) span.textContent = 'Lun - Vie · 09:00 - 15:00';
+        if (/Lun\s*-\s*Dom/i.test(span.textContent || '')) span.textContent = 'Lun - Vie · 09:00–14:00 · 16:00–20:30';
       });
 
       const quickLinks = Array.from(document.querySelectorAll('.site-footer a'));
