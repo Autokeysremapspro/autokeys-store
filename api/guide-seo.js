@@ -1,6 +1,11 @@
 const SITE = 'https://www.autokeysremapspro.es';
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
+const BLOG_COVER_BY_SLUG = {
+  'perdida-total-de-llaves-de-coche-que-hacer-cuando-no-queda-ninguna': '/assets/img/blog/perdida-total-llaves.webp',
+  'clonacion-de-centralitas-ecu-cuando-es-necesaria-y-como-funciona': '/assets/img/blog/clonacion-centralitas-ecu.webp',
+  'mercedes-ezs-elv-que-es-y-como-se-soluciona-un-fallo-de-arranque': '/assets/img/blog/mercedes-ezs-elv.webp',
+};
 
 function serviceKey() {
   return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
@@ -67,7 +72,8 @@ function seoTitle(value) {
   return clipAtWord(base, 60 - shortSuffix.length) + shortSuffix;
 }
 
-function absoluteImage(src) {
+function absoluteImage(src, slug) {
+  src = src || BLOG_COVER_BY_SLUG[slug];
   if (!src) return FALLBACK_IMAGE;
   return /^https?:\/\//i.test(src) ? src : `${SITE}/${String(src).replace(/^\//, '')}`;
 }
@@ -187,7 +193,7 @@ function renderPage(row) {
   const canonical = `${SITE}/guias/${row.slug}`;
   const title = seoTitle(row.meta_title || row.titulo);
   const description = clipAtWord(row.meta_description || row.resumen || row.contenido || '', 155);
-  const image = absoluteImage(row.imagen_url);
+  const image = absoluteImage(row.imagen_url, row.slug);
   const articleTitle = plainText(row.titulo);
   const summary = plainText(row.resumen || '');
   const articleHtml = safeArticleHtml(row.contenido || '');
@@ -252,7 +258,7 @@ function renderPage(row) {
   <div class="eyebrow">${esc(category)}</div>
   <h1>${esc(articleTitle)}</h1>
   <div class="blog-meta">${published ? `<span>Publicado ${esc(published)}</span>` : ''}${modified && modified !== published ? `<span> · Actualizado ${esc(modified)}</span>` : ''}</div>
-  ${row.imagen_url ? `<img class="blog-post-hero" src="${esc(image)}" alt="${esc(articleTitle)}" loading="eager">` : ''}
+  ${image !== FALLBACK_IMAGE ? `<img class="blog-post-hero" src="${esc(image)}" alt="${esc(articleTitle)}" loading="eager">` : ''}
   ${summary ? `<p class="lead">${esc(summary)}</p>` : ''}
   <div class="blog-post-body">${articleHtml}</div>
   <div class="blog-post-cta"><div><b>¿Necesitas ayuda con este sistema?</b><p>Cuéntanos el caso y revisaremos qué servicio o unidad necesitamos.</p></div><a class="btn btn-primary" href="/enviar-reparacion.html">Solicitar valoración</a></div>
