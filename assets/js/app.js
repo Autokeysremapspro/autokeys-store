@@ -212,7 +212,7 @@ function akFooterHTML() {
         '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es</span></a></li>' +
         '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
-        '<li>' + akIcon('clock') + '<span>L-V · 09:00-15:00 · Cita previa</span></li>' +
+        '<li>' + akIcon('clock') + '<span>L-V · 09:00–14:00 · 16:00–20:30 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +
