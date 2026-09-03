@@ -53,12 +53,22 @@
     return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
+  const BLOG_COVER_BY_SLUG = {
+    'perdida-total-de-llaves-de-coche-que-hacer-cuando-no-queda-ninguna': '/assets/img/blog/perdida-total-llaves.webp',
+    'clonacion-de-centralitas-ecu-cuando-es-necesaria-y-como-funciona': '/assets/img/blog/clonacion-centralitas-ecu.webp',
+    'mercedes-ezs-elv-que-es-y-como-se-soluciona-un-fallo-de-arranque': '/assets/img/blog/mercedes-ezs-elv.webp',
+  };
+  function blogCover(post) {
+    const src = post.imagen_url || BLOG_COVER_BY_SLUG[post.slug] || '';
+    return src && !/^https?:\/\//i.test(src) ? '/' + src.replace(/^\//, '') : src;
+  }
+
   function setSeo(post) {
     const url = 'https://www.autokeysremapspro.es/guias/' + encodeURIComponent(post.slug);
     const rawTitle = post.meta_title || post.titulo;
     const title = /autokeys remaps pro/i.test(rawTitle) ? rawTitle : rawTitle + ' | Autokeys Remaps Pro';
     const desc = post.meta_description || post.resumen || '';
-    const img = post.imagen_url || 'https://www.autokeysremapspro.es/assets/img/logo.png';
+    const img = blogCover(post) || 'https://www.autokeysremapspro.es/assets/img/logo.png';
     document.getElementById('page-title').textContent = title;
     document.getElementById('meta-description').setAttribute('content', desc);
     document.getElementById('link-canonical').setAttribute('href', url);
@@ -102,7 +112,7 @@
       '<div class="eyebrow">' + akEscapeHtml(post.categoria || 'BLOG') + '</div>' +
       '<h1>' + akEscapeHtml(post.titulo) + '</h1>' +
       '<div class="blog-meta"><span>Por ' + akEscapeHtml(post.autor || 'Autokeys Remaps Pro') + '</span><span>·</span>' + akIcon('calendar') + '<span>' + formatFecha(post.publicado_en) + '</span></div>' +
-      (post.imagen_url ? '<img class="blog-post-hero" src="' + post.imagen_url + '" alt="' + akEscapeHtml(post.titulo) + '">' : '') +
+      (blogCover(post) ? '<img class="blog-post-hero" src="' + blogCover(post) + '" alt="' + akEscapeHtml(post.titulo) + '">' : '') +
       '<div class="blog-post-body">' + post.contenido + '</div>' +
       '<div class="blog-post-cta">' +
         '<div><b style="display:block;margin-bottom:4px">¿Necesitas este servicio?</b><span style="color:var(--muted);font-size:13px">Consulta precio y plazos con nuestro equipo técnico.</span></div>' +
