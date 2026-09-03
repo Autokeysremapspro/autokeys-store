@@ -2,9 +2,9 @@ const SITE = 'https://www.autokeysremapspro.es';
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 const BLOG_COVER_BY_SLUG = {
-  'perdida-total-de-llaves-de-coche-que-hacer-cuando-no-queda-ninguna': '/assets/img/blog/perdida-total-llaves.webp',
-  'clonacion-de-centralitas-ecu-cuando-es-necesaria-y-como-funciona': '/assets/img/blog/clonacion-centralitas-ecu.webp',
-  'mercedes-ezs-elv-que-es-y-como-se-soluciona-un-fallo-de-arranque': '/assets/img/blog/mercedes-ezs-elv.webp',
+  'perdida-total-llaves-coche-que-hacer': '/assets/img/blog/perdida-total-llaves.webp',
+  'clonacion-centralitas-ecu-cuando-es-necesaria': '/assets/img/blog/clonacion-centralitas-ecu.webp',
+  'mercedes-ezs-elv-fallo-arranque-solucion': '/assets/img/blog/mercedes-ezs-elv.webp',
 };
 
 function serviceKey() {
