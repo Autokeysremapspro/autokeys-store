@@ -171,8 +171,8 @@
     </div>
     <div class="product-grid" id="destacados-grid">
       <article class="product-card">
-        <div class="product-media hex-overlay"><span class="tag">SERVICIO ESPECIALIZADO</span><img class="pm-photo" src="assets/img/products/bosch-edc17cp54.jpg" alt="Recuperación profesional de centralitas ECU" loading="eager"></div>
-        <div class="product-body"><div class="product-cat">Reparación ECU</div><h3>Recuperación de centralitas ECU</h3><p>Diagnóstico, acceso en banco y recuperación de datos cuando es técnicamente posible.</p><div class="product-price-row"><div class="price-block"><small>VALORACIÓN</small><b>Previa</b></div><a class="btn btn-primary btn-sm" href="/servicios/recuperacion-bosch-edc17cp54">Ver servicio</a></div></div>
+        <div class="product-media hex-overlay"><span class="tag">DIAGNÓSTICO PROFESIONAL</span><img class="pm-photo" src="assets/img/products/reparacion-electronica-ecu-pcm.jpg" alt="Diagnóstico y reparación electrónica de ECU" loading="eager"></div>
+        <div class="product-body"><div class="product-cat">Reparación ECU</div><h3>Diagnóstico y reparación ECU / PCM</h3><p>Comprobamos la centralita y te damos presupuesto antes de realizar la reparación.</p><div class="product-price-row"><div class="price-block"><small>DESDE</small><b>79 €</b></div><a class="btn btn-primary btn-sm" href="/servicios/reparacion-electronica-ecu-pcm">Ver servicio</a></div></div>
       </article>
       <article class="product-card">
         <div class="product-media hex-overlay"><span class="tag">BAJO REFERENCIA</span><img class="pm-photo" src="assets/img/products/immo-off-ecu.jpg" alt="Servicio de IMMO y virginización de ECU" loading="eager"></div>
@@ -260,7 +260,9 @@
     if (!top.length) {
       document.getElementById('destacados-grid').innerHTML = '<div class="empty-state"><h3>Servicios temporalmente no disponibles</h3><p>Puedes consultar el catálogo completo o contactar con nosotros mientras recuperamos la conexión.</p><a class="btn btn-primary" href="tienda.html">Reintentar en la tienda</a></div>';
     } else {
-    document.getElementById('destacados-grid').innerHTML = top.map((p) =>
+    document.getElementById('destacados-grid').innerHTML = top.map((p) => {
+      const price = akCatalogPricePresentation(p);
+      return (
       '<article class="product-card">' +
         '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.stock === 'encargo' ? '<span class="tag-encargo">Bajo pedido</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
@@ -268,12 +270,12 @@
           '<h3>' + p.name + '</h3>' +
           '<p>' + p.shortDesc + '</p>' +
           '<div class="product-price-row">' +
-            '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : p.isProduct ? 'DESDE' : 'VALORACIÓN') + '</small><b>' + (p.digitalFree ? 'Gratis' : p.isProduct ? akFormatPrice(p.priceFrom) : 'Previa') + '</b></div>' +
+            '<div class="price-block"><small>' + price.label + '</small><b>' + price.value + '</b></div>' +
             '<a class="btn btn-primary btn-sm" href="' + akCatalogItemUrl(p) + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
           '</div>' +
         '</div>' +
-      '</article>'
-    ).join('');
+      '</article>');
+    }).join('');
     }
 
     document.getElementById('steps-grid').innerHTML = GENERIC_PROCESS.map((s, i) =>

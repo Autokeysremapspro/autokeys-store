@@ -130,6 +130,18 @@ function akStockUrgencia(product) {
   return null;
 }
 
+/* Los servicios con una opción de entrada asequible muestran el importe real
+   para reducir incertidumbre. Los trabajos complejos mantienen valoración
+   previa porque su alcance depende del estado de la unidad. */
+function akCatalogPricePresentation(product) {
+  if (product.digitalFree) return { label: 'DESCARGA', value: 'Gratis' };
+  if (product.isProduct) return { label: 'DESDE', value: akFormatPrice(product.priceFrom) };
+  if (product.priceFrom > 0 && product.priceFrom <= 199) {
+    return { label: 'DESDE', value: akFormatPrice(product.priceFrom) };
+  }
+  return { label: 'VALORACIÓN', value: 'Previa' };
+}
+
 function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
   const valoracion = (valoracionesByProducto || {})[row.id];
   const rawVariants = (variantesByProducto && variantesByProducto[row.id]) || [];
@@ -197,7 +209,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 }
 
 let _akCatalogPromise = null;
-const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v2';
+const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v3';
 const AK_CATALOG_CACHE_TTL = 15 * 60 * 1000;
 const AK_CATALOG_STALE_TTL = 24 * 60 * 60 * 1000;
 
