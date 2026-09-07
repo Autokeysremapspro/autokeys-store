@@ -158,7 +158,9 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
     brand: row.brand_id,
     type: row.type,
     icon: row.icon,
-    image: row.image,
+    image: row.id === 'reparacion-bmw-frm' && /bmw-fem-bdc/i.test(row.image || '')
+      ? 'assets/img/products/reparacion-electronica-ecu-pcm.jpg'
+      : row.image,
     images: row.images || [],
     badge: row.badge,
     priceFrom: Number(row.price_from) || 0,
@@ -197,6 +199,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 let _akCatalogPromise = null;
 const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v2';
 const AK_CATALOG_CACHE_TTL = 15 * 60 * 1000;
+const AK_CATALOG_STALE_TTL = 24 * 60 * 60 * 1000;
 
 function akApplyCatalogPayload(payload) {
   if (!payload || !Array.isArray(payload.products)) return false;
@@ -215,11 +218,14 @@ function akApplyCatalogPayload(payload) {
   return CATALOG.length > 0;
 }
 
-function akReadCatalogCache() {
+function akReadCatalogCache(allowStale) {
   try {
     const cached = JSON.parse(localStorage.getItem(AK_CATALOG_CACHE_KEY) || 'null');
-    if (!cached || !cached.savedAt || Date.now() - cached.savedAt > AK_CATALOG_CACHE_TTL) return null;
-    return cached.payload || null;
+    if (!cached || !cached.savedAt) return null;
+    const age = Date.now() - cached.savedAt;
+    const maxAge = allowStale ? AK_CATALOG_STALE_TTL : AK_CATALOG_CACHE_TTL;
+    if (age > maxAge) return null;
+    return { payload: cached.payload || null, stale: age > AK_CATALOG_CACHE_TTL };
   } catch (_) {
     return null;
   }
@@ -287,24 +293,23 @@ async function akWaitForSupabase() {
 function akCatalogReady() {
   if (!_akCatalogPromise) {
     _akCatalogPromise = (async () => {
-      const cached = akReadCatalogCache();
-      if (cached && akApplyCatalogPayload(cached)) return;
-
-      try {
-        const payload = await akFetchCatalogEndpoint();
-        if (!akApplyCatalogPayload(payload)) throw new Error('catalogo_vacio');
-        akWriteCatalogCache(payload);
+      const cached = akReadCatalogCache(true);
+      if (cached && akApplyCatalogPayload(cached.payload)) {
+        if (cached.stale) {
+          Promise.any([akFetchCatalogEndpoint(), akFetchCatalogDirect()])
+            .then((payload) => { if (akApplyCatalogPayload(payload)) akWriteCatalogCache(payload); })
+            .catch(() => {});
+        }
         return;
-      } catch (endpointError) {
-        console.warn('Ruta rápida del catálogo no disponible; usando conexión directa.', endpointError);
       }
 
       try {
-        const payload = await akFetchCatalogDirect();
+        const payload = await Promise.any([akFetchCatalogEndpoint(), akFetchCatalogDirect()]);
         if (!akApplyCatalogPayload(payload)) throw new Error('catalogo_vacio');
         akWriteCatalogCache(payload);
-      } catch (directError) {
-        console.error('No se pudo cargar el catálogo:', directError);
+        return;
+      } catch (catalogError) {
+        console.error('No se pudo cargar el catálogo:', catalogError);
       }
     })();
   }
@@ -321,6 +326,11 @@ function akFindCategory(id) {
 
 function akFindBrand(id) {
   return BRANDS.find((b) => b.id === id) || null;
+}
+
+function akCatalogItemUrl(product) {
+  if (!product) return 'tienda.html';
+  return '/' + (product.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(product.id);
 }
 
 function akFormatPrice(n) {

@@ -206,6 +206,7 @@
 
   function renderBuybox() {
     const box = document.getElementById('buybox');
+    const helpUrl = 'https://wa.me/34632982646?text=' + encodeURIComponent('Hola, quiero comprobar la compatibilidad para ' + product.name + '. Referencia de la unidad: ');
     box.innerHTML =
       '<div class="eyebrow">' + (product.isDigital ? 'PRODUCTO DIGITAL' : product.isProduct ? 'PRODUCTO' : 'SERVICIO DE REPARACIÓN') + '</div>' +
       '<div class="price-big" id="price-big">' + (product.digitalFree ? 'Gratis' : akFormatPrice(selectedVariant.price)) + '</div>' +
@@ -238,11 +239,13 @@
             '<div class="field"><label for="pb-ref-vehiculo">Referencia vehículo (opcional)</label><input type="text" id="pb-ref-vehiculo" maxlength="150" placeholder="Ej. 03L 906 022 AB"></div>' +
             '<div class="field full"><label for="pb-problema">Describe el problema</label><textarea id="pb-problema" maxlength="2000" placeholder="Cuéntanos qué le ocurre a tu vehículo o unidad"></textarea></div>' +
           '</div>') +
-      '<div style="display:flex;gap:8px;margin-top:18px">' +
-        '<button class="btn btn-primary btn-block" id="add-cart-btn">' + akIcon(product.digitalFree ? 'download' : 'cart') + (product.digitalFree ? 'Descargar gratis' : 'Añadir al carrito') + '</button>' +
+      (!product.isProduct && !product.digitalFree ? '<div class="service-precheck"><b>¿No estás seguro del servicio?</b><span>Comprobamos la referencia y el caso antes de que contrates la reparación.</span></div>' : '') +
+      '<div class="product-actions">' +
+        (!product.isProduct && !product.digitalFree ? '<a class="btn btn-primary btn-block" href="' + helpUrl + '" target="_blank" rel="noopener">' + akIcon('headset') + 'Comprobar compatibilidad</a>' : '') +
+        '<button class="btn ' + (!product.isProduct && !product.digitalFree ? 'btn-secondary' : 'btn-primary') + ' btn-block" id="add-cart-btn">' + akIcon(product.digitalFree ? 'download' : 'cart') + (product.digitalFree ? 'Descargar gratis' : product.isProduct ? 'Añadir al carrito' : 'Contratar directamente') + '</button>' +
         '<button class="btn btn-secondary" id="fav-btn" title="Guardar en favoritos" style="padding:0 14px;color:' + (isFavorito ? 'var(--red)' : '') + '">' + akIcon('heart') + '</button>' +
       '</div>' +
-      (!product.digitalFree ? '<a class="product-help-link" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, no sé qué opción elegir para ' + product.name + '. ¿Podéis revisar mi caso?') + '" target="_blank" rel="noopener">' + akIcon('headset') + '<span><b>No sé qué opción elegir</b><small>Cuéntanos tu caso por WhatsApp antes de comprar</small></span></a>' : '') +
+      (product.isProduct && !product.digitalFree ? '<a class="product-help-link" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, no sé qué opción elegir para ' + product.name + '. ¿Podéis revisar mi caso?') + '" target="_blank" rel="noopener">' + akIcon('headset') + '<span><b>No sé qué opción elegir</b><small>Cuéntanos tu caso por WhatsApp antes de comprar</small></span></a>' : '') +
       '<ul class="buybox-trust">' +
         '<li>' + akIcon('lock') + (product.isDigital ? 'Descarga protegida' : 'Pago 100% seguro') + '</li>' +
         '<li>' + akIcon('shield') + (product.warranty || 'Garantía según intervención') + '</li>' +
@@ -422,7 +425,7 @@
             (r.comentario ? '<p>' + akEscapeHtml(r.comentario) + '</p>' : '') +
           '</div>'
         ).join('')
-      : '<p style="color:var(--muted);font-size:13px">Todavía no hay reseñas de este producto. ¡Sé el primero en opinar!</p>';
+      : '<div class="review-proof-empty"><b>Consulta trabajos reales de Autokeys</b><p>Aún no hay una reseña específica de este servicio, pero puedes ver reparaciones y procesos ya documentados.</p><a class="btn btn-secondary btn-sm" href="/casos-reales.html">Ver casos reales</a></div>';
 
     const formHtml = pedidoElegible
       ? '<div class="resena-form">' +
@@ -479,6 +482,8 @@
   }
 
   function renderSeo() {
+    const serverSchema = document.getElementById('ld-server');
+    if (serverSchema) serverSchema.remove();
     const url = 'https://www.autokeysremapspro.es/' + (product.isProduct ? 'productos/' : 'servicios/') + product.id;
     const desc = (product.shortDesc || '').slice(0, 160);
     const title = product.name + ' — Autokeys Remaps Pro Store';

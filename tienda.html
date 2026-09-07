@@ -170,18 +170,18 @@
       '<h4 id="filter-brand-label">MARCA</h4>' +
       '<select class="filter-select" data-role="brand" aria-labelledby="filter-brand-label">' +
         '<option value="all">Todas las marcas</option>' +
-        BRANDS.map((b) => '<option value="' + b.id + '" ' + (state.brand === b.id ? 'selected' : '') + '>' + b.label + '</option>').join('') +
+        BRANDS.filter((b) => b.id !== 'all' && !/^todas las marcas$/i.test(b.label || '')).map((b) => '<option value="' + b.id + '" ' + (state.brand === b.id ? 'selected' : '') + '>' + b.label + '</option>').join('') +
       '</select>' +
-      '<h4>TIPO DE SERVICIO</h4><div class="filter-group">' +
-        SERVICE_TYPES.map((t) =>
+      (state.segment === 'servicios' ? '<h4>TIPO DE SERVICIO</h4><div class="filter-group">' +
+        SERVICE_TYPES.filter((t) => (c.types[t.id] || 0) > 0).map((t) =>
           '<label class="' + (state.types.has(t.id) ? 'active' : '') + '"><input type="checkbox" data-role="type" value="' + t.id + '" ' + (state.types.has(t.id) ? 'checked' : '') + '>' + t.label + '<span class="count">' + (c.types[t.id] || 0) + '</span></label>'
         ).join('') +
-      '</div>' +
+      '</div>' : '') +
       '<h4 id="filter-price-label">RANGO DE PRECIO</h4>' +
       '<input type="range" min="0" max="' + MAX_PRICE + '" value="' + state.maxPrice + '" data-role="price" aria-labelledby="filter-price-label" aria-valuetext="hasta €' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '') + '">' +
       '<div class="range-labels"><span>€0</span><span id="price-label">€' + state.maxPrice + (state.maxPrice >= MAX_PRICE ? '+' : '') + '</span></div>' +
       '<h4>DISPONIBILIDAD</h4><div class="filter-group">' +
-        Object.keys(stockLabels).map((s) =>
+        Object.keys(stockLabels).filter((s) => (c.stock[s] || 0) > 0).map((s) =>
           '<label class="' + (state.stock.has(s) ? 'active' : '') + '"><input type="checkbox" data-role="stock" value="' + s + '" ' + (state.stock.has(s) ? 'checked' : '') + '>' + stockLabels[s] + '<span class="count">' + (c.stock[s] || 0) + '</span></label>'
         ).join('') +
       '</div>' +
@@ -238,8 +238,8 @@
           (akStarsHtml(p.rating, p.ratingCount) ? '<div>' + akStarsHtml(p.rating, p.ratingCount) + '</div>' : '') +
           '<p>' + p.features.slice(0, 3).map((f) => '<span style="display:flex;align-items:center;gap:6px;margin-bottom:3px">' + akIcon('check') + f + '</span>').join('') + '</p>' +
           '<div class="product-price-row">' +
-            '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : 'DESDE') + '</small><b>' + (p.digitalFree ? 'Gratis' : akFormatPrice(p.priceFrom)) + '</b></div>' +
-            '<a class="btn btn-primary btn-sm" href="producto.html?id=' + p.id + '">' + (p.isProduct ? 'Ver producto' : 'Ver servicio') + '</a>' +
+            '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : p.isProduct ? 'DESDE' : 'VALORACIÓN') + '</small><b>' + (p.digitalFree ? 'Gratis' : p.isProduct ? akFormatPrice(p.priceFrom) : 'Previa') + '</b></div>' +
+            '<a class="btn btn-primary btn-sm" href="' + akCatalogItemUrl(p) + '">' + (p.isProduct ? 'Ver producto' : 'Ver servicio') + '</a>' +
           '</div>' +
         '</div>' +
       '</article>'
