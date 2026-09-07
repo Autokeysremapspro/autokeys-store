@@ -39,7 +39,7 @@
     document.getElementById('send-items').innerHTML = SEND_ITEMS.map((label, i) =>
       '<label><input type="checkbox" value="' + label + '"' + (i === 0 ? ' checked' : '') + '><span>' + label + '</span></label>'
     ).join('');
-    restoreDraft(); wireEvents(); applyUrlIntent(); await Promise.all([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
+    restoreDraft(); wireEvents(); applyUrlIntent(); await Promise.allSettled([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
   }
 
   function applyUrlIntent() {
@@ -68,14 +68,14 @@
   function wireEvents() {
     document.querySelectorAll('[data-unit]').forEach((btn) => btn.addEventListener('click', () => selectUnit(btn.dataset.unit)));
     document.getElementById('next-step').addEventListener('click', nextStep);
-    document.getElementById('prev-step').addEventListener('click', () => { step--; showStep(); window.scrollTo({ top: 140, behavior: 'smooth' }); });
+    document.getElementById('prev-step').addEventListener('click', () => { step = Math.max(1, step - 1); showStep(); window.scrollTo({ top: 140, behavior: 'smooth' }); });
     document.getElementById('repair-request-form').addEventListener('submit', submitRequest);
     document.getElementById('averia').addEventListener('input', updateCount);
     document.getElementById('archivos').addEventListener('change', renderFiles);
     document.querySelectorAll('input[name="metodo_envio"]').forEach((radio) => radio.addEventListener('change', togglePickup));
     document.getElementById('peso-recogida').addEventListener('input', updatePickupQuote);
     document.getElementById('cp').addEventListener('input', updatePickupQuote);
-    document.querySelectorAll('#repair-request-form input,#repair-request-form select,#repair-request-form textarea').forEach((el) => el.addEventListener('change', saveDraft));
+    document.querySelectorAll('#repair-request-form input,#repair-request-form select,#repair-request-form textarea').forEach((el) => el.addEventListener('input', saveDraft));
     document.querySelectorAll('.method-card').forEach((card) => card.addEventListener('click', () => {
       document.querySelectorAll('.method-card').forEach((x) => x.classList.remove('active')); card.classList.add('active');
     }));
@@ -108,7 +108,7 @@
   }
 
   function nextStep() {
-    if (!validateStep(step)) return;
+    if (step >= 3 || !validateStep(step)) return;
     if (typeof akTrack === 'function') akTrack('repair_step', { carrito: false, metadata: { label: 'paso_' + step + '_completado' } });
     saveDraft(); step++; showStep(); window.scrollTo({ top: 140, behavior: 'smooth' });
   }
@@ -169,15 +169,15 @@
   }
 
   function saveDraft() {
-    const draft = { selectedUnit, fields: {}, sendItems: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodoEnvio: shippingMethod() };
+    const draft = { savedAt: Date.now(), selectedUnit, fields: {}, sendItems: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodoEnvio: shippingMethod() };
     IDS.forEach((id) => { const el = document.getElementById(id); if (el) draft.fields[id] = el.value; });
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (_) {}
   }
 
   function restoreDraft() {
     try {
-      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (!draft) return;
-      if (draft.selectedUnit) selectUnit(draft.selectedUnit);
+      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (!draft || (draft.savedAt && Date.now() - draft.savedAt > 7 * 86400000)) return;
+      if (draft.selectedUnit && WORKS[draft.selectedUnit]) selectUnit(draft.selectedUnit);
       Object.entries(draft.fields || {}).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
       if (draft.selectedUnit && draft.fields && draft.fields.trabajo) document.getElementById('trabajo').value = draft.fields.trabajo;
       if (draft.sendItems) document.querySelectorAll('#send-items input').forEach((x) => { x.checked = draft.sendItems.includes(x.value); });
@@ -188,6 +188,7 @@
 
   async function loadSession() {
     const { data: { session } } = await akSupabase().auth.getSession(); const notice = document.getElementById('auth-notice');
+    document.getElementById('archivos').disabled = !session;
     if (!session) { notice.hidden = false; notice.innerHTML = akIcon('check') + '<span><b>No necesitas crear una cuenta.</b> Enviaremos la confirmación y el número de solicitud a tu email. Si ya tienes cuenta, puedes iniciar sesión para asociarla a tu historial y adjuntar archivos.</span>'; return; }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social,direccion,codigo_postal,ciudad,provincia').eq('id', session.user.id).maybeSingle();
     if (profile) {
@@ -212,8 +213,11 @@
 
   async function submitRequest(e) {
     e.preventDefault();
+    if (step !== 3) { nextStep(); return; }
+    if (!validateStep(1)) { step = 1; showStep(); return; }
     if (!validateStep(3) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
-    const { data: { session } } = await akSupabase().auth.getSession();
+    let session = null;
+    try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {}
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
     const quote = pickupQuote();
     const payload = {
@@ -252,7 +256,8 @@
     }
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     document.getElementById('request-shell').hidden = true; const success = document.getElementById('request-success'); success.hidden = false;
-    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + request.numero + '</h2><p>La solicitud ya está en nuestro panel. ' + (request.email_enviado ? 'También hemos enviado la referencia a tu email. ' : 'Guarda el número que aparece arriba. ') + 'No envíes la unidad hasta recibir nuestras indicaciones.</p>' + (uploadWarning ? '<div class="request-notice warning">La solicitud está creada. Los archivos no se adjuntaron; te los pediremos después si son necesarios.</div>' : '') + '<div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos los datos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Recibes instrucciones y dirección o propuesta de recogida.</span></div><div class="btn-row">' + (session ? '<a class="btn btn-primary" href="cuenta.html">Ver mi cuenta</a>' : '<a class="btn btn-primary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de enviar la solicitud ' + request.numero) + '" target="_blank" rel="noopener">Continuar por WhatsApp</a>') + '<a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
+    const portalHref = request.seguimiento_token ? 'mi-solicitud.html#token=' + encodeURIComponent(request.seguimiento_token) : '';
+    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + request.numero + '</h2><p>La solicitud ya está en nuestro panel. ' + (request.email_enviado ? 'También hemos enviado la referencia y el acceso privado a tu email. ' : 'Guarda el número y el enlace privado que aparecen aquí. ') + 'No envíes la unidad hasta recibir nuestras indicaciones.</p>' + (uploadWarning ? '<div class="request-notice warning">La solicitud está creada. Los archivos no se adjuntaron; te los pediremos después si son necesarios.</div>' : '') + '<div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos los datos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Podrás consultar el estado, aceptar el presupuesto y pagar desde tu enlace privado.</span></div><div class="btn-row">' + (portalHref ? '<a class="btn btn-primary" href="' + portalHref + '">Ver mi solicitud</a>' : '') + '<a class="btn btn-secondary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de enviar la solicitud ' + request.numero) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
     window.scrollTo({ top: 120, behavior: 'smooth' });
   }
 })();
