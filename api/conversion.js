@@ -59,6 +59,8 @@ function cleanMetadata(input) {
     utm_content: 180,
     utm_term: 180,
     referrer_host: 180,
+    cta: 120,
+    label: 120,
   };
   Object.entries(limits).forEach(([key, max]) => {
     const value = String(input[key] || '').trim();

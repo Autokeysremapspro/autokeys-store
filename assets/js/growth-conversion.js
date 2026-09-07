@@ -278,7 +278,7 @@
   function enhanceProductTrust() {
     if (!/^\/(?:servicios|productos)\//i.test(location.pathname) || document.getElementById('growth-product-trust')) return;
     const article = document.querySelector('article.seo-server-content, #detail-root article, #detail-root');
-    if (!article) return;
+    if (!article || !article.children.length) return;
     const isProduct = /^\/productos\//i.test(location.pathname);
     const section = document.createElement('section');
     section.id = 'growth-product-trust';
@@ -298,6 +298,67 @@
     fillIcons(section);
   }
 
+  function conversionContext() {
+    const path = location.pathname.replace(/\/$/, '') || '/';
+    if (/carrito\.html$|login\.html$|cuenta\.html$|enviar-reparacion\.html$/i.test(path)) return null;
+    if (/^\/productos\//i.test(path)) {
+      return { eyebrow: '¿TIENES DUDAS?', text: 'Confirma compatibilidad antes de comprar', label: 'Consultar producto', icon: 'whatsapp', href: 'https://wa.me/34632982646?text=Hola%2C%20quiero%20confirmar%20la%20compatibilidad%20de%20un%20producto%20de%20Autokeys', key: 'sticky_product_whatsapp' };
+    }
+    if (/^\/servicios\//i.test(path) || SERVICE_PATHS[path]) {
+      return { eyebrow: 'REVISIÓN PREVIA', text: 'Cuéntanos el vehículo, la referencia y el fallo', label: 'Revisar mi caso', icon: 'file', href: '/enviar-reparacion.html', key: 'sticky_service_review' };
+    }
+    if (/tienda\.html$|^\/categorias\//i.test(path)) {
+      return { eyebrow: '¿NO SABES QUÉ ELEGIR?', text: 'Te orientamos antes de contratar o enviar nada', label: 'Cuéntanos el caso', icon: 'file', href: '/enviar-reparacion.html', key: 'sticky_catalog_review' };
+    }
+    return { eyebrow: 'PRIMERO REVISAMOS EL CASO', text: 'Respuesta técnica en horario laboral', label: 'Solicitar valoración', icon: 'file', href: '/enviar-reparacion.html', key: 'sticky_home_review' };
+  }
+
+  function addConversionDock() {
+    const context = conversionContext();
+    if (!context || document.getElementById('conversion-dock')) return;
+    const dock = document.createElement('aside');
+    dock.id = 'conversion-dock';
+    dock.className = 'conversion-dock';
+    dock.setAttribute('aria-label', 'Ayuda para continuar');
+    dock.innerHTML =
+      '<div class="conversion-dock-copy"><small>' + context.eyebrow + '</small><b>' + context.text + '</b></div>' +
+      '<a class="btn btn-primary" data-ak-cta="' + context.key + '" href="' + context.href + '"' + (/^https:/.test(context.href) ? ' target="_blank" rel="noopener"' : '') + '>' + icon(context.icon) + context.label + '</a>' +
+      '<button type="button" class="conversion-dock-close" aria-label="Cerrar ayuda">×</button>';
+    document.body.appendChild(dock);
+    const close = dock.querySelector('.conversion-dock-close');
+    close.addEventListener('click', () => {
+      dock.classList.add('is-hidden');
+      try { sessionStorage.setItem('ak_conversion_dock_closed', '1'); } catch (_) {}
+    });
+    try { if (sessionStorage.getItem('ak_conversion_dock_closed') === '1') dock.classList.add('is-hidden'); } catch (_) {}
+    fillIcons(dock);
+  }
+
+  function labelPrimaryActions() {
+    document.querySelectorAll('a[href*="enviar-reparacion"]').forEach((link) => {
+      if (!link.dataset.akCta) link.dataset.akCta = 'repair_review';
+    });
+    document.querySelectorAll('a[href^="https://wa.me/"]').forEach((link) => {
+      if (!link.dataset.akCta) link.dataset.akCta = 'whatsapp_general';
+    });
+    document.querySelectorAll('#add-cart-btn').forEach((button) => { button.dataset.akCta = 'direct_purchase'; });
+  }
+
+  function watchDynamicConversionUi() {
+    let queued = false;
+    const refresh = () => {
+      if (queued) return;
+      queued = true;
+      setTimeout(() => {
+        queued = false;
+        enhanceProductTrust();
+        labelPrimaryActions();
+      }, 80);
+    };
+    new MutationObserver(refresh).observe(document.body, { childList: true, subtree: true });
+    refresh();
+  }
+
   function init() {
     setupCleanInternalLinks();
     normalizeBrandConsistency();
@@ -306,6 +367,9 @@
     enhanceRepairForm();
     enhanceCheckoutGate();
     enhanceProductTrust();
+    addConversionDock();
+    labelPrimaryActions();
+    watchDynamicConversionUi();
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();

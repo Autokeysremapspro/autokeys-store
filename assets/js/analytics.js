@@ -155,7 +155,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
       valor: details.valor == null ? null : details.valor,
       carrito: details.carrito === false ? null : cartSnapshot(details.consentimiento_recordatorio),
       pedido_id: details.pedido_id || null,
-      metadata: visitAttribution(),
+      metadata: { ...visitAttribution(), ...(details.metadata || {}) },
     };
     fetch('/api/conversion', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
   };
@@ -174,7 +174,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
     if (!link) return;
     const href = String(link.getAttribute('href') || '').trim();
     if (/^https?:\/\/(?:wa\.me|api\.whatsapp\.com)(?:\/|$)/i.test(href)) {
-      window.akTrack('whatsapp_click', { carrito: false });
+      window.akTrack('whatsapp_click', { carrito: false, metadata: { cta: link.dataset.akCta || 'whatsapp_link', label: (link.textContent || '').trim().slice(0, 80) } });
       return;
     }
     if (/^tel:/i.test(href)) {
@@ -182,7 +182,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
       return;
     }
     if (/(?:^|\/)enviar-reparacion\.html(?:[?#]|$)/i.test(href)) {
-      window.akTrack('repair_cta_click', { carrito: false });
+      window.akTrack('repair_cta_click', { carrito: false, metadata: { cta: link.dataset.akCta || 'repair_link', label: (link.textContent || '').trim().slice(0, 80) } });
     }
   }
 
