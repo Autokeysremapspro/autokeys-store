@@ -199,7 +199,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
     if (notice) {
       const checkGate = () => {
         const text = notice.textContent || '';
-        if (!notice.hidden && /iniciar sesión|crear una cuenta/i.test(text)) {
+        if (!notice.hidden && /Para enviarlo necesitarás iniciar sesión/i.test(text)) {
           trackOnce('repair_login_gate', 'repair_login_gate');
         }
       };

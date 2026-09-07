@@ -27,6 +27,7 @@
   let step = 1;
   let selectedUnit = '';
   let pickupRates = { ...PICKUP_DEFAULTS };
+  const openedAt = Date.now();
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -91,7 +92,7 @@
   }
 
   function renderProgress() {
-    const names = ['Unidad', 'Vehículo', 'Avería', 'Envío', 'Confirmación'];
+    const names = ['Tu caso', 'Datos opcionales', 'Contacto y envío'];
     document.getElementById('request-progress').innerHTML = names.map((name, i) =>
       '<div class="' + (i + 1 < step ? 'done' : i + 1 === step ? 'active' : '') + '"><span>' + (i + 1 < step ? akIcon('check') : i + 1) + '</span><b>' + name + '</b></div>'
     ).join('');
@@ -100,22 +101,25 @@
   function showStep() {
     document.querySelectorAll('.request-step').forEach((s) => s.classList.toggle('active', Number(s.dataset.step) === step));
     document.getElementById('prev-step').hidden = step === 1;
-    document.getElementById('next-step').hidden = step === 5;
-    document.getElementById('submit-request').hidden = step !== 5;
-    if (step === 5) renderSummary();
+    document.getElementById('next-step').hidden = step === 3;
+    document.getElementById('submit-request').hidden = step !== 3;
+    if (step === 3) renderSummary();
     renderProgress();
   }
 
   function nextStep() {
     if (!validateStep(step)) return;
+    if (typeof akTrack === 'function') akTrack('repair_step', { carrito: false, metadata: { label: 'paso_' + step + '_completado' } });
     saveDraft(); step++; showStep(); window.scrollTo({ top: 140, behavior: 'smooth' });
   }
 
   function validateStep(n) {
-    if (n === 1 && (!selectedUnit || !document.getElementById('trabajo').value)) return fail('Selecciona la unidad y el trabajo que necesitas');
-    if (n === 2 && (!value('marca') || !value('modelo'))) return fail('Indica al menos la marca y el modelo del vehículo');
-    if (n === 3 && value('averia').length < 20) return fail('Describe la avería con al menos 20 caracteres');
-    if (n === 4) {
+    if (n === 1) {
+      if (!selectedUnit || !document.getElementById('trabajo').value) return fail('Selecciona la unidad y el trabajo que necesitas');
+      if (!value('marca') || !value('modelo')) return fail('Indica la marca y el modelo del vehículo');
+      if (value('averia').length < 20) return fail('Describe brevemente la avería con al menos 20 caracteres');
+    }
+    if (n === 3) {
       if (!document.querySelectorAll('#send-items input:checked').length) return fail('Indica qué elementos tienes previsto enviar');
       if (shippingMethod() === 'recogida_autokeys' && (!value('direccion') || !value('cp') || !value('poblacion') || !value('provincia'))) return fail('Completa la dirección de recogida');
     }
@@ -184,7 +188,7 @@
 
   async function loadSession() {
     const { data: { session } } = await akSupabase().auth.getSession(); const notice = document.getElementById('auth-notice');
-    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('user') + '<span><b>Puedes completar el formulario ahora.</b> Para enviarlo necesitarás iniciar sesión o crear una cuenta. Guardaremos el borrador.</span>'; return; }
+    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('check') + '<span><b>No necesitas crear una cuenta.</b> Enviaremos la confirmación y el número de solicitud a tu email. Si ya tienes cuenta, puedes iniciar sesión para asociarla a tu historial y adjuntar archivos.</span>'; return; }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social,direccion,codigo_postal,ciudad,provincia').eq('id', session.user.id).maybeSingle();
     if (profile) {
       if (!value('nombre')) document.getElementById('nombre').value = profile.razon_social || [profile.nombre, profile.apellidos].filter(Boolean).join(' ');
@@ -208,34 +212,47 @@
 
   async function submitRequest(e) {
     e.preventDefault();
-    if (!validateStep(4) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
+    if (!validateStep(3) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
     const { data: { session } } = await akSupabase().auth.getSession();
-    if (!session) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
     const quote = pickupQuote();
     const payload = {
-      cliente_id: session.user.id, tipo_cliente: value('tipo-cliente'), nombre: value('nombre'), email: value('email'), telefono: value('telefono'), tipo_unidad: selectedUnit, trabajo_solicitado: value('trabajo'), marca: value('marca'), modelo: value('modelo'), anio: value('anio') ? Number(value('anio')) : null,
+      website: value('website'), opened_at: openedAt, tipo_cliente: value('tipo-cliente'), nombre: value('nombre'), email: value('email'), telefono: value('telefono'), tipo_unidad: selectedUnit, trabajo_solicitado: value('trabajo'), marca: value('marca'), modelo: value('modelo'), anio: value('anio') ? Number(value('anio')) : null,
       motorizacion: value('motor') || null, matricula: value('matricula') || null, vin: value('vin') || null, referencia_modulo: value('referencia') || null, descripcion_averia: value('averia'), vehiculo_arranca: value('arranca') === '' ? null : value('arranca') === 'true', codigos_averia: value('dtcs') || null,
       manipulado_antes: value('manipulado') === 'true', elementos_envio: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodo_envio: shippingMethod(), direccion_recogida: shippingMethod() === 'recogida_autokeys' ? value('direccion') : null, codigo_postal: shippingMethod() === 'recogida_autokeys' ? value('cp') : null,
       poblacion: shippingMethod() === 'recogida_autokeys' ? value('poblacion') : null, provincia: shippingMethod() === 'recogida_autokeys' ? value('provincia') : null, persona_contacto_recogida: shippingMethod() === 'recogida_autokeys' ? value('contacto-recogida') || value('nombre') : null, telefono_recogida: shippingMethod() === 'recogida_autokeys' ? value('telefono') : null,
       peso_recogida_kg: shippingMethod() === 'recogida_autokeys' ? quote.weight : null, precio_recogida: shippingMethod() === 'recogida_autokeys' ? quote.price : null, tarifa_recogida_codigo: shippingMethod() === 'recogida_autokeys' ? quote.code : null,
       acepta_diagnostico: document.getElementById('acepta-diagnostico').checked, acepta_condiciones: document.getElementById('acepta-condiciones').checked, acepta_privacidad: document.getElementById('acepta-privacidad').checked,
     };
-    const { data: request, error } = await akSupabase().from('tienda_solicitudes_reparacion').insert(payload).select('id,numero').single();
-    if (error) { btn.disabled = false; btn.innerHTML = 'Enviar solicitud' + akIcon('check'); akToast('No se pudo crear la solicitud: ' + error.message); return; }
-    let uploadWarning = false;
-    for (const file of Array.from(document.getElementById('archivos').files || [])) {
-      const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-120);
-      const path = session.user.id + '/' + request.id + '/' + crypto.randomUUID() + '-' + safeName;
-      const { error: upError } = await akSupabase().storage.from('solicitudes-reparacion').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-      if (upError) { uploadWarning = true; continue; }
-      const { error: metaError } = await akSupabase().from('tienda_solicitud_reparacion_archivos').insert({ solicitud_id: request.id, cliente_id: session.user.id, nombre: file.name, storage_path: path, mime_type: file.type, size_bytes: file.size });
-      if (metaError) uploadWarning = true;
+    let response;
+    try {
+      response = await fetch('/api/solicitud-reparacion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(session ? { Authorization: 'Bearer ' + session.access_token } : {}) },
+        body: JSON.stringify(payload),
+      });
+    } catch (_) {
+      btn.disabled = false; btn.innerHTML = 'Solicitar valoración' + akIcon('check'); akToast('No se pudo conectar. Tu borrador sigue guardado.'); return;
     }
-    try { await fetch('/api/enviar-confirmacion-reparacion', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ solicitud_id: request.id }) }); } catch (_) {}
+    const request = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = response.status === 429 ? 'Ya hemos recibido varias solicitudes con este email. Escríbenos por WhatsApp si necesitas añadir información.' : 'No se pudo enviar la solicitud. Revisa los datos o inténtalo de nuevo.';
+      btn.disabled = false; btn.innerHTML = 'Solicitar valoración' + akIcon('check'); akToast(message); return;
+    }
+    let uploadWarning = !session && document.getElementById('archivos').files.length > 0;
+    if (session) {
+      for (const file of Array.from(document.getElementById('archivos').files || [])) {
+        const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-120);
+        const path = session.user.id + '/' + request.id + '/' + crypto.randomUUID() + '-' + safeName;
+        const { error: upError } = await akSupabase().storage.from('solicitudes-reparacion').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+        if (upError) { uploadWarning = true; continue; }
+        const { error: metaError } = await akSupabase().from('tienda_solicitud_reparacion_archivos').insert({ solicitud_id: request.id, cliente_id: session.user.id, nombre: file.name, storage_path: path, mime_type: file.type, size_bytes: file.size });
+        if (metaError) uploadWarning = true;
+      }
+    }
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     document.getElementById('request-shell').hidden = true; const success = document.getElementById('request-success'); success.hidden = false;
-    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + request.numero + '</h2><p>Ya aparece en nuestro panel de administración. Revisaremos el caso antes de que envíes ninguna unidad.</p>' + (uploadWarning ? '<div class="request-notice warning">Algunos archivos no pudieron adjuntarse. La solicitud está creada y te pediremos las imágenes si son necesarias.</div>' : '') + '<div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos los datos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Recibes instrucciones y dirección o propuesta de recogida.</span></div><div class="btn-row"><a class="btn btn-primary" href="cuenta.html">Ver mi cuenta</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
+    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + request.numero + '</h2><p>La solicitud ya está en nuestro panel. ' + (request.email_enviado ? 'También hemos enviado la referencia a tu email. ' : 'Guarda el número que aparece arriba. ') + 'No envíes la unidad hasta recibir nuestras indicaciones.</p>' + (uploadWarning ? '<div class="request-notice warning">La solicitud está creada. Los archivos no se adjuntaron; te los pediremos después si son necesarios.</div>' : '') + '<div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos los datos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Recibes instrucciones y dirección o propuesta de recogida.</span></div><div class="btn-row">' + (session ? '<a class="btn btn-primary" href="cuenta.html">Ver mi cuenta</a>' : '<a class="btn btn-primary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de enviar la solicitud ' + request.numero) + '" target="_blank" rel="noopener">Continuar por WhatsApp</a>') + '<a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
     window.scrollTo({ top: 120, behavior: 'smooth' });
   }
 })();

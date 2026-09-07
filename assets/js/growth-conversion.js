@@ -240,17 +240,7 @@
       typeSelect.value = requestedType;
       typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    if (!notice) return;
-    const update = () => {
-      const text = notice.textContent || '';
-      if (!notice.hidden && /Para enviarlo necesitarás iniciar sesión|crear una cuenta/i.test(text) && notice.dataset.akGrowth !== '1') {
-        notice.dataset.akGrowth = '1';
-        notice.innerHTML = icon('user') + '<span><b>Puedes completar todo el formulario sin registrarte.</b> Solo al enviarlo te pediremos iniciar sesión o crear una cuenta para guardar el expediente y que puedas consultar su estado. Tu borrador se conserva.</span>';
-        fillIcons(notice);
-      }
-    };
-    update();
-    new MutationObserver(update).observe(notice, { attributes: true, childList: true, subtree: true });
+    if (notice) fillIcons(notice);
   }
 
   function enhanceCheckoutGate() {
