@@ -13,6 +13,7 @@ const PUBLIC_FIELDS = [
   'marca', 'modelo', 'anio', 'motorizacion', 'metodo_envio', 'plazo_estimado',
   'presupuesto_total', 'presupuesto_detalle', 'presupuesto_aceptado_at',
   'presupuesto_lineas', 'presupuesto_validez_dias', 'presupuesto_observaciones',
+  'presupuesto_enviado_at',
   'pago_estado', 'pago_confirmado_at',
 ];
 

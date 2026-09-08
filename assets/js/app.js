@@ -127,6 +127,7 @@ function akHeaderHTML(active) {
         { href: '/reparacion-airbag-srs', label: 'Airbag / SRS' },
         { href: '/electronica-maquinaria-agricola-industrial.html', label: 'Maquinaria agrícola e industrial' },
         { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
+        { href: '/calculadora-reparacion.html', label: 'Valoración rápida online' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
@@ -200,6 +201,7 @@ function akFooterHTML() {
         '<li><a href="/electronica-maquinaria-agricola-industrial.html">Maquinaria agrícola e industrial</a></li>' +
         '<li><a href="/tienda.html">Tienda</a></li>' +
         '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
+        '<li><a href="/calculadora-reparacion.html">Valoración rápida online</a></li>' +
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
         '<li><a href="/blog.html">Blog</a></li>' +
         '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +

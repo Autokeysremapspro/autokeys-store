@@ -177,6 +177,9 @@
     { "source": "/reparacion-centralita-por-envio", "destination": "/api/seo-landing?slug=reparacion-centralita-por-envio" },
     { "source": "/reparacion-airbag-srs", "destination": "/api/seo-search-growth?slug=reparacion-airbag-srs" },
     { "source": "/reparacion-cuadro-instrumentos", "destination": "/api/seo-cluster" },
+    { "source": "/ecu-no-comunica", "destination": "/api/seo-problemas?slug=ecu-no-comunica" },
+    { "source": "/coche-no-arranca-despues-cambiar-centralita", "destination": "/api/seo-problemas?slug=coche-no-arranca-despues-cambiar-centralita" },
+    { "source": "/audi-j518-averiado", "destination": "/api/seo-problemas?slug=audi-j518-averiado" },
 
     { "source": "/servicios/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },
     { "source": "/productos/:slug", "destination": "/api/seo-health?kind=product&slug=:slug" },

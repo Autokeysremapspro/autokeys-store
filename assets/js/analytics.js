@@ -189,11 +189,18 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
   function setupRepairFunnelTracking() {
     const form = document.getElementById('repair-request-form');
     if (!form) return;
+    let started = false;
+    let completed = false;
     form.addEventListener('click', (event) => {
       if (event.target && event.target.closest && event.target.closest('[data-unit]')) {
+        started = true;
         trackOnce('repair_form_start', 'repair_form_start');
       }
     }, true);
+    form.addEventListener('submit', () => { completed = true; });
+    window.addEventListener('pagehide', () => {
+      if (started && !completed) window.akTrack('repair_form_abandon', { carrito: false });
+    });
 
     const notice = document.getElementById('auth-notice');
     if (notice) {

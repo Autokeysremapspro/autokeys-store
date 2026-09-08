@@ -5,6 +5,7 @@ const EVENTOS = new Set([
   'view_cart', 'begin_checkout', 'order_created', 'purchase', 'repair_request',
   'whatsapp_click', 'phone_click', 'repair_cta_click',
   'repair_form_start', 'repair_step', 'repair_login_gate', 'checkout_login_gate',
+  'repair_form_abandon', 'calculator_result', 'calculator_lead',
 ]);
 
 async function body(req) {
