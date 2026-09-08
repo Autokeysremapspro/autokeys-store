@@ -14,7 +14,7 @@ module.exports=async function handler(req,res){
     if(nombre.length<2 || !/^\S+@\S+\.\S+$/.test(email) || telefono.replace(/\D/g,'').length<9 || !UNITS.has(unidad) || problema.length<3 || d.acepta_privacidad!==true) return res.status(400).json({error:'datos_incompletos'});
     const recent=await fetch(`${SUPABASE_URL}/rest/v1/tienda_leads_calculadora?email=eq.${encodeURIComponent(email)}&created_at=gte.${encodeURIComponent(new Date(Date.now()-3600000).toISOString())}&select=id&limit=3`,{headers:{apikey:key(),Authorization:`Bearer ${key()}`}});
     if(!recent.ok) throw new Error('rate_check'); if((await recent.json()).length>=2) return res.status(429).json({error:'demasiadas_solicitudes'});
-    const lead={nombre,email,telefono,tipo_unidad:unidad,problema,marca_modelo:clean(d.marca_modelo,180)||null};
+    const lead={nombre,email,telefono,tipo_unidad:unidad,problema,marca_modelo:clean(d.marca_modelo,180)||null,utm_source:clean(d.utm_source,120)||null,utm_medium:clean(d.utm_medium,120)||null,utm_campaign:clean(d.utm_campaign,180)||null,landing_page:clean(d.landing_page,500)||null,referrer_host:clean(d.referrer_host,180)||null};
     const saved=await fetch(`${SUPABASE_URL}/rest/v1/tienda_leads_calculadora`,{method:'POST',headers:{apikey:key(),Authorization:`Bearer ${key()}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(lead)});
     if(!saved.ok) throw new Error(`insert_${saved.status}`); const [row]=await saved.json();
     const form=`https://www.autokeysremapspro.es/enviar-reparacion.html?unidad=${encodeURIComponent(unidad)}&trabajo=${encodeURIComponent(problema)}`;
