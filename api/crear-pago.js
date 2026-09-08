@@ -1,8 +1,20 @@
-const { pagosConfigurados, createHostedCheckout, getPedido, updatePedido } = require('../lib/sumup-server');
+const sumup = require('../lib/sumup-server');
+const caixabank = require('../lib/caixabank-server');
 
 const SITE_URL = 'https://www.autokeysremapspro.es';
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
+
+const PROVEEDORES = { sumup, caixabank };
+
+async function metodoPagoActivo() {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/tienda_configuracion?id=eq.true&select=metodo_pago_activo`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+  });
+  if (!response.ok) return 'sumup';
+  const [config] = await response.json();
+  return PROVEEDORES[config?.metodo_pago_activo] ? config.metodo_pago_activo : 'sumup';
+}
 
 async function readJsonBody(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -32,7 +44,10 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (!pagosConfigurados()) {
+  const nombreProveedor = await metodoPagoActivo();
+  const proveedor = PROVEEDORES[nombreProveedor];
+
+  if (!proveedor.pagosConfigurados()) {
     res.status(503).json({ error: 'pagos_no_configurados' });
     return;
   }
@@ -53,7 +68,7 @@ module.exports = async function handler(req, res) {
   try {
     // El importe se lee del pedido creado y recalculado en servidor. Además,
     // solo el propietario autenticado puede abrir un checkout para ese pedido.
-    const pedido = await getPedido(pedidoId);
+    const pedido = await proveedor.getPedido(pedidoId);
     if (!pedido) {
       res.status(404).json({ error: 'pedido_no_encontrado' });
       return;
@@ -67,7 +82,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const checkout = await createHostedCheckout({
+    const checkout = await proveedor.createHostedCheckout({
       checkoutReference: pedido.numero,
       amount: pedido.total,
       description: `Pedido ${pedido.numero} — Autokeys Remaps Pro Store`,
@@ -76,12 +91,12 @@ module.exports = async function handler(req, res) {
     });
 
     if (!checkout?.id || !checkout?.hosted_checkout_url) {
-      console.error('SumUp no devolvió la URL del checkout alojado:', checkout);
-      res.status(502).json({ error: 'sumup_error' });
+      console.error(`${nombreProveedor} no devolvió la URL del checkout alojado:`, checkout);
+      res.status(502).json({ error: `${nombreProveedor}_error` });
       return;
     }
 
-    await updatePedido(pedido.id, { pago_referencia: checkout.id });
+    await proveedor.updatePedido(pedido.id, { pago_referencia: checkout.id });
 
     res.status(200).json({ hosted_checkout_url: checkout.hosted_checkout_url });
   } catch (err) {
