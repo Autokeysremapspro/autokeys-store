@@ -48,12 +48,20 @@
     "longitude": -2.799938
   },
   "hasMap": "https://www.google.com/maps?q=38.357313,-2.799938",
-  "openingHoursSpecification": {
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
-    "opens": "09:00",
-    "closes": "15:00"
-  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "09:00",
+      "closes": "14:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "16:00",
+      "closes": "20:30"
+    }
+  ],
   "priceRange": "€€",
   "areaServed": [
     { "@type": "AdministrativeArea", "name": "Jaén" },
@@ -126,7 +134,7 @@
         <div class="hero-badge"><span data-icon="shield"></span><span><b>Garantía</b><span>Según servicio realizado</span></span></div>
         <div class="hero-badge"><span data-icon="award"></span><span><b>Laboratorio técnico</b><span>Electrónica especializada</span></span></div>
         <div class="hero-badge"><span data-icon="truck"></span><span><b>Servicio nacional</b><span>Envíos desde toda España</span></span></div>
-        <div class="hero-badge"><span data-icon="headset"></span><span><b>Atención profesional</b><span>L-V · 09:00–15:00</span></span></div>
+        <div class="hero-badge"><span data-icon="headset"></span><span><b>Atención profesional</b><span>L-V · 09:00–14:00 · 16:00–20:30</span></span></div>
       </div>
     </div>
     <div class="hero-media">
@@ -161,7 +169,20 @@
       </div>
       <a class="link-red" href="tienda.html">Ver catálogo completo<span data-icon="arrowRight"></span></a>
     </div>
-    <div class="product-grid" id="destacados-grid"></div>
+    <div class="product-grid" id="destacados-grid">
+      <article class="product-card">
+        <div class="product-media hex-overlay"><span class="tag">DIAGNÓSTICO PROFESIONAL</span><img class="pm-photo" src="assets/img/products/reparacion-electronica-ecu-pcm.jpg" alt="Diagnóstico y reparación electrónica de ECU" loading="eager"></div>
+        <div class="product-body"><div class="product-cat">Reparación ECU</div><h3>Diagnóstico y reparación ECU / PCM</h3><p>Comprobamos la centralita y te damos presupuesto antes de realizar la reparación.</p><div class="product-price-row"><div class="price-block"><small>DESDE</small><b>79 €</b></div><a class="btn btn-primary btn-sm" href="/servicios/reparacion-electronica-ecu-pcm">Ver servicio</a></div></div>
+      </article>
+      <article class="product-card">
+        <div class="product-media hex-overlay"><span class="tag">BAJO REFERENCIA</span><img class="pm-photo" src="assets/img/products/immo-off-ecu.jpg" alt="Servicio de IMMO y virginización de ECU" loading="eager"></div>
+        <div class="product-body"><div class="product-cat">Inmovilizadores</div><h3>IMMO y virginización de ECU</h3><p>Comprobamos familia, referencia y compatibilidad antes de confirmar el trabajo.</p><div class="product-price-row"><div class="price-block"><small>COMPATIBILIDAD</small><b>Previa</b></div><a class="btn btn-primary btn-sm" href="/servicios/immo-off-virginizacion-ecu">Ver servicio</a></div></div>
+      </article>
+      <article class="product-card">
+        <div class="product-media hex-overlay"><span class="tag">SERVICIO POR ENVÍO</span><img class="pm-photo" src="assets/img/products/bmw-cas-ews.jpg" alt="Programación y reparación BMW CAS y EWS" loading="lazy"></div>
+        <div class="product-body"><div class="product-cat">BMW CAS / EWS</div><h3>BMW CAS / EWS</h3><p>Llaves, recuperación de memoria, clonación y sincronización de arranque.</p><div class="product-price-row"><div class="price-block"><small>REVISIÓN</small><b>Técnica</b></div><a class="btn btn-primary btn-sm" href="/servicios/bmw-cas-ews-programacion">Ver servicio</a></div></div>
+      </article>
+    </div>
   </section>
 
   <section class="section" id="especialidades">
@@ -215,7 +236,6 @@
 <script defer src="assets/js/supabase-config.js"></script>
 <script defer>
   document.addEventListener('DOMContentLoaded', async () => {
-    document.getElementById('destacados-grid').innerHTML = '<div class="catalog-loading" role="status"><span class="catalog-spinner" aria-hidden="true"></span><b>Cargando servicios destacados</b><small>Consultando disponibilidad y precios actualizados.</small></div>';
     await akCatalogReady();
     const catIcons = {
       'reparacion-ecu': 'ecu', 'inmovilizadores': 'key', 'modulos': 'module',
@@ -236,11 +256,13 @@
       '</a>'
     ).join('');
 
-    const top = [...CATALOG].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
+    const top = CATALOG.filter((p) => !p.isProduct && !p.isSoftware && !p.isDigital).sort((a, b) => b.popularity - a.popularity).slice(0, 5);
     if (!top.length) {
       document.getElementById('destacados-grid').innerHTML = '<div class="empty-state"><h3>Servicios temporalmente no disponibles</h3><p>Puedes consultar el catálogo completo o contactar con nosotros mientras recuperamos la conexión.</p><a class="btn btn-primary" href="tienda.html">Reintentar en la tienda</a></div>';
     } else {
-    document.getElementById('destacados-grid').innerHTML = top.map((p) =>
+    document.getElementById('destacados-grid').innerHTML = top.map((p) => {
+      const price = akCatalogPricePresentation(p);
+      return (
       '<article class="product-card">' +
         '<div class="product-media hex-overlay">' + (p.badge ? '<span class="tag">' + p.badge + '</span>' : '') + (p.stock === 'encargo' ? '<span class="tag-encargo">Bajo pedido</span>' : '') + (p.image ? '<img class="pm-photo" src="' + p.image + '" alt="' + p.name + '" loading="lazy">' : '<span class="ph">' + akIcon(p.icon) + '</span>') + '</div>' +
         '<div class="product-body">' +
@@ -248,12 +270,12 @@
           '<h3>' + p.name + '</h3>' +
           '<p>' + p.shortDesc + '</p>' +
           '<div class="product-price-row">' +
-            '<div class="price-block"><small>' + (p.digitalFree ? 'DESCARGA' : 'DESDE') + '</small><b>' + (p.digitalFree ? 'Gratis' : akFormatPrice(p.priceFrom)) + '</b></div>' +
-            '<a class="btn btn-primary btn-sm" href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
+            '<div class="price-block"><small>' + price.label + '</small><b>' + price.value + '</b></div>' +
+            '<a class="btn btn-primary btn-sm" href="' + akCatalogItemUrl(p) + '">Ver ' + (p.isProduct ? 'producto' : 'servicio') + '</a>' +
           '</div>' +
         '</div>' +
-      '</article>'
-    ).join('');
+      '</article>');
+    }).join('');
     }
 
     document.getElementById('steps-grid').innerHTML = GENERIC_PROCESS.map((s, i) =>

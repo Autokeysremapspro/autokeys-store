@@ -128,6 +128,7 @@ function akHeaderHTML(active) {
         { href: '/reservar-cita.html', label: 'Reservar cita presencial' },
         { href: '/electronica-maquinaria-agricola-industrial.html', label: 'Maquinaria agrícola e industrial' },
         { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
+        { href: '/calculadora-reparacion.html', label: 'Valoración rápida online' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
@@ -142,6 +143,7 @@ function akHeaderHTML(active) {
       navLink('/tienda.html?cat=software', 'software', 'SOFTWARE') +
       navLink('/tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('/blog.html', 'blog', 'BLOG') +
+      navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +
@@ -203,6 +205,7 @@ function akFooterHTML() {
         '<li><a href="/tienda.html">Tienda</a></li>' +
         '<li><a href="/reservar-cita.html">Reservar cita presencial</a></li>' +
         '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
+        '<li><a href="/calculadora-reparacion.html">Valoración rápida online</a></li>' +
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
         '<li><a href="/blog.html">Blog</a></li>' +
         '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +
@@ -215,7 +218,7 @@ function akFooterHTML() {
         '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es</span></a></li>' +
         '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
-        '<li>' + akIcon('clock') + '<span>L-V · 09:00-15:00 · Cita previa</span></li>' +
+        '<li>' + akIcon('clock') + '<span>L-V · 09:00–14:00 · 16:00–20:30 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +

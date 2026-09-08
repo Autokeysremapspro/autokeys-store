@@ -4,7 +4,8 @@ const EVENTOS = new Set([
   'page_view', 'view_item', 'add_to_cart', 'remove_from_cart',
   'view_cart', 'begin_checkout', 'order_created', 'purchase', 'repair_request',
   'whatsapp_click', 'phone_click', 'repair_cta_click',
-  'repair_form_start', 'repair_login_gate', 'checkout_login_gate',
+  'repair_form_start', 'repair_step', 'repair_login_gate', 'checkout_login_gate',
+  'repair_form_abandon', 'calculator_result', 'calculator_lead',
 ]);
 
 async function body(req) {
@@ -59,6 +60,8 @@ function cleanMetadata(input) {
     utm_content: 180,
     utm_term: 180,
     referrer_host: 180,
+    cta: 120,
+    label: 120,
   };
   Object.entries(limits).forEach(([key, max]) => {
     const value = String(input[key] || '').trim();

@@ -72,6 +72,7 @@
   let TICKETS = [];
   let FAVORITOS = [];
   let DESCARGAS = [];
+  let IS_STAFF = false;
   let showNewTicketForm = false;
   let openTicketId = null;
   let openTicketMensajes = [];
@@ -80,6 +81,7 @@
     document.getElementById('account-nav').innerHTML =
       '<div class="an-title">PANEL CLIENTE</div>' +
       NAV_ITEMS.map((n) => '<button data-tab="' + n.id + '" class="' + (activeTab === n.id ? 'active' : '') + '">' + akIcon(n.icon) + n.label + '</button>').join('') +
+      (IS_STAFF ? '<a class="btn btn-secondary" style="margin:12px;width:calc(100% - 24px);justify-content:center" href="presupuestos-reparacion.html">' + akIcon('file') + ' Presupuestos</a>' : '') +
       '<div class="an-sep"></div>' +
       '<button data-action="logout">' + akIcon('close') + 'Cerrar sesión</button>';
   }
@@ -408,7 +410,7 @@
       (FAVORITOS.length
         ? '<div class="fav-grid">' + FAVORITOS.map((f) =>
             '<div class="fav-item">' +
-              '<a href="/' + (f.producto.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(f.producto.id) + '">' +
+              '<a href="' + akCatalogItemUrl(f.producto) + '">' +
                 '<span class="ph-box">' + akIcon(f.producto.icon || 'box') + '</span>' +
                 '<span><b>' + esc(f.producto.name) + '</b><span>' + akFormatPrice(f.producto.priceFrom) + '</span></span>' +
               '</a>' +
@@ -430,6 +432,7 @@
       return;
     }
     CURRENT_USER = user;
+    try { IS_STAFF = !!(await akSupabase().rpc('is_staff')).data; } catch (_) {}
     await akCatalogReady();
     await loadData();
 

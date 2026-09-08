@@ -155,7 +155,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
       valor: details.valor == null ? null : details.valor,
       carrito: details.carrito === false ? null : cartSnapshot(details.consentimiento_recordatorio),
       pedido_id: details.pedido_id || null,
-      metadata: visitAttribution(),
+      metadata: { ...visitAttribution(), ...(details.metadata || {}) },
     };
     fetch('/api/conversion', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) }, body: JSON.stringify(payload), keepalive: true }).catch(() => {});
   };
@@ -174,7 +174,7 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
     if (!link) return;
     const href = String(link.getAttribute('href') || '').trim();
     if (/^https?:\/\/(?:wa\.me|api\.whatsapp\.com)(?:\/|$)/i.test(href)) {
-      window.akTrack('whatsapp_click', { carrito: false });
+      window.akTrack('whatsapp_click', { carrito: false, metadata: { cta: link.dataset.akCta || 'whatsapp_link', label: (link.textContent || '').trim().slice(0, 80) } });
       return;
     }
     if (/^tel:/i.test(href)) {
@@ -182,24 +182,31 @@ if (!document.querySelector('script[data-ak-growth-conversion]')) {
       return;
     }
     if (/(?:^|\/)enviar-reparacion\.html(?:[?#]|$)/i.test(href)) {
-      window.akTrack('repair_cta_click', { carrito: false });
+      window.akTrack('repair_cta_click', { carrito: false, metadata: { cta: link.dataset.akCta || 'repair_link', label: (link.textContent || '').trim().slice(0, 80) } });
     }
   }
 
   function setupRepairFunnelTracking() {
     const form = document.getElementById('repair-request-form');
     if (!form) return;
+    let started = false;
+    let completed = false;
     form.addEventListener('click', (event) => {
       if (event.target && event.target.closest && event.target.closest('[data-unit]')) {
+        started = true;
         trackOnce('repair_form_start', 'repair_form_start');
       }
     }, true);
+    form.addEventListener('submit', () => { completed = true; });
+    window.addEventListener('pagehide', () => {
+      if (started && !completed) window.akTrack('repair_form_abandon', { carrito: false });
+    });
 
     const notice = document.getElementById('auth-notice');
     if (notice) {
       const checkGate = () => {
         const text = notice.textContent || '';
-        if (!notice.hidden && /iniciar sesión|crear una cuenta/i.test(text)) {
+        if (!notice.hidden && /Para enviarlo necesitarás iniciar sesión/i.test(text)) {
           trackOnce('repair_login_gate', 'repair_login_gate');
         }
       };

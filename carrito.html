@@ -176,9 +176,9 @@
           '<div class="notice">' + akIcon('truck') + '¡Envío gratis! Tu pedido incluye envío gratuito a toda España peninsular.</div>' +
           '<ul class="trust-row">' +
             '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
-            '<li>' + akIcon('shield') + 'Garantía hasta 24 meses</li>' +
-            '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
-            '<li>' + akIcon('award') + 'Más de 10 años de experiencia</li>' +
+            '<li>' + akIcon('shield') + 'Garantía según el servicio</li>' +
+            '<li>' + akIcon('headset') + 'Atención técnica L-V</li>' +
+            '<li>' + akIcon('award') + 'Laboratorio especializado</li>' +
           '</ul>' +
         '</div>' +
       '</div>' +
@@ -204,9 +204,9 @@
       '<div class="cross-sell-grid">' +
         sugeridos.slice(0, 3).map((p) =>
           '<div class="cross-sell-item">' +
-            '<a href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '" class="ph-box">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : akIcon(p.icon)) + '</a>' +
+            '<a href="' + akCatalogItemUrl(p) + '" class="ph-box">' + (p.image ? '<img src="' + p.image + '" alt="' + p.name + '">' : akIcon(p.icon)) + '</a>' +
             '<div class="cs-body">' +
-              '<a href="/' + (p.isProduct ? 'productos/' : 'servicios/') + encodeURIComponent(p.id) + '"><b>' + p.name + '</b></a>' +
+              '<a href="' + akCatalogItemUrl(p) + '"><b>' + p.name + '</b></a>' +
               '<span>' + akFormatPrice(p.priceFrom) + '</span>' +
             '</div>' +
             '<button class="btn btn-secondary btn-sm" data-add-cross="' + p.id + '">' + akIcon('plus') + '</button>' +
@@ -274,8 +274,9 @@
       '<a class="btn btn-primary btn-block" href="login.html?redirect=carrito.html">' + akIcon('user') + 'Iniciar sesión o crear cuenta' + akIcon('arrowRight') + '</a>' +
       '<ul class="trust-row" style="margin-top:16px">' +
         '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
-        '<li>' + akIcon('headset') + 'Soporte experto 7 días</li>' +
+        '<li>' + akIcon('headset') + 'Atención técnica L-V</li>' +
       '</ul>' +
+      '<a class="checkout-help" data-ak-cta="checkout_help" href="https://wa.me/34632982646?text=Hola%2C%20necesito%20ayuda%20para%20finalizar%20un%20pedido%20en%20Autokeys%20Store" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span><b>¿Te has quedado atascado?</b><small>Te ayudamos a finalizar el pedido por WhatsApp.</small></span></a>' +
     '</div>';
   }
 
