@@ -39,6 +39,33 @@ function reviewEmail(s) {
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#222"><h2>¿Qué tal ha ido tu reparación?</h2><p>Hola ${esc(s.nombre)}, hemos marcado como finalizada la solicitud <b>${esc(s.numero)}</b>. Tu opinión sincera ayuda a otros clientes a conocer el servicio y también nos ayuda a mejorar.</p><p><a href="${review}" style="display:inline-block;background:#e52531;color:#fff;text-decoration:none;padding:13px 19px;border-radius:8px;font-weight:800">Escribir una reseña en Google</a></p><p>Si necesitas que revisemos cualquier detalle, también puedes responder directamente a este correo.</p></body></html>`;
 }
 
+function incompleteEmail(lead) {
+  const params = new URLSearchParams({ unidad: lead.tipo_unidad || '', trabajo: lead.problema || '' });
+  const link = `${STORE_URL}/enviar-reparacion.html?${params.toString()}`;
+  return `<!doctype html><html><body style="margin:0;background:#08080a;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:32px 14px"><table role="presentation" width="540" style="max-width:540px;width:100%;background:#111114;border:1px solid #29292f;border-radius:14px"><tr><td style="padding:30px;color:#f5f5f7"><p style="color:#ef3641;font-size:11px;font-weight:800;letter-spacing:1.5px">SOLICITUD SIN TERMINAR</p><h1 style="font-size:24px">¿Quieres terminar tu solicitud?</h1><p style="color:#b4b4bc;line-height:1.7">Hola ${esc(lead.nombre)}, vimos que empezaste una solicitud para ${esc(lead.tipo_unidad)} por ${esc(lead.problema)}, pero no llegó a enviarse. Puedes continuarla en menos de un minuto.</p><p><a href="${link}" style="display:inline-block;background:#e52531;color:#fff;text-decoration:none;padding:13px 19px;border-radius:8px;font-weight:800">Terminar solicitud</a></p><p style="color:#8d8d96;font-size:12px">Este es un único recordatorio relacionado con la solicitud que empezaste. Si ya no lo necesitas, puedes ignorarlo.</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function processIncompleteLeads() {
+  const before = new Date(Date.now() - 4 * 3600000).toISOString();
+  const after = new Date(Date.now() - 7 * 86400000).toISOString();
+  const rows = await db(`tienda_leads_calculadora?origen=eq.formulario_incompleto&estado=eq.nuevo&recordatorio_incompleto_at=is.null&created_at=lte.${encodeURIComponent(before)}&created_at=gte.${encodeURIComponent(after)}&select=id,nombre,email,tipo_unidad,problema&order=created_at.asc&limit=50`) || [];
+  let sent = 0;
+  for (const lead of rows) {
+    if (!lead.email) continue;
+    const claimedAt = new Date().toISOString();
+    const claimed = await db(`tienda_leads_calculadora?id=eq.${encodeURIComponent(lead.id)}&recordatorio_incompleto_at=is.null&select=id`, { method:'PATCH', headers:{Prefer:'return=representation'}, body:JSON.stringify({recordatorio_incompleto_at:claimedAt}) });
+    if (!claimed || !claimed.length) continue;
+    try {
+      await sendEmail({ from:FROM, to:lead.email, subject:'¿Quieres terminar tu solicitud de reparación?', html:incompleteEmail(lead) });
+      sent++;
+    } catch (error) {
+      await db(`tienda_leads_calculadora?id=eq.${encodeURIComponent(lead.id)}&recordatorio_incompleto_at=eq.${encodeURIComponent(claimedAt)}`, { method:'PATCH', headers:{Prefer:'return=minimal'}, body:JSON.stringify({recordatorio_incompleto_at:null}) });
+      console.error('recordatorio solicitud incompleta:', error);
+    }
+  }
+  return {revisados:rows.length,enviados:sent};
+}
+
 async function processRepairFollowups() {
   const now = Date.now();
   const rows = await db(`tienda_solicitudes_reparacion?presupuesto_enviado_at=not.is.null&select=id,numero,nombre,email,telefono,tipo_unidad,presupuesto_total,seguimiento_token,estado,pago_estado,presupuesto_enviado_at,presupuesto_recordatorio_24h_at,presupuesto_recordatorio_72h_at,resena_solicitada_at,updated_at&order=presupuesto_enviado_at.desc&limit=100`) || [];
@@ -87,7 +114,8 @@ module.exports = async function handler(req, res) {
       }
     }
     const reparaciones = await processRepairFollowups();
-    res.status(200).json({ revisados: carts.length, enviados: sent, reparaciones });
+    const solicitudesIncompletas = await processIncompleteLeads();
+    res.status(200).json({ revisados: carts.length, enviados: sent, reparaciones, solicitudesIncompletas });
   } catch (error) {
     console.error('recordar-carritos error:', error);
     res.status(500).json({ error: 'error_interno' });

@@ -28,6 +28,7 @@
   let selectedUnit = '';
   let pickupRates = { ...PICKUP_DEFAULTS };
   const openedAt = Date.now();
+  let incompleteTimer = null;
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -76,9 +77,24 @@
     document.getElementById('peso-recogida').addEventListener('input', updatePickupQuote);
     document.getElementById('cp').addEventListener('input', updatePickupQuote);
     document.querySelectorAll('#repair-request-form input,#repair-request-form select,#repair-request-form textarea').forEach((el) => el.addEventListener('input', saveDraft));
+    document.querySelectorAll('#nombre,#email,#telefono,#acepta-privacidad').forEach((el) => el.addEventListener('input', scheduleIncompleteLead));
     document.querySelectorAll('.method-card').forEach((card) => card.addEventListener('click', () => {
       document.querySelectorAll('.method-card').forEach((x) => x.classList.remove('active')); card.classList.add('active');
     }));
+  }
+
+  function conversionSessionId() {
+    let id = localStorage.getItem('ak_conversion_session_v1');
+    if (!/^[0-9a-f-]{36}$/i.test(id || '')) { id = crypto.randomUUID(); localStorage.setItem('ak_conversion_session_v1', id); }
+    return id;
+  }
+
+  function scheduleIncompleteLead() {
+    clearTimeout(incompleteTimer);
+    incompleteTimer = setTimeout(() => {
+      if (!selectedUnit || !value('trabajo') || !value('nombre') || !value('email') || !value('telefono') || !document.getElementById('acepta-privacidad').checked) return;
+      fetch('/api/lead-incompleto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ session_id:conversionSessionId(), nombre:value('nombre'), email:value('email'), telefono:value('telefono'), tipo_unidad:selectedUnit, problema:value('trabajo'), marca:value('marca'), modelo:value('modelo'), privacidad:true }), keepalive:true }).catch(()=>{});
+    }, 4000);
   }
 
   function selectUnit(id) {
@@ -254,6 +270,12 @@
         if (metaError) uploadWarning = true;
       }
     }
+    fetch('/api/lead-incompleto', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:'complete', session_id:conversionSessionId() }),
+      keepalive:true
+    }).catch(()=>{});
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     document.getElementById('request-shell').hidden = true; const success = document.getElementById('request-success'); success.hidden = false;
     const portalHref = request.seguimiento_token ? 'mi-solicitud.html#token=' + encodeURIComponent(request.seguimiento_token) : '';
