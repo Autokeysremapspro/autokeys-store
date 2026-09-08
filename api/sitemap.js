@@ -22,6 +22,7 @@ const STATIC_URLS = [
   '/casos/desarrollo-edc15p-multimapa-autokeys',
   '/casos/mercedes-2008-2009-ezs-inoperativo-dos-llaves',
   '/enviar-reparacion.html',
+  '/reservar-cita.html',
   '/profesionales.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',

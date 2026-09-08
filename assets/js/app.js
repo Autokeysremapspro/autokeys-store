@@ -125,6 +125,7 @@ function akHeaderHTML(active) {
         { href: '/duplicado-llaves-coche-jaen', label: 'Duplicado de llaves en Jaén' },
         { href: '/reprogramacion-centralitas-jaen', label: 'Reprogramación de centralitas en Jaén' },
         { href: '/reparacion-airbag-srs', label: 'Airbag / SRS' },
+        { href: '/reservar-cita.html', label: 'Reservar cita presencial' },
         { href: '/electronica-maquinaria-agricola-industrial.html', label: 'Maquinaria agrícola e industrial' },
         { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
@@ -149,6 +150,7 @@ function akHeaderHTML(active) {
     '</form>' +
     '<div class="head-actions">' +
       '<a class="search-icon-btn" href="/tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
+      '<a class="head-action head-action-cta" href="/reservar-cita.html">' + akIcon('calendar') + '<span>Reservar cita</span></a>' +
       '<a class="head-action" href="/login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
       '<button class="head-action" id="logout-link" data-action="logout" style="display:none;border:0;background:transparent">' + akIcon('close') + '<span>Salir</span></button>' +
       '<a class="head-action" href="/carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
@@ -199,6 +201,7 @@ function akFooterHTML() {
         '<li><a href="/electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
         '<li><a href="/electronica-maquinaria-agricola-industrial.html">Maquinaria agrícola e industrial</a></li>' +
         '<li><a href="/tienda.html">Tienda</a></li>' +
+        '<li><a href="/reservar-cita.html">Reservar cita presencial</a></li>' +
         '<li><a href="/enviar-reparacion.html">Enviar una unidad a reparar</a></li>' +
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
         '<li><a href="/blog.html">Blog</a></li>' +
