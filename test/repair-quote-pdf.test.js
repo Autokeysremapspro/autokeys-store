@@ -23,3 +23,12 @@ test('genera un PDF de presupuesto con referencia, desglose y total', () => {
   assert.match(raw, /startxref/);
   assert.ok(pdf.length > 1500);
 });
+
+test('crea varias páginas cuando el presupuesto tiene muchas líneas', () => {
+  const pdf = generateRepairQuotePdf({
+    numero: 'REP-LARGO', nombre: 'Cliente', marca: 'Audi', modelo: 'A4',
+    tipo_unidad: 'ECU', trabajo_solicitado: 'Reparación', presupuesto_total: 200,
+    presupuesto_lineas: Array.from({ length: 10 }, (_, index) => ({ concepto: `Concepto ${index + 1}`, cantidad: 1, precio_unitario: 20, total: 20 })),
+  });
+  assert.match(pdf.toString('latin1'), /\/Count 2/);
+});
