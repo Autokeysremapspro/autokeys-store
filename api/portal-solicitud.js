@@ -12,6 +12,7 @@ const PUBLIC_FIELDS = [
   'numero', 'estado', 'created_at', 'updated_at', 'tipo_unidad', 'trabajo_solicitado',
   'marca', 'modelo', 'anio', 'motorizacion', 'metodo_envio', 'plazo_estimado',
   'presupuesto_total', 'presupuesto_detalle', 'presupuesto_aceptado_at',
+  'presupuesto_lineas', 'presupuesto_validez_dias', 'presupuesto_observaciones',
   'pago_estado', 'pago_confirmado_at',
 ];
 

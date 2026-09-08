@@ -69,9 +69,11 @@
     if (!hasQuote) return '<div class="portal-card"><h3>Presupuesto</h3><p class="portal-copy">Todavía no hay un presupuesto disponible. Te avisaremos por email cuando terminemos la valoración.</p><div class="portal-alert">No realices ningún pago hasta recibir el presupuesto en este portal.</div></div>';
     const paid = s.pago_estado === 'pagado';
     const accepted = !!s.presupuesto_aceptado_at;
+    const lines = Array.isArray(s.presupuesto_lineas) ? s.presupuesto_lineas : [];
+    const breakdown = lines.length ? '<div class="portal-quote-lines">' + lines.map((line) => '<div><span><b>' + akEscapeHtml(line.concepto || '') + '</b><small>' + Number(line.cantidad || 1) + ' × ' + money(line.precio_unitario || 0) + '</small></span><strong>' + money(line.total || Number(line.cantidad || 1) * Number(line.precio_unitario || 0)) + '</strong></div>').join('') + '</div>' : '';
     return '<div class="portal-card"><div class="eyebrow">PRESUPUESTO</div><div class="portal-price">' + money(s.presupuesto_total) + ' <small>IVA incluido</small></div>' +
       (s.plazo_estimado ? '<p><b>Plazo estimado:</b> ' + akEscapeHtml(s.plazo_estimado) + '</p>' : '') +
-      '<p class="portal-copy">' + akEscapeHtml(s.presupuesto_detalle || 'Trabajo indicado en la valoración técnica de la solicitud.') + '</p>' +
+      breakdown + '<p class="portal-copy">' + akEscapeHtml(s.presupuesto_observaciones || s.presupuesto_detalle || 'Trabajo indicado en la valoración técnica de la solicitud.') + '</p>' +
       (paid ? '<div class="portal-alert ok"><b>Pago confirmado.</b> Ya podemos continuar con el trabajo.</div>' : accepted ? '<div class="portal-alert">Presupuesto aceptado. El pago todavía no está confirmado.</div>' : '<label class="request-consents"><span><input id="quote-consent" type="checkbox"> He revisado el trabajo, el importe y el plazo; acepto este presupuesto.</span></label>') +
       (!paid ? '<div class="portal-actions"><button id="pay-quote" class="btn btn-primary"' + (!accepted ? ' disabled' : '') + '>' + (accepted ? 'Reintentar pago seguro' : 'Aceptar y pagar con SumUp') + '</button><small style="color:var(--muted)">El pago se completa en la página segura de SumUp.</small></div>' : '') + '</div>';
   }
