@@ -66,6 +66,26 @@ async function processIncompleteLeads() {
   return {revisados:rows.length,enviados:sent};
 }
 
+function workshopFollowupEmail(lead) {
+  return `<!doctype html><html><body style="margin:0;background:#08080a;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:32px 14px"><table role="presentation" width="540" style="max-width:540px;width:100%;background:#111114;border:1px solid #29292f;border-radius:14px"><tr><td style="padding:30px;color:#f5f5f7"><p style="color:#ef3641;font-size:11px;font-weight:800;letter-spacing:1.5px">CANAL PROFESIONAL</p><h1 style="font-size:24px">Tu laboratorio externo cuando lo necesites</h1><p style="color:#b4b4bc;line-height:1.7">Hola ${esc(lead.nombre)}, gracias por interesarte en colaborar con Autokeys. Antes de enviar material revisamos referencias, síntomas y diagnosis para indicarte exactamente qué necesitamos.</p><ul style="color:#b4b4bc;line-height:1.8"><li>Recogida y devolución disponibles</li><li>Presupuesto antes de intervenir</li><li>Seguimiento individual de cada trabajo</li></ul><p><a href="${STORE_URL}/profesionales.html#colaborar" style="display:inline-block;background:#e52531;color:#fff;text-decoration:none;padding:13px 19px;border-radius:8px;font-weight:800">Consultar un caso</a></p><p style="color:#8d8d96;font-size:12px">Puedes responder directamente a este correo. No recibirás más recordatorios automáticos por esta solicitud.</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function processWorkshopLeads() {
+  const before = new Date(Date.now() - 24 * 3600000).toISOString();
+  const after = new Date(Date.now() - 14 * 86400000).toISOString();
+  const rows = await db(`tienda_leads_calculadora?es_taller=eq.true&estado=in.(nuevo,contactado)&recordatorio_taller_24h_at=is.null&created_at=lte.${encodeURIComponent(before)}&created_at=gte.${encodeURIComponent(after)}&select=id,nombre,email,marca_modelo&order=created_at.asc&limit=50`) || [];
+  let sent = 0;
+  for (const lead of rows) {
+    if (!lead.email) continue;
+    const claimedAt = new Date().toISOString();
+    const claimed = await db(`tienda_leads_calculadora?id=eq.${encodeURIComponent(lead.id)}&recordatorio_taller_24h_at=is.null&select=id`, {method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({recordatorio_taller_24h_at:claimedAt})});
+    if (!claimed || !claimed.length) continue;
+    try { await sendEmail({from:FROM,to:lead.email,subject:'Así funciona el canal profesional de Autokeys',html:workshopFollowupEmail(lead)}); sent++; }
+    catch (error) { await db(`tienda_leads_calculadora?id=eq.${encodeURIComponent(lead.id)}&recordatorio_taller_24h_at=eq.${encodeURIComponent(claimedAt)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({recordatorio_taller_24h_at:null})});console.error('seguimiento taller:',error); }
+  }
+  return {revisados:rows.length,enviados:sent};
+}
+
 async function processRepairFollowups() {
   const now = Date.now();
   const rows = await db(`tienda_solicitudes_reparacion?presupuesto_enviado_at=not.is.null&select=id,numero,nombre,email,telefono,tipo_unidad,presupuesto_total,seguimiento_token,estado,pago_estado,presupuesto_enviado_at,presupuesto_recordatorio_24h_at,presupuesto_recordatorio_72h_at,resena_solicitada_at,updated_at&order=presupuesto_enviado_at.desc&limit=100`) || [];
@@ -115,7 +135,8 @@ module.exports = async function handler(req, res) {
     }
     const reparaciones = await processRepairFollowups();
     const solicitudesIncompletas = await processIncompleteLeads();
-    res.status(200).json({ revisados: carts.length, enviados: sent, reparaciones, solicitudesIncompletas });
+    const talleres = await processWorkshopLeads();
+    res.status(200).json({ revisados: carts.length, enviados: sent, reparaciones, solicitudesIncompletas, talleres });
   } catch (error) {
     console.error('recordar-carritos error:', error);
     res.status(500).json({ error: 'error_interno' });
