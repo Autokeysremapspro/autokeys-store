@@ -142,6 +142,7 @@ function akHeaderHTML(active) {
       navLink('/tienda.html?cat=software', 'software', 'SOFTWARE') +
       navLink('/tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('/blog.html', 'blog', 'BLOG') +
+      navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/login.html', 'profesional', 'ÁREA PROFESIONAL') +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +

@@ -31,7 +31,7 @@
 </head>
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
-<header id="site-header" data-active="servicios"></header>
+<header id="site-header" data-active="profesionales"></header>
 <main id="main">
 <nav class="breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a><span>›</span><span class="current">Profesionales</span></nav>
 <section class="hero">
@@ -40,7 +40,7 @@
     <h1>Resuelve electrónica compleja sin convertir tu taller en un laboratorio</h1>
     <p class="lead">Apoyamos a talleres y profesionales con centralitas ECU/TCU, inmovilizadores, BMW FEM/BDC, Mercedes EZS/ELV, UCH/BCM/BSI, airbag, cuadros y otros módulos. Revisamos el caso antes de pedirte que desmontes o envíes material.</p>
     <div class="btn-row">
-      <a class="btn btn-primary" href="/enviar-reparacion.html?tipo=taller"><span data-icon="file"></span>Enviar un caso profesional</a>
+      <a class="btn btn-primary" href="#colaborar"><span data-icon="file"></span>Quiero colaborar con Autokeys</a>
       <a class="btn btn-secondary" href="/casos-reales.html"><span data-icon="award"></span>Ver casos reales</a>
     </div>
     <div class="hero-badges">
@@ -51,6 +51,34 @@
     </div>
   </div>
   <div class="hero-media"><img class="hero-photo" src="assets/img/hero-taller.webp" alt="Laboratorio Autokeys Remaps Pro para talleres de automoción" width="1536" height="1024" fetchpriority="high"></div>
+</section>
+<section class="section pro-lead-section" id="colaborar">
+  <div class="pro-lead-copy">
+    <div class="eyebrow">COLABORA CON NUESTRO LABORATORIO</div>
+    <h2>Cuéntanos qué trabajos necesitas derivar</h2>
+    <p class="section-desc">Déjanos los datos del taller y el tipo de electrónica que recibes. Revisaremos tu caso y te llamaremos para explicarte el funcionamiento, los envíos y las condiciones profesionales.</p>
+    <ul class="pro-benefits">
+      <li><span data-icon="check"></span>Valoración previa antes de enviar material</li>
+      <li><span data-icon="check"></span>Recogida y devolución disponibles</li>
+      <li><span data-icon="check"></span>Presupuesto detallado antes de intervenir</li>
+      <li><span data-icon="check"></span>Seguimiento identificado de cada trabajo</li>
+    </ul>
+  </div>
+  <form id="professional-lead-form" class="pro-lead-form" novalidate>
+    <input class="form-honeypot" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="request-form-grid">
+      <label class="field"><span>Nombre y apellidos *</span><input name="nombre" required autocomplete="name" maxlength="120"></label>
+      <label class="field"><span>Nombre del taller *</span><input name="empresa" required autocomplete="organization" maxlength="140"></label>
+      <label class="field"><span>Teléfono *</span><input name="telefono" required inputmode="tel" autocomplete="tel" maxlength="30"></label>
+      <label class="field"><span>Email *</span><input name="email" required type="email" autocomplete="email" maxlength="254"></label>
+      <label class="field"><span>Provincia *</span><input name="provincia" required autocomplete="address-level1" maxlength="80"></label>
+      <label class="field"><span>Trabajos aproximados al mes</span><select name="volumen"><option value="Por confirmar">Por confirmar</option><option value="1-2">1–2 trabajos</option><option value="3-5">3–5 trabajos</option><option value="6-10">6–10 trabajos</option><option value="Más de 10">Más de 10 trabajos</option></select></label>
+      <label class="field pro-wide"><span>¿Qué trabajos necesitas derivar? *</span><textarea name="necesidad" required maxlength="600" placeholder="Por ejemplo: clonación ECU, inmovilizadores, FEM/BDC, EZS/ELV, airbag…"></textarea></label>
+    </div>
+    <label class="pro-consent"><input type="checkbox" name="privacidad" required> He leído y acepto la <a href="/politica-privacidad.html" target="_blank">política de privacidad</a>. *</label>
+    <button class="btn btn-primary pro-submit" type="submit"><span data-icon="file"></span>Solicitar contacto profesional</button>
+    <p id="professional-lead-status" class="pro-lead-status" role="status" aria-live="polite"></p>
+  </form>
 </section>
 <section class="section">
   <div class="eyebrow">QUÉ NOS PUEDES DERIVAR</div>
@@ -82,6 +110,6 @@
 </section>
 </main>
 <footer id="site-footer"></footer>
-<script defer src="assets/js/catalog.js"></script><script defer src="assets/js/cart.js"></script><script defer src="assets/js/app.js"></script><script defer src="/_vercel/insights/script.js"></script>
+<script defer src="assets/js/catalog.js"></script><script defer src="assets/js/cart.js"></script><script defer src="assets/js/app.js"></script><script defer src="assets/js/profesionales.js"></script><script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
