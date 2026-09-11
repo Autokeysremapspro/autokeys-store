@@ -51,15 +51,40 @@
     const { data } = await akSupabase().auth.getUser();
     CURRENT_USER = data.user;
     if (CURRENT_USER) {
-      const { data: perfil } = await akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle();
+      const [{ data: perfil }, { data: vehiculosData }] = await Promise.all([
+        akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle(),
+        akSupabase().from('tienda_vehiculos').select('*').eq('cliente_id', CURRENT_USER.id).order('created_at', { ascending: false }),
+      ]);
       PERFIL = perfil;
-      const { data: vehiculosData } = await akSupabase()
-        .from('tienda_vehiculos')
-        .select('*')
-        .eq('cliente_id', CURRENT_USER.id)
-        .order('created_at', { ascending: false });
       VEHICULOS = vehiculosData || [];
     }
+  }
+
+  function captureAuthGateState() {
+    const gate = document.getElementById('auth-gate');
+    if (!gate) return null;
+    return {
+      tab: document.getElementById('auth-register-content').hidden ? 'login' : 'register',
+      loginEmail: fieldVal('auth-login-email'),
+      loginPass: document.getElementById('auth-login-pass').value,
+      regNombre: fieldVal('auth-reg-nombre'),
+      regApellidos: fieldVal('auth-reg-apellidos'),
+      regEmail: fieldVal('auth-reg-email'),
+      regPass: document.getElementById('auth-reg-pass').value,
+      regTerms: document.getElementById('auth-reg-terms').checked,
+    };
+  }
+
+  function restoreAuthGateState(state) {
+    if (!state || !document.getElementById('auth-gate')) return;
+    setAuthTab(state.tab);
+    document.getElementById('auth-login-email').value = state.loginEmail;
+    document.getElementById('auth-login-pass').value = state.loginPass;
+    document.getElementById('auth-reg-nombre').value = state.regNombre;
+    document.getElementById('auth-reg-apellidos').value = state.regApellidos;
+    document.getElementById('auth-reg-email').value = state.regEmail;
+    document.getElementById('auth-reg-pass').value = state.regPass;
+    document.getElementById('auth-reg-terms').checked = state.regTerms;
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -142,6 +167,7 @@
   }
 
   function render() {
+    const authState = captureAuthGateState();
     const lines = akCartLines();
     if (lines.length === 0) {
       document.getElementById('cart-root').innerHTML =
@@ -190,6 +216,7 @@
     '</div>';
 
     wireEvents();
+    restoreAuthGateState(authState);
   }
 
   function renderCrossSell(lines) {
@@ -332,7 +359,11 @@
       return;
     }
     akToast('¡Bienvenido de nuevo!');
-    await loadUserData();
+    try {
+      await loadUserData();
+    } catch (e) {
+      console.error('No se pudieron cargar los datos del cliente tras iniciar sesión:', e);
+    }
     render();
   }
 
@@ -368,7 +399,11 @@
     }
     if (data.session) {
       akToast('Cuenta creada. ¡Bienvenido!');
-      await loadUserData();
+      try {
+        await loadUserData();
+      } catch (e) {
+        console.error('No se pudieron cargar los datos del cliente tras crear la cuenta:', e);
+      }
       render();
     } else {
       akToast('Cuenta creada. Revisa tu email para confirmarla y luego inicia sesión aquí mismo.');
