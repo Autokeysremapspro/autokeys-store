@@ -251,7 +251,7 @@
       { id: 'casos', href: 'blog.html', title: 'Casos reales', desc: 'Trabajos documentados en nuestro laboratorio.' },
     ];
     document.getElementById('cat-grid').innerHTML = homeCats.map((c) =>
-      '<a class="cat-item" href="' + (c.href || ('tienda.html?cat=' + c.id)) + '">' +
+      '<a class="cat-item" href="' + (c.href || ('/categorias/' + c.id)) + '">' +
         '<span class="icon">' + akIcon(catIcons[c.id]) + '</span>' +
         '<span><b>' + c.title + '</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">' + c.desc + '</p></span>' +
       '</a>'

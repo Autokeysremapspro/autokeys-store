@@ -107,7 +107,7 @@
 
     document.getElementById('breadcrumb').innerHTML =
       '<a href="index.html">Inicio</a><span data-icon="chevRight"></span>' +
-      '<a href="tienda.html?cat=' + product.category + '">' + (cat ? cat.label : 'Servicios') + '</a><span data-icon="chevRight"></span>' +
+      '<a href="/categorias/' + product.category + '">' + (cat ? cat.label : 'Servicios') + '</a><span data-icon="chevRight"></span>' +
       '<span class="current">' + product.name + '</span>';
 
     renderDetail();
