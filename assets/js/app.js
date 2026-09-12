@@ -113,8 +113,8 @@ function akHeaderHTML(active) {
     '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav">' +
       dropdown('tienda', 'TIENDA', [
         { href: '/tienda.html', label: 'Ver todo el catálogo' },
-        { href: '/tienda.html?cat=reparacion-ecu', label: 'Reparación ECU — catálogo' },
-        { href: '/tienda.html?cat=clonacion-ecu', label: 'Clonación ECU — catálogo' },
+        { href: '/categorias/reparacion-ecu', label: 'Reparación ECU — catálogo' },
+        { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU — catálogo' },
         { href: '/tienda.html?brand=bmw', label: 'BMW' },
         { href: '/tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
@@ -140,8 +140,8 @@ function akHeaderHTML(active) {
         { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
-      navLink('/tienda.html?cat=software', 'software', 'SOFTWARE') +
-      navLink('/tienda.html?cat=herramientas', 'herramientas', 'HERRAMIENTAS') +
+      navLink('/categorias/software', 'software', 'SOFTWARE') +
+      navLink('/categorias/herramientas', 'herramientas', 'HERRAMIENTAS') +
       navLink('/blog.html', 'blog', 'BLOG') +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/login.html', 'profesional', 'ÁREA PROFESIONAL') +
