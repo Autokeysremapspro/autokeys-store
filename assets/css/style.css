@@ -219,7 +219,7 @@ img{max-width:100%;display:block}
 .hero h1 em{font-style:normal;color:var(--red)}
 .hero .lead{max-width:620px;color:#9c9ca4;line-height:1.65;font-size:16px;margin:0 0 26px}
 .hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
-.proof-metrics{max-width:1180px;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;border:1px solid var(--line);background:var(--line);border-radius:14px;overflow:hidden}.proof-metrics>div,.proof-metrics>a{min-height:92px;padding:18px;background:linear-gradient(145deg,var(--panel),#101013);display:flex;flex-direction:column;justify-content:center}.proof-metrics strong{font-size:20px;color:#fff}.proof-metrics span{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}.proof-metrics a:hover{background:#211114}.proof-metrics a span span{color:var(--red-text);margin-left:4px}
+.proof-metrics{max-width:1180px;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;border:1px solid var(--line);background:var(--line);border-radius:14px;overflow:hidden}.proof-metrics>div,.proof-metrics>a{min-height:92px;padding:18px;background:linear-gradient(145deg,var(--panel),#101013);display:flex;flex-direction:column;justify-content:center}.proof-metrics strong{font-size:20px;color:#fff}.proof-metrics span{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}.proof-metrics a:hover{background:#211114}.proof-metrics a span span{color:var(--red-text);margin-left:4px}
 .hero-badge{display:flex;align-items:center;gap:9px;font-size:11.5px;color:#c9c9d0}
 .hero-badge svg{width:19px;height:19px;color:var(--red);flex:none}
 .hero-badge b{display:block;color:#fff;font-size:12.5px}
