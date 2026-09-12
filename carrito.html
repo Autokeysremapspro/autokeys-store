@@ -47,20 +47,49 @@
   let showNewVehiculoForm = false;
   let appliedCupon = null;
 
+  async function loadUserData() {
+    const { data } = await akSupabase().auth.getUser();
+    CURRENT_USER = data.user;
+    if (CURRENT_USER) {
+      const [{ data: perfil }, { data: vehiculosData }] = await Promise.all([
+        akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle(),
+        akSupabase().from('tienda_vehiculos').select('*').eq('cliente_id', CURRENT_USER.id).order('created_at', { ascending: false }),
+      ]);
+      PERFIL = perfil;
+      VEHICULOS = vehiculosData || [];
+    }
+  }
+
+  function captureAuthGateState() {
+    const gate = document.getElementById('auth-gate');
+    if (!gate) return null;
+    return {
+      tab: document.getElementById('auth-register-content').hidden ? 'login' : 'register',
+      loginEmail: fieldVal('auth-login-email'),
+      loginPass: document.getElementById('auth-login-pass').value,
+      regNombre: fieldVal('auth-reg-nombre'),
+      regApellidos: fieldVal('auth-reg-apellidos'),
+      regEmail: fieldVal('auth-reg-email'),
+      regPass: document.getElementById('auth-reg-pass').value,
+      regTerms: document.getElementById('auth-reg-terms').checked,
+    };
+  }
+
+  function restoreAuthGateState(state) {
+    if (!state || !document.getElementById('auth-gate')) return;
+    setAuthTab(state.tab);
+    document.getElementById('auth-login-email').value = state.loginEmail;
+    document.getElementById('auth-login-pass').value = state.loginPass;
+    document.getElementById('auth-reg-nombre').value = state.regNombre;
+    document.getElementById('auth-reg-apellidos').value = state.regApellidos;
+    document.getElementById('auth-reg-email').value = state.regEmail;
+    document.getElementById('auth-reg-pass').value = state.regPass;
+    document.getElementById('auth-reg-terms').checked = state.regTerms;
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const { data } = await akSupabase().auth.getUser();
-      CURRENT_USER = data.user;
-      if (CURRENT_USER) {
-        const { data: perfil } = await akSupabase().from('tienda_clientes').select('*').eq('id', CURRENT_USER.id).maybeSingle();
-        PERFIL = perfil;
-        const { data: vehiculosData } = await akSupabase()
-          .from('tienda_vehiculos')
-          .select('*')
-          .eq('cliente_id', CURRENT_USER.id)
-          .order('created_at', { ascending: false });
-        VEHICULOS = vehiculosData || [];
-      }
+      await loadUserData();
     } catch (e) { /* supabase not reachable — treat as guest */ }
     await akCatalogReady();
 
@@ -138,6 +167,7 @@
   }
 
   function render() {
+    const authState = captureAuthGateState();
     const lines = akCartLines();
     if (lines.length === 0) {
       document.getElementById('cart-root').innerHTML =
@@ -186,6 +216,7 @@
     '</div>';
 
     wireEvents();
+    restoreAuthGateState(authState);
   }
 
   function renderCrossSell(lines) {
@@ -268,16 +299,133 @@
   }
 
   function renderLoginGate() {
-    return '<div class="cart-panel">' +
-      '<h3>INICIA SESIÓN PARA CONTINUAR</h3>' +
-      '<p style="color:var(--muted);font-size:13px;line-height:1.6">Para completar tu pedido necesitas una cuenta — así podemos avisarte del estado y llevar un control correcto de tus compras. Tu carrito se mantiene intacto.</p>' +
-      '<a class="btn btn-primary btn-block" href="login.html?redirect=carrito.html">' + akIcon('user') + 'Iniciar sesión o crear cuenta' + akIcon('arrowRight') + '</a>' +
+    return '<div class="cart-panel" id="auth-gate">' +
+      '<h3>CREA TU CUENTA PARA CONTINUAR</h3>' +
+      '<p style="color:var(--muted);font-size:13px;line-height:1.6">Para completar tu pedido necesitas una cuenta — así podemos avisarte del estado, coordinar recogidas/entregas y llevar tu historial. Tu carrito se mantiene intacto.</p>' +
+      '<button class="oauth-btn" type="button" id="auth-google-btn" style="width:100%;margin-bottom:16px">' + akIcon('google') + 'Continuar con Google</button>' +
+      '<div class="auth-divider">o con tu email</div>' +
+      '<div class="auth-tabs">' +
+        '<button type="button" class="active" data-auth-tab="login">INICIAR SESIÓN</button>' +
+        '<button type="button" data-auth-tab="register">CREAR CUENTA</button>' +
+      '</div>' +
+      '<section id="auth-login-content">' +
+        '<div class="auth-field"><label for="auth-login-email">CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="auth-login-email" placeholder="tu@email.com" autocomplete="username"></div></div>' +
+        '<div class="auth-field"><label for="auth-login-pass">CONTRASEÑA</label><div class="auth-input">' + akIcon('lock') + '<input type="password" id="auth-login-pass" placeholder="••••••••••" autocomplete="current-password"></div></div>' +
+        '<button class="btn btn-primary btn-block" type="button" id="auth-login-btn">Entrar y continuar' + akIcon('arrowRight') + '</button>' +
+        '<p style="text-align:center;margin-top:10px"><a class="link-red" href="#" id="auth-forgot-link" style="font-size:12px">¿Olvidaste tu contraseña?</a></p>' +
+      '</section>' +
+      '<section id="auth-register-content" hidden>' +
+        '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
+          '<div class="auth-field"><label for="auth-reg-nombre">NOMBRE</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="auth-reg-nombre" placeholder="Nombre" autocomplete="given-name"></div></div>' +
+          '<div class="auth-field"><label for="auth-reg-apellidos">APELLIDOS</label><div class="auth-input">' + akIcon('user') + '<input type="text" id="auth-reg-apellidos" placeholder="Apellidos" autocomplete="family-name"></div></div>' +
+        '</div>' +
+        '<div class="auth-field"><label for="auth-reg-email">CORREO ELECTRÓNICO</label><div class="auth-input">' + akIcon('mail') + '<input type="email" id="auth-reg-email" placeholder="tu@email.com" autocomplete="email"></div></div>' +
+        '<div class="auth-field"><label for="auth-reg-pass">CONTRASEÑA</label><div class="auth-input">' + akIcon('lock') + '<input type="password" id="auth-reg-pass" placeholder="Mínimo 8 caracteres" autocomplete="new-password"></div></div>' +
+        '<div class="auth-row-between"><label><input type="checkbox" id="auth-reg-terms" style="accent-color:var(--red)"> Acepto los <a class="link-red" href="condiciones-venta.html" target="_blank">términos</a> y la <a class="link-red" href="politica-privacidad.html" target="_blank">política de privacidad</a></label></div>' +
+        '<button class="btn btn-primary btn-block" type="button" id="auth-register-btn">Crear cuenta y continuar' + akIcon('arrowRight') + '</button>' +
+      '</section>' +
       '<ul class="trust-row" style="margin-top:16px">' +
         '<li>' + akIcon('lock') + 'Pago 100% seguro</li>' +
         '<li>' + akIcon('headset') + 'Atención técnica L-V</li>' +
       '</ul>' +
       '<a class="checkout-help" data-ak-cta="checkout_help" href="https://wa.me/34632982646?text=Hola%2C%20necesito%20ayuda%20para%20finalizar%20un%20pedido%20en%20Autokeys%20Store" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span><b>¿Te has quedado atascado?</b><small>Te ayudamos a finalizar el pedido por WhatsApp.</small></span></a>' +
     '</div>';
+  }
+
+  function setAuthTab(tab) {
+    document.getElementById('auth-login-content').hidden = tab !== 'login';
+    document.getElementById('auth-register-content').hidden = tab !== 'register';
+    document.querySelectorAll('[data-auth-tab]').forEach((b) => b.classList.toggle('active', b.dataset.authTab === tab));
+  }
+
+  async function handleCartGoogleLogin() {
+    const { error } = await akSupabase().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/carrito.html' },
+    });
+    if (error) akToast('No se pudo iniciar el acceso con Google: ' + error.message);
+  }
+
+  async function handleCartLogin() {
+    const email = fieldVal('auth-login-email');
+    const pass = document.getElementById('auth-login-pass').value;
+    if (!email || !pass) { akToast('Introduce tu email y contraseña'); return; }
+    const btn = document.getElementById('auth-login-btn');
+    btn.disabled = true;
+    const { error } = await akSupabase().auth.signInWithPassword({ email, password: pass });
+    btn.disabled = false;
+    if (error) {
+      akToast(/invalid/i.test(error.message) ? 'Email o contraseña incorrectos' : 'No se pudo iniciar sesión: ' + error.message);
+      return;
+    }
+    akToast('¡Bienvenido de nuevo!');
+    try {
+      await loadUserData();
+    } catch (e) {
+      console.error('No se pudieron cargar los datos del cliente tras iniciar sesión:', e);
+    }
+    render();
+  }
+
+  async function handleCartRegister() {
+    const nombre = fieldVal('auth-reg-nombre');
+    const apellidos = fieldVal('auth-reg-apellidos');
+    const email = fieldVal('auth-reg-email');
+    const pass = document.getElementById('auth-reg-pass').value;
+    const terms = document.getElementById('auth-reg-terms').checked;
+    if (!nombre || !apellidos || !email || !pass) { akToast('Rellena todos los campos'); return; }
+    if (pass.length < 8) { akToast('La contraseña debe tener al menos 8 caracteres'); return; }
+    if (!terms) { akToast('Debes aceptar los términos y la política de privacidad'); return; }
+
+    const btn = document.getElementById('auth-register-btn');
+    btn.disabled = true;
+    const { data, error } = await akSupabase().auth.signUp({
+      email,
+      password: pass,
+      options: {
+        data: { nombre, apellidos, tipo_usuario: 'cliente_tienda', tipo_cliente: 'particular' },
+        emailRedirectTo: window.location.origin + '/carrito.html',
+      },
+    });
+    btn.disabled = false;
+    if (error) {
+      akToast(/already/i.test(error.message) ? 'Ese email ya tiene una cuenta. Inicia sesión.' : 'No se pudo crear la cuenta: ' + error.message);
+      return;
+    }
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      akToast('Ese email ya tiene una cuenta. Inicia sesión o recupera tu contraseña.');
+      setAuthTab('login');
+      return;
+    }
+    if (data.session) {
+      akToast('Cuenta creada. ¡Bienvenido!');
+      try {
+        await loadUserData();
+      } catch (e) {
+        console.error('No se pudieron cargar los datos del cliente tras crear la cuenta:', e);
+      }
+      render();
+    } else {
+      akToast('Cuenta creada. Revisa tu email para confirmarla y luego inicia sesión aquí mismo.');
+      setAuthTab('login');
+    }
+  }
+
+  async function handleCartForgotPassword() {
+    const email = fieldVal('auth-login-email');
+    if (!email) { akToast('Escribe tu email arriba y vuelve a pulsar el enlace'); return; }
+    const { error } = await akSupabase().auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/carrito.html' });
+    akToast(error ? 'No se pudo enviar el correo de recuperación' : 'Te hemos enviado un enlace para restablecer tu contraseña');
+  }
+
+  function wireAuthGate() {
+    const gate = document.getElementById('auth-gate');
+    if (!gate) return;
+    document.querySelectorAll('[data-auth-tab]').forEach((b) => b.addEventListener('click', () => setAuthTab(b.dataset.authTab)));
+    document.getElementById('auth-google-btn').addEventListener('click', handleCartGoogleLogin);
+    document.getElementById('auth-login-btn').addEventListener('click', handleCartLogin);
+    document.getElementById('auth-register-btn').addEventListener('click', handleCartRegister);
+    document.getElementById('auth-forgot-link').addEventListener('click', (e) => { e.preventDefault(); handleCartForgotPassword(); });
   }
 
   function renderCheckoutForm(total) {
@@ -407,6 +555,7 @@
   }
 
   function wireEvents() {
+    wireAuthGate();
     document.querySelectorAll('[data-qty]').forEach((btn) => btn.addEventListener('click', () => {
       const idx = Number(btn.dataset.idx);
       const lines = akCartLines();
