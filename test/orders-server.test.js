@@ -10,7 +10,7 @@ function response(data, ok = true) {
   return { ok, json: async () => data };
 }
 
-function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false, dimensions = null } = {}) {
+function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false, dimensions = null, coupon = null, priorOrders = false } = {}) {
   global.fetch = async (url) => {
     const path = String(url);
     if (path.includes('tienda_configuracion')) return response([{
@@ -35,12 +35,14 @@ function mockCatalog({ price = 10, weight = 1, physical = true, excluded = false
       excluido_envio_gratis: excluded,
       es_digital: false,
     }]);
+    if (path.includes('tienda_cupones')) return response(coupon ? [coupon] : []);
+    if (path.includes('tienda_pedidos')) return response(priorOrders ? [{ id: 'pedido-anterior' }] : []);
     throw new Error(`URL inesperada: ${path}`);
   };
 }
 
-async function quote(qty) {
-  return quoteOrder([{ product_id: 'p1', variant_id: 'v1', qty }], null);
+async function quote(qty, cuponCode = null, userId = undefined) {
+  return quoteOrder([{ product_id: 'p1', variant_id: 'v1', qty }], cuponCode, userId);
 }
 
 test('aplica 9,95 € hasta 5 kg incluyendo embalaje', async () => {
@@ -96,4 +98,23 @@ test('un servicio digital no genera peso ni envío', async () => {
   assert.equal(result.peso_total_kg, 0);
   assert.equal(result.envio, 0);
   assert.equal(result.tarifa_envio_codigo, 'NO_APLICA');
+});
+
+test('un cupón "solo primer pedido" aplica el descuento si el cliente no tiene pedidos previos', async () => {
+  const coupon = { id: 'c1', codigo: 'BIENVENIDA', tipo: 'porcentaje', valor: 5, fecha_inicio: null, fecha_fin: null, importe_minimo: 0, usos_maximos: null, usos_actuales: 0, solo_primer_pedido: true };
+  mockCatalog({ price: 100, coupon, priorOrders: false });
+  const result = await quote(1, 'BIENVENIDA', 'cliente-1');
+  assert.equal(result.descuento, 5);
+});
+
+test('un cupón "solo primer pedido" se rechaza si el cliente ya tiene un pedido', async () => {
+  const coupon = { id: 'c1', codigo: 'BIENVENIDA', tipo: 'porcentaje', valor: 5, fecha_inicio: null, fecha_fin: null, importe_minimo: 0, usos_maximos: null, usos_actuales: 0, solo_primer_pedido: true };
+  mockCatalog({ price: 100, coupon, priorOrders: true });
+  await assert.rejects(() => quote(1, 'BIENVENIDA', 'cliente-1'), /cupon_solo_primer_pedido/);
+});
+
+test('un cupón "solo primer pedido" se rechaza sin cliente identificado', async () => {
+  const coupon = { id: 'c1', codigo: 'BIENVENIDA', tipo: 'porcentaje', valor: 5, fecha_inicio: null, fecha_fin: null, importe_minimo: 0, usos_maximos: null, usos_actuales: 0, solo_primer_pedido: true };
+  mockCatalog({ price: 100, coupon });
+  await assert.rejects(() => quote(1, 'BIENVENIDA', null), /cupon_solo_primer_pedido/);
 });

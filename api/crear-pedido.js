@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
     const method = String(body.metodo_pago || '').trim().toLowerCase();
     if (!PAYMENT_METHODS.has(method)) return res.status(400).json({ error: 'metodo_pago_no_valido' });
 
-    const quote = await quoteOrder(body.items, body.cupon);
+    const quote = await quoteOrder(body.items, body.cupon, user.id);
     const extras = clientExtras(body.items);
     const vehicle = await vehicleForUser(body.vehiculo_id, user.id);
     const referenciaVehiculo = vehicleReference(vehicle);
@@ -219,7 +219,7 @@ module.exports = async function handler(req, res) {
       'payload_demasiado_grande','faltan_datos_cliente','metodo_pago_no_valido','carrito_no_valido',
       'producto_no_valido','cantidad_no_valida','producto_no_disponible','variante_no_disponible',
       'precio_no_valido','cupon_no_valido','cupon_no_activo','cupon_caducado','cupon_agotado',
-      'cupon_importe_minimo','vehiculo_no_valido','envio_fuera_peninsula_no_disponible',
+      'cupon_importe_minimo','cupon_solo_primer_pedido','vehiculo_no_valido','envio_fuera_peninsula_no_disponible',
     ]);
     if (!clientErrors.has(code)) console.error('crear-pedido:', error);
     return res.status(clientErrors.has(code) ? 400 : 500).json({ error: code });

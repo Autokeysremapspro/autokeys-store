@@ -45,9 +45,14 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
   }
 
   async function akFetchCheckoutQuote() {
+    let accessToken = '';
+    try {
+      const session = await akSupabase().auth.getSession();
+      accessToken = session?.data?.session?.access_token || '';
+    } catch (_) {}
     const response = await fetch('/api/cotizar-pedido', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}) },
       body: JSON.stringify({ items: akCheckoutItems(), cupon: akCheckoutCouponCode() }),
     });
     const payload = await response.json().catch(() => ({}));
@@ -139,6 +144,7 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
       cupon_caducado: 'El cupón ha caducado.',
       cupon_agotado: 'El cupón ha alcanzado su límite de usos.',
       cupon_importe_minimo: 'El pedido no alcanza el importe mínimo del cupón.',
+      cupon_solo_primer_pedido: 'Ese cupón es solo para tu primer pedido.',
       envio_fuera_peninsula_no_disponible: 'El envío online está disponible para España peninsular. Escríbenos para otros destinos.',
       faltan_datos_cliente: 'Faltan datos obligatorios del pedido.',
     };
