@@ -6,6 +6,7 @@ const EVENTOS = new Set([
   'whatsapp_click', 'phone_click', 'repair_cta_click',
   'repair_form_start', 'repair_step', 'repair_login_gate', 'checkout_login_gate',
   'repair_form_abandon', 'calculator_result', 'calculator_lead',
+  'cita_form_start', 'cita_request',
 ]);
 
 async function body(req) {
