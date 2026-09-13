@@ -101,6 +101,10 @@ function akHeaderHTML(active) {
     '</li>';
 
   return '' +
+  '<div class="promo-bar"><div class="container">' +
+    '<span>🎁 <b>5% de descuento en tu primer pedido</b> con el código <b>BIENVENIDA</b> · Pedido mínimo 50€</span>' +
+    '<button type="button" class="promo-copy" data-action="copy-coupon" data-code="BIENVENIDA">Copiar código</button>' +
+  '</div></div>' +
   '<div class="topbar"><div class="container">' +
     '<div class="tb-item">' + akIcon('award') + '<span>Especialistas en electrónica automotriz</span></div>' +
     '<div class="tb-item">' + akIcon('headset') + '<span>Atención profesional · L-V</span></div>' +
@@ -440,6 +444,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (e.target.closest('[data-action="logout"]')) {
       akLogout();
+      return;
+    }
+    const copyCoupon = e.target.closest('[data-action="copy-coupon"]');
+    if (copyCoupon) {
+      const code = copyCoupon.dataset.code || '';
+      if (navigator.clipboard && code) {
+        navigator.clipboard.writeText(code).then(() => akToast('Código copiado: ' + code)).catch(() => akToast('No se pudo copiar. Código: ' + code));
+      } else {
+        akToast('Código: ' + code);
+      }
       return;
     }
   });

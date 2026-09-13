@@ -120,6 +120,18 @@ img{max-width:100%;display:block}
 .btn-sm{padding:9px 14px;font-size:12px}
 .link-red{color:var(--red-text);font-weight:800;font-size:12px;display:inline-flex;align-items:center;gap:6px}
 
+/* ---------- Promo bar ---------- */
+.promo-bar{background:var(--red);color:#fff;font-size:12.5px}
+.promo-bar .container{
+  display:flex;align-items:center;justify-content:center;
+  padding:9px clamp(18px,4vw,48px);gap:14px;flex-wrap:wrap;text-align:center;
+}
+.promo-copy{
+  background:#fff;color:var(--red-dark);border:0;border-radius:6px;
+  padding:5px 12px;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap;flex:none;
+}
+.promo-copy:hover{opacity:.9}
+
 /* ---------- Top announcement bar ---------- */
 .topbar{
   background:#000;border-bottom:1px solid var(--line-soft);
@@ -850,6 +862,7 @@ input[type=range]{width:100%;accent-color:var(--red)}
   .topbar .tb-item:not(:first-child){display:none}
 }
 @media(max-width:480px){
+  .promo-bar .container{padding:8px clamp(14px,4vw,48px);font-size:11.5px}
   .head-action span{display:none}
   .head-action{padding:9px;gap:0}
   .search-icon-btn{display:none!important}
