@@ -205,7 +205,7 @@
   async function loadSession() {
     const { data: { session } } = await akSupabase().auth.getSession(); const notice = document.getElementById('auth-notice');
     document.getElementById('archivos').disabled = !session;
-    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('check') + '<span><b>No necesitas crear una cuenta.</b> Enviaremos la confirmación y el número de solicitud a tu email. Si ya tienes cuenta, puedes iniciar sesión para asociarla a tu historial y adjuntar archivos.</span>'; return; }
+    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('user') + '<span><b>Puedes completar el formulario ahora.</b> Para enviarlo necesitarás iniciar sesión o crear una cuenta: la solicitud queda vinculada a tu historial y podrás adjuntar archivos y hacer seguimiento del envío.</span>'; return; }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social,direccion,codigo_postal,ciudad,provincia').eq('id', session.user.id).maybeSingle();
     if (profile) {
       if (!value('nombre')) document.getElementById('nombre').value = profile.razon_social || [profile.nombre, profile.apellidos].filter(Boolean).join(' ');
@@ -234,6 +234,7 @@
     if (!validateStep(3) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
     let session = null;
     try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {}
+    if (!session) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
     const quote = pickupQuote();
     const payload = {
@@ -256,6 +257,7 @@
     }
     const request = await response.json().catch(() => ({}));
     if (!response.ok) {
+      if (response.status === 401) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
       const message = response.status === 429 ? 'Ya hemos recibido varias solicitudes con este email. Escríbenos por WhatsApp si necesitas añadir información.' : 'No se pudo enviar la solicitud. Revisa los datos o inténtalo de nuevo.';
       btn.disabled = false; btn.innerHTML = 'Solicitar valoración' + akIcon('check'); akToast(message); return;
     }
