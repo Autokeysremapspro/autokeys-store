@@ -10,6 +10,13 @@
   ];
   const IDS = ['marca', 'modelo', 'anio', 'matricula', 'descripcion', 'fecha', 'franja', 'tipo-cliente', 'nombre', 'email', 'telefono'];
   let selectedServicio = '';
+  const openedAt = Date.now();
+  let citaTrackedStart = false;
+  function trackCitaStart() {
+    if (citaTrackedStart) return;
+    citaTrackedStart = true;
+    if (typeof akTrack === 'function') akTrack('cita_form_start', { carrito: false });
+  }
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -40,6 +47,7 @@
   function selectServicio(id) {
     selectedServicio = id;
     document.querySelectorAll('[data-servicio]').forEach((b) => b.classList.toggle('active', b.dataset.servicio === id));
+    trackCitaStart();
     saveDraft();
   }
 
@@ -72,7 +80,7 @@
     const notice = document.getElementById('auth-notice');
     if (!session) {
       notice.hidden = false;
-      notice.innerHTML = akIcon('user') + '<span><b>Puedes completar el formulario ahora.</b> Para enviarlo necesitarás iniciar sesión o crear una cuenta. Guardaremos el borrador.</span>';
+      notice.innerHTML = akIcon('check') + '<span><b>No necesitas crear una cuenta.</b> Enviaremos la confirmación de la cita a tu email. Si ya tienes cuenta, puedes iniciar sesión para asociarla a tu historial.</span>';
       return;
     }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social').eq('id', session.user.id).maybeSingle();
@@ -87,23 +95,36 @@
   async function submitCita(e) {
     e.preventDefault();
     if (!validate() || !document.getElementById('cita-form').checkValidity()) { document.getElementById('cita-form').reportValidity(); return; }
-    const { data: { session } } = await akSupabase().auth.getSession();
-    if (!session) { saveDraft(); window.location.href = 'login.html?redirect=reservar-cita.html'; return; }
+    let session = null;
+    try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {}
     const btn = document.getElementById('submit-cita'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
     const payload = {
-      cliente_id: session.user.id, tipo_servicio: selectedServicio, descripcion: value('descripcion') || null,
+      website: value('website'), opened_at: openedAt, tipo_servicio: selectedServicio, descripcion: value('descripcion') || null,
       marca: value('marca'), modelo: value('modelo'), anio: value('anio') ? Number(value('anio')) : null, matricula: value('matricula') || null,
       fecha_preferida: value('fecha'), franja_horaria: value('franja') || 'cualquiera',
       tipo_cliente: value('tipo-cliente'), nombre: value('nombre'), email: value('email'), telefono: value('telefono'),
       acepta_condiciones: document.getElementById('acepta-condiciones').checked, acepta_privacidad: document.getElementById('acepta-privacidad').checked,
     };
-    const { data: cita, error } = await akSupabase().from('tienda_citas').insert(payload).select('id,numero').single();
-    if (error) { btn.disabled = false; btn.innerHTML = 'Solicitar cita' + akIcon('check'); akToast('No se pudo crear la solicitud: ' + error.message); return; }
-    try { await fetch('/api/enviar-confirmacion-cita', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ cita_id: cita.id }) }); } catch (_) {}
+    let response;
+    try {
+      response = await fetch('/api/solicitud-cita', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(session ? { Authorization: 'Bearer ' + session.access_token } : {}) },
+        body: JSON.stringify(payload),
+      });
+    } catch (_) {
+      btn.disabled = false; btn.innerHTML = 'Solicitar cita' + akIcon('check'); akToast('No se pudo conectar. Tu borrador sigue guardado.'); return;
+    }
+    const cita = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = response.status === 429 ? 'Ya hemos recibido varias solicitudes con este email. Escríbenos por WhatsApp si necesitas añadir información.' : 'No se pudo crear la solicitud. Revisa los datos o inténtalo de nuevo.';
+      btn.disabled = false; btn.innerHTML = 'Solicitar cita' + akIcon('check'); akToast(message); return;
+    }
+    if (typeof akTrack === 'function') akTrack('cita_request', { carrito: false, metadata: { label: selectedServicio } });
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     document.getElementById('request-shell').hidden = true;
     const success = document.getElementById('cita-success'); success.hidden = false;
-    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + cita.numero + '</h2><p>Ya aparece en nuestro panel. Te llamaremos o escribiremos para confirmar el día y la hora exactos.</p><div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos tu disponibilidad y la nuestra.</span><span>2. Te confirmamos día y hora por teléfono o email.</span><span>3. Te esperamos en el taller ese día.</span></div><div class="btn-row"><a class="btn btn-primary" href="cuenta.html">Ver mi cuenta</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
+    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + cita.numero + '</h2><p>Ya aparece en nuestro panel. ' + (cita.email_enviado ? 'También hemos enviado la confirmación a tu email. ' : '') + 'Te llamaremos o escribiremos para confirmar el día y la hora exactos.</p><div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos tu disponibilidad y la nuestra.</span><span>2. Te confirmamos día y hora por teléfono o email.</span><span>3. Te esperamos en el taller ese día.</span></div><div class="btn-row"><a class="btn btn-secondary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de solicitar la cita ' + cita.numero) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
     window.scrollTo({ top: 120, behavior: 'smooth' });
   }
 })();

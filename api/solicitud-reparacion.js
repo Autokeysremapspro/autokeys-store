@@ -90,6 +90,7 @@ module.exports = async function handler(req, res) {
     const contact = validate(data);
     if ((await recentRequests(contact.email)).length >= 3) return res.status(429).json({ error: 'demasiadas_solicitudes' });
     const user = await authenticatedUser(req);
+    if (!user) return res.status(401).json({ error: 'sesion_requerida' });
     const pickup = data.metodo_envio === 'recogida_autokeys';
     const request = await insertRequest({
       cliente_id: user ? user.id : null,

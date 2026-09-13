@@ -106,7 +106,7 @@
 
   function renderPost(post) {
     const cat = post.categoria_tienda_id ? akFindCategory(post.categoria_tienda_id) : null;
-    const ctaHref = cat ? 'tienda.html?cat=' + cat.id : 'tienda.html';
+    const ctaHref = cat ? '/categorias/' + cat.id : '/tienda.html';
     const ctaLabel = cat ? 'Ver servicios de ' + cat.label : 'Ver catálogo de servicios';
     document.getElementById('post-root').innerHTML =
       '<div class="eyebrow">' + akEscapeHtml(post.categoria || 'BLOG') + '</div>' +

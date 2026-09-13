@@ -125,7 +125,7 @@ const LANDINGS = {
       ['¿Debo enviar FEM/BDC y llave?', 'Depende del trabajo. Revisamos primero el caso y confirmamos qué elementos son necesarios.'],
       ['¿Trabajáis módulos manipulados previamente?', 'Podemos revisarlos, aunque la viabilidad depende del estado electrónico y de los datos disponibles.']
     ],
-    related: [['Programación de llaves', '/programacion-llaves-coche'], ['Reparación por envío', '/reparacion-centralita-por-envio'], ['Catálogo BMW', '/tienda.html?cat=bmw-fem-bdc']]
+    related: [['Programación de llaves', '/programacion-llaves-coche'], ['Reparación por envío', '/reparacion-centralita-por-envio'], ['Catálogo BMW', '/bmw-fem-bdc']]
   },
   'mercedes-ezs-elv': {
     title: 'Mercedes EZS y ELV: Reparación y Programación | Autokeys',
@@ -143,7 +143,7 @@ const LANDINGS = {
       ['¿Necesitáis la llave junto al EZS?', 'Con frecuencia sí, pero depende del sistema y del trabajo solicitado. Lo confirmamos antes del envío.'],
       ['¿Todos los fallos de arranque son del EZS o ELV?', 'No. Por eso pedimos diagnosis y síntomas antes de intervenir; otros módulos o problemas eléctricos pueden producir fallos similares.']
     ],
-    related: [['Reparación por envío', '/reparacion-centralita-por-envio'], ['Programación de llaves', '/programacion-llaves-coche'], ['Catálogo Mercedes', '/tienda.html?cat=mercedes-ezs-elv']]
+    related: [['Reparación por envío', '/reparacion-centralita-por-envio'], ['Programación de llaves', '/programacion-llaves-coche'], ['Catálogo Mercedes', '/mercedes-ezs-elv']]
   },
   'reparacion-airbag-srs': {
     title: 'Reparación de Módulos Airbag SRS | Autokeys Remaps Pro',
@@ -161,7 +161,7 @@ const LANDINGS = {
       ['¿Basta con reparar el módulo después de un accidente?', 'No. El sistema de seguridad completo debe inspeccionarse y repararse correctamente antes de volver a utilizar el vehículo.'],
       ['¿Puedo enviar solo el módulo?', 'En muchos casos sí, después de confirmar referencia, diagnosis y trabajo solicitado.']
     ],
-    related: [['Reparación por envío', '/reparacion-centralita-por-envio'], ['Centralitas ECU', '/reparacion-centralitas-ecu'], ['Catálogo Airbag/SRS', '/tienda.html?cat=airbag-srs']]
+    related: [['Reparación por envío', '/reparacion-centralita-por-envio'], ['Centralitas ECU', '/reparacion-centralitas-ecu'], ['Catálogo Airbag/SRS', '/reparacion-airbag-srs']]
   },
   'reprogramacion-centralitas-jaen': {
     title: 'Reprogramación de Centralitas en Jaén | Autokeys Remaps Pro',
