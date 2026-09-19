@@ -154,6 +154,7 @@
   ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/gracias", "destination": "/gracias.html" },
 
     { "source": "/blog-post.html", "destination": "/api/legacy-seo-redirect?type=blog" },
     { "source": "/producto.html", "destination": "/api/legacy-seo-redirect?type=product" },

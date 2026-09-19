@@ -122,9 +122,7 @@
     }
     if (typeof akTrack === 'function') akTrack('cita_request', { carrito: false, metadata: { label: selectedServicio } });
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
-    document.getElementById('request-shell').hidden = true;
-    const success = document.getElementById('cita-success'); success.hidden = false;
-    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + cita.numero + '</h2><p>Ya aparece en nuestro panel. ' + (cita.email_enviado ? 'También hemos enviado la confirmación a tu email. ' : '') + 'Te llamaremos o escribiremos para confirmar el día y la hora exactos.</p><div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos tu disponibilidad y la nuestra.</span><span>2. Te confirmamos día y hora por teléfono o email.</span><span>3. Te esperamos en el taller ese día.</span></div><div class="btn-row"><a class="btn btn-secondary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de solicitar la cita ' + cita.numero) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
-    window.scrollTo({ top: 120, behavior: 'smooth' });
+    try { sessionStorage.setItem('ak_ultima_confirmacion', JSON.stringify({ tipo: 'cita', numero: cita.numero, emailEnviado: Boolean(cita.email_enviado) })); } catch (_) {}
+    window.location.assign('/gracias');
   }
 })();

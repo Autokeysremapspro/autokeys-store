@@ -279,9 +279,8 @@
       keepalive:true
     }).catch(()=>{});
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
-    document.getElementById('request-shell').hidden = true; const success = document.getElementById('request-success'); success.hidden = false;
     const portalHref = request.seguimiento_token ? 'mi-solicitud.html#token=' + encodeURIComponent(request.seguimiento_token) : '';
-    success.innerHTML = '<div class="success-icon">' + akIcon('check') + '</div><div class="eyebrow">SOLICITUD RECIBIDA</div><h2>' + request.numero + '</h2><p>La solicitud ya está en nuestro panel. ' + (request.email_enviado ? 'También hemos enviado la referencia y el acceso privado a tu email. ' : 'Guarda el número y el enlace privado que aparecen aquí. ') + 'No envíes la unidad hasta recibir nuestras indicaciones.</p>' + (uploadWarning ? '<div class="request-notice warning">La solicitud está creada. Los archivos no se adjuntaron; te los pediremos después si son necesarios.</div>' : '') + '<div class="success-next"><b>¿Qué ocurre ahora?</b><span>1. Revisamos los datos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Podrás consultar el estado, aceptar el presupuesto y pagar desde tu enlace privado.</span></div><div class="btn-row">' + (portalHref ? '<a class="btn btn-primary" href="' + portalHref + '">Ver mi solicitud</a>' : '') + '<a class="btn btn-secondary" href="https://wa.me/34632982646?text=' + encodeURIComponent('Hola, acabo de enviar la solicitud ' + request.numero) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn btn-secondary" href="index.html">Volver al inicio</a></div>';
-    window.scrollTo({ top: 120, behavior: 'smooth' });
+    try { sessionStorage.setItem('ak_ultima_confirmacion', JSON.stringify({ tipo: 'reparacion', numero: request.numero, emailEnviado: Boolean(request.email_enviado), uploadWarning, portalHref })); } catch (_) {}
+    window.location.assign('/gracias');
   }
 })();
