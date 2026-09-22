@@ -254,7 +254,7 @@ function page(slug, data) {
 <meta name="twitter:description" content="${esc(data.description)}">
 <meta name="twitter:image" content="${SITE}/assets/img/hero-taller.webp">
 <link rel="stylesheet" href="/assets/css/style.css">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0a0a0c">
+<link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0a0a0c">
 <script type="application/ld+json">${jsonLd(serviceSchema)}</script>
 <script type="application/ld+json">${jsonLd(breadcrumb)}</script>
 </head>
