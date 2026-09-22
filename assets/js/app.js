@@ -115,6 +115,8 @@ function akHeaderHTML(active) {
         { href: '/tienda.html', label: 'Ver todo el catálogo' },
         { href: '/categorias/reparacion-ecu', label: 'Reparación ECU — catálogo' },
         { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU — catálogo' },
+        { href: '/categorias/herramientas', label: 'Herramientas profesionales' },
+        { href: '/categorias/software', label: 'Software y licencias' },
         { href: '/tienda.html?brand=bmw', label: 'BMW' },
         { href: '/tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
@@ -130,6 +132,7 @@ function akHeaderHTML(active) {
         { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
         { href: '/calculadora-reparacion.html', label: 'Valoración rápida online' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
+        { href: '/blog.html', label: 'Guías y blog técnico' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
         { href: '/reparacion-centralitas-ecu', label: 'Reparación ECU' },
@@ -140,11 +143,8 @@ function akHeaderHTML(active) {
         { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
-      navLink('/categorias/software', 'software', 'SOFTWARE') +
-      navLink('/categorias/herramientas', 'herramientas', 'HERRAMIENTAS') +
-      navLink('/blog.html', 'blog', 'BLOG') +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
-      navLink('/login.html', 'profesional', 'ÁREA PROFESIONAL') +
+      navLink('/contacto.html', 'contacto', 'CONTACTO') +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
@@ -176,8 +176,9 @@ function akFooterHTML() {
     '<div class="newsletter-strip">' +
       '<div><b>Ofertas y novedades en tu correo</b><span>Sin spam, solo avisos de descuentos y nuevos servicios.</span></div>' +
       '<form id="newsletter-form">' +
-        '<input type="email" id="newsletter-email" placeholder="tu@email.com" required>' +
-        '<button type="submit" class="btn btn-primary btn-sm">Suscribirme</button>' +
+        '<div class="newsletter-fields"><input type="email" id="newsletter-email" name="email" autocomplete="email" aria-label="Correo electrónico" placeholder="tu@email.com" required>' +
+        '<button type="submit" class="btn btn-primary btn-sm">Suscribirme</button></div>' +
+        '<label class="newsletter-consent"><input type="checkbox" required> <span>Acepto recibir comunicaciones comerciales y la <a href="/politica-privacidad.html">política de privacidad</a>.</span></label>' +
       '</form>' +
     '</div>' +
     '<div class="footer-grid">' +
@@ -221,7 +222,7 @@ function akFooterHTML() {
         '<li><a href="mailto:laboratorio@autokeysremapspro.com">' + akIcon('mail') + '<span>laboratorio@autokeysremapspro.com · Soporte técnico</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es · Administración</span></a></li>' +
         '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
-        '<li>' + akIcon('clock') + '<span>L-V · 09:00–14:00 · 16:00–20:30 · Cita previa</span></li>' +
+        '<li>' + akIcon('clock') + '<span>L-V · 09:30–13:30 · 17:00–20:30 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +
