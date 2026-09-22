@@ -5,6 +5,10 @@ let CATEGORIES = [];
 let BRANDS = [];
 let CATALOG = [];
 
+/* Productos que no deben anunciarse ni venderse hasta contar con la
+   autorización comercial correspondiente del fabricante. */
+const AK_HIDDEN_PRODUCT_IDS = new Set(['programadores-multimarca']);
+
 const SERVICE_TYPES = [
   { id: 'taller', label: 'Presencial / Taller' },
   { id: 'remoto', label: 'Remoto' },
@@ -226,7 +230,9 @@ function akApplyCatalogPayload(payload) {
 
   const valoracionesByProducto = {};
   (payload.ratings || []).forEach((v) => { valoracionesByProducto[v.producto_id] = v; });
-  CATALOG = payload.products.map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
+  CATALOG = payload.products
+    .filter((p) => !AK_HIDDEN_PRODUCT_IDS.has(p.id))
+    .map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
   return CATALOG.length > 0;
 }
 

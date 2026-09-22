@@ -89,7 +89,7 @@ function emailShell(eyebrow, titulo, bodyHtml) {
         <p style="font-size:11.5px;color:#85858e;margin:0 0 6px;font-weight:800;letter-spacing:.5px">AUTOKEYS REMAPS PRO STORE</p>
         <p style="font-size:11.5px;color:#85858e;margin:0;line-height:1.7">
           <a href="tel:+34632982646" style="color:#85858e;text-decoration:none">+34 632 98 26 46</a> &middot;
-          <a href="mailto:info@autokeyspro.es" style="color:#85858e;text-decoration:none">info@autokeyspro.es</a>
+          <a href="mailto:info@autokeysremapspro.es" style="color:#85858e;text-decoration:none">info@autokeysremapspro.es</a>
         </p>
       </td></tr>
     </table>

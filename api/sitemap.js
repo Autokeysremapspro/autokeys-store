@@ -28,6 +28,7 @@ const STATIC_URLS = [
   '/coche-no-arranca-despues-cambiar-centralita',
   '/audi-j518-averiado',
   '/profesionales.html',
+  '/contacto.html',
   '/quienes-somos.html',
   '/electronica-automovil-jaen.html',
   '/electronica-maquinaria-agricola-industrial.html',
@@ -145,6 +146,7 @@ module.exports = async function handler(req, res) {
       urls.push({ loc: `${SITE_URL}/categorias/${encodeURIComponent(c.id)}` });
     });
     productos.forEach((p) => {
+      if (p.id === 'programadores-multimarca') return;
       if (!p.is_product && CONSOLIDATED_SERVICE_IDS.has(p.id)) return;
       urls.push({ loc: `${SITE_URL}/${p.is_product ? 'productos' : 'servicios'}/${encodeURIComponent(p.id)}`, lastmod: p.updated_at });
     });

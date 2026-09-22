@@ -300,14 +300,19 @@ function renderBody(template, seo) {
 }
 
 async function productSeo(slug) {
+  if (slug === 'programadores-multimarca') return null;
   const [products, variants] = await Promise.all([
     rest(`tienda_productos?id=eq.${encodeURIComponent(slug)}&activo=eq.true&select=*`),
     rest(`tienda_producto_variantes?producto_id=eq.${encodeURIComponent(slug)}&select=variant_key,name,description,price&order=sort_order`),
   ]);
   const row = products[0];
   if (!row) return null;
-  const categoryRows = row.category_id ? await rest(`tienda_categorias?id=eq.${encodeURIComponent(row.category_id)}&select=id,label`) : [];
+  const [categoryRows, brandRows] = await Promise.all([
+    row.category_id ? rest(`tienda_categorias?id=eq.${encodeURIComponent(row.category_id)}&select=id,label`) : [],
+    row.brand_id ? rest(`tienda_marcas?id=eq.${encodeURIComponent(row.brand_id)}&select=id,label`) : [],
+  ]);
   const categoryLabel = categoryRows[0] ? categoryRows[0].label : 'Servicios';
+  const brandLabel = brandRows[0] ? brandRows[0].label : 'Autokeys Remaps Pro';
   const isProduct = Boolean(row.is_product);
   const url = `${SITE}/${isProduct ? 'productos' : 'servicios'}/${row.id}`;
   const prices = variants.map((v) => Number(v.price)).filter(Number.isFinite);
@@ -321,7 +326,7 @@ async function productSeo(slug) {
     schema: {
       '@context': 'https://schema.org', '@type': isProduct ? 'Product' : 'Service',
       name: row.name, description: plainText(row.long_desc || row.short_desc), image,
-      brand: { '@type': 'Brand', name: 'Autokeys Remaps Pro' },
+      brand: { '@type': 'Brand', name: brandLabel },
       offers: { '@type': 'Offer', priceCurrency: 'EUR', price, availability: availability(row), url },
       ...(!isProduct ? { provider: { '@type': 'AutomotiveBusiness', '@id': `${SITE}/#business`, name: 'Autokeys Remaps Pro', url: SITE }, areaServed: { '@type': 'Country', name: 'España' } } : {}),
     },
@@ -335,13 +340,14 @@ async function categorySeo(slug) {
   ]);
   const row = rows[0];
   if (!row) return null;
+  const publicProducts = products.filter((product) => product.id !== 'programadores-multimarca');
   const url = `${SITE}/categorias/${row.id}`;
   const focus = CATEGORY_FOCUS[row.id] || `Servicios y productos de ${String(row.label).toLowerCase()} en Autokeys Remaps Pro.`;
   const description = clipAtWord(`${focus} Servicio profesional desde Jaén y por envío en toda España.`, 155);
   return {
     kind: 'category', template: 'tienda.html', title: compactTitle(row.label), description, url, image: FALLBACK_IMAGE,
-    server: serverCategoryBody(row, products),
-    schema: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: row.label, description, url, isPartOf: { '@type': 'WebSite', name: 'Autokeys Remaps Pro', url: SITE }, mainEntity: products.map((p) => ({ '@type': p.is_product ? 'Product' : 'Service', name: p.name, url: `${SITE}/${p.is_product ? 'productos' : 'servicios'}/${p.id}` })) },
+    server: serverCategoryBody(row, publicProducts),
+    schema: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: row.label, description, url, isPartOf: { '@type': 'WebSite', name: 'Autokeys Remaps Pro', url: SITE }, mainEntity: publicProducts.map((p) => ({ '@type': p.is_product ? 'Product' : 'Service', name: p.name, url: `${SITE}/${p.is_product ? 'productos' : 'servicios'}/${p.id}` })) },
   };
 }
 

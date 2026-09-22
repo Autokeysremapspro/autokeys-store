@@ -1,5 +1,6 @@
 const SUPABASE_URL = 'https://pbldwfzzyofpbpojzsjg.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_UMSdVTexHpOImBBonUJKdw_s7XgKVeq';
+const HIDDEN_PRODUCT_IDS = new Set(['programadores-multimarca']);
 
 async function readPublicTable(path, { optional = false } = {}) {
   const controller = new AbortController();
@@ -46,7 +47,11 @@ module.exports = async function handler(req, res) {
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     res.setHeader('CDN-Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     if (req.method === 'HEAD') return res.status(200).end();
-    return res.status(200).json({ categories, brands, products, variants, ratings });
+    const publicProducts = products.filter((product) => !HIDDEN_PRODUCT_IDS.has(product.id));
+    const publicIds = new Set(publicProducts.map((product) => product.id));
+    const publicVariants = variants.filter((variant) => publicIds.has(variant.producto_id));
+    const publicRatings = ratings.filter((rating) => publicIds.has(rating.producto_id));
+    return res.status(200).json({ categories, brands, products: publicProducts, variants: publicVariants, ratings: publicRatings });
   } catch (error) {
     console.error('catalogo:', error);
     res.setHeader('Cache-Control', 'no-store');
