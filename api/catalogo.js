@@ -49,9 +49,11 @@ module.exports = async function handler(req, res) {
     if (req.method === 'HEAD') return res.status(200).end();
     const publicProducts = products.filter((product) => !HIDDEN_PRODUCT_IDS.has(product.id));
     const publicIds = new Set(publicProducts.map((product) => product.id));
+    const publicBrandIds = new Set(publicProducts.map((product) => product.brand_id).filter(Boolean));
+    const publicBrands = brands.filter((brand) => publicBrandIds.has(brand.id));
     const publicVariants = variants.filter((variant) => publicIds.has(variant.producto_id));
     const publicRatings = ratings.filter((rating) => publicIds.has(rating.producto_id));
-    return res.status(200).json({ categories, brands, products: publicProducts, variants: publicVariants, ratings: publicRatings });
+    return res.status(200).json({ categories, brands: publicBrands, products: publicProducts, variants: publicVariants, ratings: publicRatings });
   } catch (error) {
     console.error('catalogo:', error);
     res.setHeader('Cache-Control', 'no-store');

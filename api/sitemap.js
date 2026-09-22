@@ -80,7 +80,7 @@ const CONSOLIDATED_CATEGORY_IDS = new Set([
 ]);
 
 const STATIC_LASTMOD = {
-  '/': '2026-09-01',
+  '/': '2026-09-22',
   '/casos-reales.html': '2026-08-25',
   '/enviar-reparacion.html': '2026-08-25',
   '/calculadora-reparacion.html': '2026-09-08',
@@ -88,7 +88,11 @@ const STATIC_LASTMOD = {
   '/coche-no-arranca-despues-cambiar-centralita': '2026-09-08',
   '/audi-j518-averiado': '2026-09-08',
   '/profesionales.html': '2026-08-25',
-  '/quienes-somos.html': '2026-08-24',
+  '/distribucion-profesional.html': '2026-09-22',
+  '/distribution-partners.html': '2026-09-22',
+  '/contacto.html': '2026-09-22',
+  '/quienes-somos.html': '2026-09-22',
+  '/condiciones-venta.html': '2026-09-22',
   '/electronica-automovil-jaen.html': '2026-08-24',
   '/electronica-maquinaria-agricola-industrial.html': '2026-09-02',
   '/reparacion-centralitas-ecu': '2026-09-01',

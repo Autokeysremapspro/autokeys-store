@@ -213,7 +213,7 @@ function akMapProducto(row, variantesByProducto, valoracionesByProducto) {
 }
 
 let _akCatalogPromise = null;
-const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v3';
+const AK_CATALOG_CACHE_KEY = 'ak_catalog_public_v4';
 const AK_CATALOG_CACHE_TTL = 15 * 60 * 1000;
 const AK_CATALOG_STALE_TTL = 24 * 60 * 60 * 1000;
 
@@ -221,7 +221,7 @@ function akApplyCatalogPayload(payload) {
   if (!payload || !Array.isArray(payload.products)) return false;
 
   CATEGORIES = Array.isArray(payload.categories) ? payload.categories : [];
-  BRANDS = Array.isArray(payload.brands) ? payload.brands : [];
+  const sourceBrands = Array.isArray(payload.brands) ? payload.brands : [];
 
   const variantesByProducto = {};
   (payload.variants || []).forEach((v) => {
@@ -233,6 +233,8 @@ function akApplyCatalogPayload(payload) {
   CATALOG = payload.products
     .filter((p) => !AK_HIDDEN_PRODUCT_IDS.has(p.id))
     .map((p) => akMapProducto(p, variantesByProducto, valoracionesByProducto));
+  const usedBrandIds = new Set(CATALOG.map((product) => product.brand).filter(Boolean));
+  BRANDS = sourceBrands.filter((brand) => usedBrandIds.has(brand.id));
   return CATALOG.length > 0;
 }
 

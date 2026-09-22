@@ -109,7 +109,7 @@ module.exports = function handler(req, res) {
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${IMAGE}">
 <link rel="stylesheet" href="/assets/css/style.css">
-<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0a0a0c">
 <script type="application/ld+json">${jsonLd(serviceSchema)}</script>
 <script type="application/ld+json">${jsonLd(faqSchema)}</script>
 <script type="application/ld+json">${jsonLd(breadcrumbSchema)}</script>

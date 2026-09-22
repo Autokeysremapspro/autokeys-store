@@ -152,7 +152,7 @@ function patchHtml(html) {
   if (!/<link[^>]+rel=["'](?:shortcut )?icon["']/i.test(output)) {
     output = output.replace(
       /<\/head>/i,
-      '<link rel="icon" type="image/png" href="/assets/img/logo.png">\n</head>',
+      '<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0a0a0c">\n</head>',
     );
   }
 
