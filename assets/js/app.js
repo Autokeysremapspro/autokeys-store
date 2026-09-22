@@ -133,6 +133,7 @@ function akHeaderHTML(active) {
         { href: '/calculadora-reparacion.html', label: 'Valoración rápida online' },
         { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
         { href: '/blog.html', label: 'Guías y blog técnico' },
+        { href: '/envios-garantias.html', label: 'Envíos, garantías e incidencias' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
         { href: '/reparacion-centralitas-ecu', label: 'Reparación ECU' },
@@ -201,6 +202,7 @@ function akFooterHTML() {
       '</ul></div>' +
       '<div><h4>ENLACES RÁPIDOS</h4><ul>' +
         '<li><a href="/quienes-somos.html">Quiénes somos</a></li>' +
+        '<li><a href="/distribucion-profesional.html">Fabricantes y distribución</a></li>' +
         '<li><a href="/electronica-automovil-jaen.html">Electrónica del automóvil en Jaén</a></li>' +
         '<li><a href="/electronica-maquinaria-agricola-industrial.html">Maquinaria agrícola e industrial</a></li>' +
         '<li><a href="/tienda.html">Tienda</a></li>' +
@@ -210,6 +212,7 @@ function akFooterHTML() {
         '<li><a href="/casos-reales.html">Casos reales</a></li>' +
         '<li><a href="/blog.html">Blog</a></li>' +
         '<li><a href="/contacto.html">Contacto</a></li>' +
+        '<li><a href="/envios-garantias.html">Envíos y garantías</a></li>' +
         '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +
         '<li><a href="/condiciones-venta.html">Condiciones de venta</a></li>' +
         '<li><a href="/politica-privacidad.html">Privacidad</a></li>' +
