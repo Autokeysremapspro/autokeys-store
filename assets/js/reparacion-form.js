@@ -16,19 +16,20 @@
     abs_esp: ['Diagnóstico', 'Reparación electrónica', 'Clonación / sustitución', 'Codificación / adaptación', 'No lo sé, necesito asesoramiento'],
     airbag_srs: ['Borrado de crash data', 'Reparación electrónica', 'Clonación / sustitución', 'Diagnóstico', 'No lo sé, necesito asesoramiento'],
     cuadro: ['Diagnóstico', 'Reparación', 'Clonación', 'Corrección / recuperación de datos', 'No lo sé, necesito asesoramiento'],
-    uch_bcm: ['Diagnóstico', 'Reparación', 'Clonación', 'Sustitución mediante donante', 'Programación / sincronización', 'No lo sé, necesito asesoramiento'],
+    uch_bcm: ['Diagnóstico', 'Reparación', 'Clonación', 'Recuperación / clonación CEM Volvo', 'Sustitución mediante donante', 'Programación / sincronización', 'No lo sé, necesito asesoramiento'],
     cas_ews_fem_bdc: ['Diagnóstico', 'Reparación', 'Clonación', 'Programación de llave', 'Sustitución / sincronización', 'No lo sé, necesito asesoramiento'],
     ezs_elv: ['Diagnóstico', 'Reparación', 'Clonación', 'Sustitución mediante donante', 'Instalación de emulador', 'No lo sé, necesito asesoramiento'],
     j518_kessy: ['Diagnóstico', 'Reparación', 'Clonación', 'Sustitución mediante donante', 'Instalación de emulador', 'No lo sé, necesito asesoramiento'],
     otro: ['Diagnóstico', 'Reparación', 'Clonación', 'Programación / adaptación', 'No lo sé, necesito asesoramiento'],
   };
   const SEND_ITEMS = ['Solo módulo original', 'Original y donante', 'Módulo y llave', 'Módulo, llave y clausor', 'Juego completo', 'Todavía no lo sé'];
-  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
+  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','referencia-donante','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
   let step = 1;
   let selectedUnit = '';
   let pickupRates = { ...PICKUP_DEFAULTS };
   const openedAt = Date.now();
   let incompleteTimer = null;
+  const cemIntent = new URLSearchParams(window.location.search).get('servicio') === 'cem-volvo';
 
   document.addEventListener('DOMContentLoaded', init);
 
@@ -48,7 +49,20 @@
     const requestedUnit = params.get('unidad');
     const requestedWork = params.get('trabajo');
     const requestedType = params.get('tipo');
-    if (requestedUnit && WORKS[requestedUnit]) selectUnit(requestedUnit);
+    if (cemIntent) {
+      selectUnit('uch_bcm');
+      if (!value('trabajo')) document.getElementById('trabajo').value = 'Recuperación / clonación CEM Volvo';
+      if (!value('marca')) document.getElementById('marca').value = 'Volvo';
+      document.getElementById('cem-notice').hidden = false;
+      document.getElementById('cem-donor-field').hidden = false;
+      document.getElementById('referencia').placeholder = 'Referencia de la CEM original (foto de la etiqueta si es posible)';
+      document.getElementById('averia').placeholder = 'Describe si arranca, si reconoce las llaves, qué funciones fallan y qué pruebas o trabajos previos se hicieron.';
+      document.getElementById('upload-hint').textContent = 'Con una cuenta podrás adjuntar fotos de ambas etiquetas y el informe de diagnosis (hasta 5 archivos).';
+      const checkedItems = Array.from(document.querySelectorAll('#send-items input:checked'));
+      if (checkedItems.length === 1 && checkedItems[0].value === 'Solo módulo original') {
+        document.querySelectorAll('#send-items input').forEach((item) => { item.checked = item.value === 'Todavía no lo sé'; });
+      }
+    } else if (requestedUnit && WORKS[requestedUnit]) selectUnit(requestedUnit);
     if (requestedWork && selectedUnit && WORKS[selectedUnit].includes(requestedWork)) {
       document.getElementById('trabajo').value = requestedWork;
     }
@@ -144,6 +158,7 @@
 
   function fail(message) { akToast(message); return false; }
   function value(id) { return document.getElementById(id).value.trim(); }
+  function loginUrl() { return 'login.html?redirect=' + encodeURIComponent('enviar-reparacion.html' + (cemIntent ? '?servicio=cem-volvo' : '')); }
   function shippingMethod() { return document.querySelector('input[name="metodo_envio"]:checked').value; }
   function togglePickup() { document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys'; updatePickupQuote(); saveDraft(); }
   function updateCount() { document.getElementById('averia-count').textContent = value('averia').length + ' / 4000 caracteres'; }
@@ -234,12 +249,12 @@
     if (!validateStep(3) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
     let session = null;
     try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {}
-    if (!session) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
+    if (!session) { saveDraft(); window.location.href = loginUrl(); return; }
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
     const quote = pickupQuote();
     const payload = {
       website: value('website'), opened_at: openedAt, tipo_cliente: value('tipo-cliente'), nombre: value('nombre'), email: value('email'), telefono: value('telefono'), tipo_unidad: selectedUnit, trabajo_solicitado: value('trabajo'), marca: value('marca'), modelo: value('modelo'), anio: value('anio') ? Number(value('anio')) : null,
-      motorizacion: value('motor') || null, matricula: value('matricula') || null, vin: value('vin') || null, referencia_modulo: value('referencia') || null, descripcion_averia: value('averia'), vehiculo_arranca: value('arranca') === '' ? null : value('arranca') === 'true', codigos_averia: value('dtcs') || null,
+      motorizacion: value('motor') || null, matricula: value('matricula') || null, vin: value('vin') || null, referencia_modulo: value('referencia') || null, descripcion_averia: cemIntent ? ('Servicio: CEM Volvo. ' + value('averia') + (value('referencia-donante') ? '\nReferencia CEM donante: ' + value('referencia-donante') : '')).slice(0, 4000) : value('averia'), vehiculo_arranca: value('arranca') === '' ? null : value('arranca') === 'true', codigos_averia: value('dtcs') || null,
       manipulado_antes: value('manipulado') === 'true', elementos_envio: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodo_envio: shippingMethod(), direccion_recogida: shippingMethod() === 'recogida_autokeys' ? value('direccion') : null, codigo_postal: shippingMethod() === 'recogida_autokeys' ? value('cp') : null,
       poblacion: shippingMethod() === 'recogida_autokeys' ? value('poblacion') : null, provincia: shippingMethod() === 'recogida_autokeys' ? value('provincia') : null, persona_contacto_recogida: shippingMethod() === 'recogida_autokeys' ? value('contacto-recogida') || value('nombre') : null, telefono_recogida: shippingMethod() === 'recogida_autokeys' ? value('telefono') : null,
       peso_recogida_kg: shippingMethod() === 'recogida_autokeys' ? quote.weight : null, precio_recogida: shippingMethod() === 'recogida_autokeys' ? quote.price : null, tarifa_recogida_codigo: shippingMethod() === 'recogida_autokeys' ? quote.code : null,
@@ -257,7 +272,7 @@
     }
     const request = await response.json().catch(() => ({}));
     if (!response.ok) {
-      if (response.status === 401) { saveDraft(); window.location.href = 'login.html?redirect=enviar-reparacion.html'; return; }
+      if (response.status === 401) { saveDraft(); window.location.href = loginUrl(); return; }
       const message = response.status === 429 ? 'Ya hemos recibido varias solicitudes con este email. Escríbenos por WhatsApp si necesitas añadir información.' : 'No se pudo enviar la solicitud. Revisa los datos o inténtalo de nuevo.';
       btn.disabled = false; btn.innerHTML = 'Solicitar valoración' + akIcon('check'); akToast(message); return;
     }
