@@ -184,6 +184,7 @@
     { "source": "/duplicado-llaves-coche-jaen", "destination": "/api/seo-priority?slug=duplicado-llaves-coche-jaen" },
     { "source": "/reprogramacion-centralitas-jaen", "destination": "/api/seo-priority?slug=reprogramacion-centralitas-jaen" },
     { "source": "/reparacion-centralitas-ecu", "destination": "/api/seo-search-growth?slug=reparacion-centralitas-ecu" },
+    { "source": "/volvo-cem-recuperacion", "destination": "/volvo-cem-recuperacion.html" },
 
     { "source": "/inmovilizador-coche", "destination": "/api/seo-search-growth?slug=inmovilizador-coche" },
     { "source": "/programacion-llaves-coche", "destination": "/api/seo-priority2?slug=programacion-llaves-coche" },
