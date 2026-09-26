@@ -7,6 +7,8 @@ const STATIC_URLS = [
   '/tienda.html',
   '/blog.html',
   '/casos-reales.html',
+  '/casos/volvo-s60-2011-cem-recuperada',
+  '/volvo-cem-recuperacion',
   '/casos/renault-megane-2008-perdida-total-llaves',
   '/casos/bmw-418d-stage-1-sport-display',
   '/casos/bosch-edc17cp54-stage-1-plus-malaga',
@@ -81,7 +83,9 @@ const CONSOLIDATED_CATEGORY_IDS = new Set([
 
 const STATIC_LASTMOD = {
   '/': '2026-09-22',
-  '/casos-reales.html': '2026-08-25',
+  '/casos-reales.html': '2026-09-26',
+  '/casos/volvo-s60-2011-cem-recuperada': '2026-09-26',
+  '/volvo-cem-recuperacion': '2026-09-26',
   '/enviar-reparacion.html': '2026-08-25',
   '/calculadora-reparacion.html': '2026-09-08',
   '/ecu-no-comunica': '2026-09-08',
