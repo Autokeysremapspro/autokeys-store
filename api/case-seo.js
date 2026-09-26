@@ -3,6 +3,34 @@ const AKCLOUD = 'https://www.akcloud.es/file-service-ecu';
 const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 
 const CASES = {
+  'volvo-s60-2011-cem-recuperada': {
+    title: 'Volvo S60 2011: recuperación de CEM y dos llaves operativas',
+    meta: 'Caso real de recuperación de CEM Volvo S60 2011: transferencia de información a una unidad compatible, arranque con las dos llaves y comprobación final sin DTC.',
+    category: 'VOLVO S60 · CEM · ELECTRÓNICA DE CARROCERÍA',
+    intro: 'Este Volvo S60 de 2011 llegó con una avería compleja en la CEM, el módulo electrónico central del vehículo. Tras estudiar la unidad original y una donante compatible, recuperamos la información necesaria y comprobamos el resultado en el propio coche. El Volvo volvió a arrancar con sus dos llaves; la diagnosis final no mostró DTC y la caja dejó de dar los golpes que presentaba.',
+    facts: ['Volvo S60 2011', 'CEM con Renesas R5F64524KFD', 'Unidad donante compatible', 'Dos llaves originales operativas', 'Diagnosis final sin DTC', 'Funcionamiento comprobado en vehículo'],
+    datePublished: '2026-09-26',
+    dateModified: '2026-09-26',
+    sections: [
+      { title: 'El punto de partida', paragraphs: [
+        'El vehículo necesitaba recuperar el funcionamiento de su módulo CEM. En esta generación la CEM participa en funciones de comunicación y arranque, por lo que no bastaba con montar otra unidad y probar si encendía. Había que identificar la electrónica exacta y conservar la información propia del vehículo.',
+        'Trabajamos con las lecturas disponibles de la CEM original y verificamos la compatibilidad de la unidad donante antes de preparar la intervención. La referencia del microcontrolador empleado en este caso es R5F64524KFD; otras variantes requieren una revisión independiente.',
+      ] },
+      { title: 'Recuperación en laboratorio', paragraphs: [
+        'Realizamos las copias necesarias de las memorias de trabajo y preparamos la transferencia a la unidad compatible. Mantuvimos separadas las lecturas originales y las lecturas de comprobación para poder identificar el origen de cada archivo.',
+        'El objetivo era conservar la configuración y el reconocimiento de las dos llaves existentes. Este proceso depende de la integridad de los datos originales y de la compatibilidad del hardware donante; por eso cada CEM se evalúa antes de aceptar la recuperación.',
+      ] },
+      { title: 'Comprobación final en el Volvo', paragraphs: [
+        'Con la CEM montada en el vehículo, el S60 arrancó correctamente con ambas llaves. La diagnosis final no mostró códigos de avería y se comprobó también que la caja ya no presentaba los golpes observados antes de la intervención.',
+        'Este resultado describe este vehículo concreto. En otros casos puede haber averías adicionales en alimentación, cableado, módulos relacionados o en la propia unidad donante; el diagnóstico previo determina el alcance del trabajo.',
+      ] },
+    ],
+    related: [
+      ['Recuperación y clonación de CEM Volvo', '/volvo-cem-recuperacion'],
+      ['Servicio de electrónica por envío', '/reparacion-centralita-por-envio'],
+      ['Módulos de carrocería y confort', '/servicios/modulos-confort-uch'],
+    ],
+  },
   'renault-megane-2008-perdida-total-llaves': {
     title: 'Renault Mégane 2008: pérdida total de llaves',
     meta: 'Caso real en Autokeys Remaps Pro: Renault Mégane 2008 1.9 dCi F9Q con todas las llaves perdidas. Trabajo sobre UCH y alta de una nueva llave.',
@@ -196,8 +224,8 @@ function renderPage(slug, item) {
     '@type': 'Article',
     headline: item.title,
     description: item.meta,
-    datePublished: '2026-08-25',
-    dateModified: '2026-08-25',
+    datePublished: item.datePublished || '2026-08-25',
+    dateModified: item.dateModified || '2026-08-25',
     mainEntityOfPage: canonical,
     author: { '@type': 'Organization', name: 'Autokeys Remaps Pro', url: SITE },
     publisher: { '@type': 'Organization', name: 'Autokeys Remaps Pro', url: SITE, logo: { '@type': 'ImageObject', url: FALLBACK_IMAGE } },
