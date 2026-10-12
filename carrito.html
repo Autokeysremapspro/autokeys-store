@@ -145,12 +145,16 @@
       console.error('No se pudo confirmar el pago activamente, se muestra el último estado conocido:', e);
     }
 
-    const { data: pedido } = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
+    let pedido = null;
+    try {
+      const result = await akSupabase().from('tienda_pedidos').select('numero, total, pago_estado').eq('id', pedidoId).maybeSingle();
+      pedido = result.data;
+    } catch (error) { console.error('No se pudo consultar el pedido:', error); }
 
     if (!pedido) {
       document.getElementById('cart-root').innerHTML =
-        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
-        '<h3>Pedido recibido</h3><p>No hemos podido comprobar el estado del pago, pero tu pedido ha quedado registrado. Te contactaremos para confirmarlo.</p></div></div>';
+        '<div class="section"><div class="empty-state">' + akIcon('clock') +
+        '<h3>Pago sin verificar</h3><p>No hemos podido consultar tu pedido. Inicia sesión en tu cuenta para comprobar el pago antes de volver a intentarlo.</p><a class="btn btn-primary" href="cuenta.html">Ver mis pedidos</a></div></div>';
       return;
     }
 
@@ -159,15 +163,49 @@
         '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
         '<h3>¡Pago confirmado!</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> por ' + akFormatPrice(Number(pedido.total)) + ' está pagado. Empezamos a prepararlo.</p>' +
         '<a class="btn btn-primary" style="margin-top:16px" href="cuenta.html">Ver mis pedidos</a></div></div>';
-    } else if (pedido.pago_estado === 'fallido') {
-      document.getElementById('cart-root').innerHTML =
-        '<div class="section"><div class="empty-state">' + akIcon('close') +
-        '<h3>El pago no se ha completado</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado, pero el pago no llegó a procesarse. Puedes escribirnos por WhatsApp para intentarlo de otra forma.</p>' +
-        '<a class="btn btn-primary" style="margin-top:16px" href="https://wa.me/34632982646" target="_blank" rel="noopener">Contactar por WhatsApp</a></div></div>';
     } else {
-      document.getElementById('cart-root').innerHTML =
-        '<div class="section"><div class="empty-state">' + akIcon('checkCircle') +
-        '<h3>Pedido recibido</h3><p>Tu pedido <b style="color:#fff">#' + esc(pedido.numero) + '</b> ha quedado registrado. Estamos confirmando el pago — te avisaremos en cuanto se complete.</p></div></div>';
+      showPendingPayment(pedidoId, 'Tu pedido #' + pedido.numero + ' está registrado, pero el pago aún no está confirmado.');
+    }
+  }
+
+  function showPendingPayment(pedidoId, message) {
+    const root = document.getElementById('cart-root');
+    root.innerHTML = '<div class="section"><div class="empty-state">' + akIcon('clock') +
+      '<h3>Pago pendiente</h3><p id="payment-message"></p>' +
+      '<button id="retry-payment" class="btn btn-primary" style="margin-top:16px">Reintentar pago seguro</button>' +
+      '<p><a href="cuenta.html">Ver mis pedidos</a> · <a href="https://wa.me/34632982646" target="_blank" rel="noopener">Ayuda por WhatsApp</a></p></div></div>';
+    document.getElementById('payment-message').textContent = message;
+    document.getElementById('retry-payment').addEventListener('click', () => startOrderPayment(pedidoId));
+  }
+
+  async function startOrderPayment(pedidoId) {
+    const button = document.getElementById('retry-payment');
+    if (button) {
+      if (button.disabled) return;
+      button.disabled = true;
+      button.textContent = 'Abriendo pago seguro…';
+    }
+    try {
+      const { data } = await akSupabase().auth.getSession();
+      if (!data?.session?.access_token) {
+        window.location.href = 'login.html?redirect=' + encodeURIComponent('carrito.html?pedido=' + pedidoId + '&pago=retorno');
+        return;
+      }
+      const response = await fetch('/api/crear-pago', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + data.session.access_token },
+        body: JSON.stringify({ pedido_id: pedidoId }),
+      });
+      const payment = await response.json().catch(() => ({}));
+      if (response.status === 409 && payment.error === 'pedido_ya_pagado') {
+        await showPaymentReturn(pedidoId);
+        return;
+      }
+      if (!response.ok || !payment.hosted_checkout_url) throw new Error('pago_no_disponible');
+      window.location.href = payment.hosted_checkout_url;
+    } catch (error) {
+      console.error('No se pudo abrir el pago:', error);
+      showPendingPayment(pedidoId, 'No hemos podido abrir la pasarela. Tu pedido está registrado, pero no hay un pago confirmado. Puedes reintentarlo sin crear otro pedido.');
     }
   }
 
@@ -763,21 +801,11 @@
       }).catch((e) => console.error('No se pudo enviar el email de confirmación:', e));
 
       if (payMethod === 'tarjeta') {
-        try {
-          const pagoRes = await fetch('/api/crear-pago', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pedido_id: pedidoId }),
-          });
-          const pagoData = await pagoRes.json();
-          if (pagoRes.ok && pagoData.hosted_checkout_url) {
-            window.location.href = pagoData.hosted_checkout_url;
-            return;
-          }
-        } catch (e) {
-          console.error('No se pudo iniciar el pago online:', e);
-        }
+        history.replaceState({}, '', 'carrito.html?pedido=' + encodeURIComponent(pedidoId) + '&pago=retorno');
+        await startOrderPayment(pedidoId);
+        return;
       }
+
       showConfirmation(numero, total);
     } catch (err) {
       console.error(err);

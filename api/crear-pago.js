@@ -82,6 +82,23 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    // Reuse an open checkout; never replace a payment whose state is unknown.
+    if (nombreProveedor === 'sumup' && pedido.pago_referencia) {
+      const anterior = await sumup.getCheckout(pedido.pago_referencia);
+      const status = String(anterior?.status || '').toUpperCase();
+      if (status === 'PAID') {
+        const confirmado = await sumup.reverificarYActualizarPago(pedido.pago_referencia);
+        if (confirmado?.pago_estado === 'pagado') return res.status(409).json({ error: 'pedido_ya_pagado' });
+        return res.status(503).json({ error: 'pago_anterior_sin_verificar' });
+      }
+      if (status === 'PENDING' && anterior.hosted_checkout_url) {
+        return res.status(200).json({ hosted_checkout_url: anterior.hosted_checkout_url });
+      }
+      if (status !== 'FAILED' && status !== 'EXPIRED') {
+        return res.status(503).json({ error: 'pago_anterior_sin_verificar' });
+      }
+    }
+
     const checkout = await proveedor.createHostedCheckout({
       checkoutReference: pedido.numero,
       amount: pedido.total,

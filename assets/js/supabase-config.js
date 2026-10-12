@@ -260,24 +260,9 @@ if (/\/carrito\.html$/i.test(window.location.pathname)) {
         }).catch((e) => console.error('No se pudo enviar el email de confirmación:', e));
 
         if (payMethod === 'tarjeta') {
-          try {
-            const pagoRes = await fetch('/api/crear-pago', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + session.access_token,
-              },
-              body: JSON.stringify({ pedido_id: pedido.pedido_id }),
-            });
-            const pagoData = await pagoRes.json().catch(() => ({}));
-            if (pagoRes.ok && pagoData.hosted_checkout_url) {
-              window.location.href = pagoData.hosted_checkout_url;
-              return;
-            }
-            console.error('No se pudo iniciar el pago:', pagoData);
-          } catch (error) {
-            console.error('No se pudo iniciar el pago online:', error);
-          }
+          history.replaceState({}, '', 'carrito.html?pedido=' + encodeURIComponent(pedido.pedido_id) + '&pago=retorno');
+          await startOrderPayment(pedido.pedido_id);
+          return;
         }
 
         showConfirmation(pedido.numero, Number(pedido.total));
