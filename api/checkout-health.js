@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return res.status(405).json({ error: 'metodo_no_permitido' });
   try {
     const [digital, airbag, bench] = await Promise.all([
-      quoteOrder([{ product_id: 'edc15p-multimap-suite', variant_id: 'licencia', qty: 1 }]),
+      quoteOrder([{ product_id: 'edc15p-multimap-suite', variant_id: 'multimap', qty: 1 }]),
       quoteOrder([{ product_id: 'airbag-srs-reparacion', variant_id: 'reset-crash', qty: 1 }]),
       quoteOrder([{ product_id: 'pack-autokeys-ecu-bench-starter', variant_id: 'BENCH_STARTER', qty: 1 }]),
     ]);
@@ -41,3 +41,4 @@ module.exports = async function handler(req, res) {
     return res.status(503).json({ ok: false, error: 'checkout_no_disponible' });
   }
 };
+
