@@ -127,3 +127,10 @@ test('interfaz corrige estimaciones no confirmadas, emails y permite fotos invit
   const footer=fs.readFileSync('assets/js/app.js','utf8');
   for(const address of ['info@autokeysremapspro.es','laboratorio@autokeysremapspro.com','info@autokeyspro.es']) assert.ok(footer.includes(address));
 });
+
+
+test('portada no publica un precio mínimo ECU no aprobado',()=>{
+  const home=fs.readFileSync('index.html','utf8');
+  assert.equal(home.includes('<small>DESDE</small><b>79 €</b>'), false);
+  assert.equal(home.includes('<small>IMPORTE</small><b>A consultar</b>'), true);
+});
