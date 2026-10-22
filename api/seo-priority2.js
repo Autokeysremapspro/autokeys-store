@@ -52,28 +52,51 @@ const PAGES = {
     ctaText: 'Envíanos marca, modelo y año. Revisamos la arquitectura antes de indicarte el procedimiento.'
   },
   'clonacion-centralitas-ecu': {
-    title: 'Clonación de Centralitas ECU | Servicio por Envío | Autokeys',
-    description: 'Clonación de centralitas ECU y transferencia de datos a unidades donantes compatibles. Laboratorio en Jaén y servicio por envío en toda España.',
-    eyebrow: 'CLONACIÓN ECU · TRANSFERENCIA DE DATOS',
-    h1: 'Clonación de centralitas ECU y transferencia a donante',
-    intro: 'Transferimos la información necesaria desde una centralita original a una unidad donante compatible cuando la familia electrónica y el estado de ambas unidades lo permiten. El objetivo es conservar los datos propios del vehículo y reducir sustituciones innecesarias.',
-    serviceName: 'Clonación de centralitas ECU',
+    title: 'Clonación y Sustitución de Centralitas ECU por Envío | Autokeys',
+    description: 'Clonación y sustitución de centralitas ECU con donante compatible. Recuperación y transferencia de datos. Valoración previa y recepción por envío desde toda España.',
+    eyebrow: 'CLONACIÓN ECU · SUSTITUCIÓN CON DONANTE · ESPAÑA',
+    h1: 'Clonación y sustitución de centralitas ECU',
+    intro: '¿Necesitas cambiar una centralita motor averiada y montar una ECU de segunda mano? En Autokeys Remaps Pro estudiamos las referencias de la unidad original y de la donante, recuperamos la información necesaria cuando es viable y realizamos la transferencia según la arquitectura electrónica. Recibimos centralitas por mensajería desde toda España.',
+    serviceName: 'Clonación y sustitución de centralitas ECU con donante compatible',
     area: ['España', 'Jaén'],
-    highlights: ['Comprobación de referencias y compatibilidad', 'Lectura y recuperación de datos', 'Transferencia a unidad donante compatible', 'Verificación de integridad antes de entrega', 'Servicio por envío desde toda España'],
+    formUrl: '/enviar-reparacion.html?unidad=ecu&trabajo=Clonaci%C3%B3n',
+    highlights: [
+      'Comparación de referencia, familia electrónica, hardware y software',
+      'Valoración del estado de la centralita original y de la donante',
+      'Recuperación de información cuando la lectura es técnicamente viable',
+      'Transferencia de datos y comprobación electrónica en laboratorio',
+      'Posibilidad de estudiar el suministro de una ECU donante por referencia',
+      'Servicio por envío para talleres y particulares de toda España'
+    ],
     sections: [
-      ['La compatibilidad se comprueba antes de clonar', 'No todas las ECU físicamente iguales son intercambiables. Revisamos referencias de hardware y software, familia electrónica y estado de ambas unidades antes de confirmar el trabajo.'],
-      ['Lectura y transferencia de información', 'Según la ECU, el acceso puede realizarse por los métodos profesionales adecuados para esa familia. Recuperamos la información necesaria de la unidad original y la transferimos a la donante, verificando la integridad de los datos antes de cerrar el trabajo.'],
-      ['Alternativa cuando la ECU original no puede seguir trabajando', 'La clonación puede ser una opción cuando la unidad original presenta un daño que hace inviable su uso, siempre que los datos necesarios puedan recuperarse y exista una donante realmente compatible.']
+      ['¿Qué significa clonar una ECU?', 'Consiste en trasladar a otra unidad compatible la información que necesita el vehículo para funcionar con su configuración original. No equivale a copiar un archivo genérico: según la familia pueden intervenir distintas memorias, software, codificaciones y datos de inmovilizador. La viabilidad se confirma por referencia y estado real de ambas unidades.'],
+      ['ECU original y ECU donante: compatibilidad antes de intervenir', 'Dos centralitas con conectores similares pueden tener hardware o software incompatibles. Solicitamos fotografías legibles de las etiquetas y, cuando es posible, información de diagnosis. Con esos datos decidimos si es adecuado reparar la original, clonar una donante o plantear una adaptación diferente.'],
+      ['¿Y si la centralita original no comunica o está dañada?', 'Que la ECU no responda por diagnosis no siempre significa que sus datos se hayan perdido. Primero diferenciamos daños de alimentación, comunicación y memoria. Si no es posible recuperar la información imprescindible, no podemos garantizar una clonación directa y estudiaremos otras alternativas compatibles.'],
+      ['¿Podéis suministrar una centralita donante?', 'Según la disponibilidad de la referencia, podemos estudiar el suministro de una ECU donante y realizar el trabajo de clonación. Antes de confirmar precio o compatibilidad necesitamos identificar la unidad original y el vehículo.'],
+      ['Familias que se valoran en nuestro laboratorio', 'Trabajamos con distintas familias Bosch EDC, MED, MD1 y MG1, Siemens/Continental, Delphi y otras plataformas. La compatibilidad no depende solo del fabricante ni del modelo del coche: se analiza la referencia concreta y el tipo de memoria o microcontrolador de cada unidad.'],
+      ['Cómo funciona el servicio por envío', 'Primero envíanos marca, modelo, año, motor, síntomas, diagnosis si existe y fotografía de la etiqueta de la ECU. Confirmaremos qué módulos debes enviar y si necesitas una donante. Una vez recibido el material, se revisa la viabilidad y se comunica el presupuesto antes de completar el trabajo acordado.']
     ],
     faq: [
-      ['¿Sirve cualquier centralita donante?', 'No. Debemos comprobar referencias, hardware, software y familia electrónica.'],
-      ['¿Qué tengo que enviar?', 'Normalmente la ECU original y la donante. Antes del envío confirmamos qué elementos necesitamos.'],
-      ['¿Podéis trabajar por envío?', 'Sí. Recibimos centralitas de clientes, talleres y profesionales desde toda España.']
+      ['¿Sirve cualquier ECU de desguace?', 'No. Una ECU donante debe ser compatible en hardware, software y arquitectura. Antes de comprarla, consúltanos con la referencia de la unidad original.'],
+      ['¿Se puede clonar una ECU que no comunica?', 'A veces sí, si todavía se pueden recuperar los datos necesarios mediante una lectura de laboratorio. Depende del tipo de avería y la familia electrónica.'],
+      ['¿Debo enviar la centralita original y la donante?', 'En muchos casos es lo indicado, pero también podemos estudiar el suministro de una donante. No envíes material hasta que confirmemos qué necesitamos.'],
+      ['¿Es necesario enviar el coche?', 'Para determinadas operaciones de laboratorio basta con los módulos. Si el sistema requiere comprobación o adaptación en el vehículo, lo indicaremos previamente.'],
+      ['¿Cuánto cuesta clonar una ECU?', 'Depende de la familia, el estado de la original, el tipo de lectura y si debemos suministrar una donante. El presupuesto se prepara por referencia y trabajo concreto.'],
+      ['¿Atendéis talleres fuera de Jaén?', 'Sí. Recibimos centralitas de talleres y particulares de diferentes provincias mediante mensajería, tras revisar los datos del caso.']
     ],
-    cases: [['/casos/opel-combo-md1cs003-recuperacion-arranque', 'Opel Combo MD1CS003 · recuperación de arranque'], ['/reparacion-centralitas-ecu', 'Reparación de centralitas ECU'], ['/reparacion-centralita-por-envio', 'Servicio de laboratorio por envío']],
-    related: [['/reparacion-centralitas-ecu', 'Reparación de centralitas ECU'], ['/reparacion-centralita-por-envio', 'Reparación por envío'], ['/enviar-reparacion.html', 'Enviar una unidad']],
-    ctaTitle: '¿Tienes una ECU original y una donante?',
-    ctaText: 'Envíanos fotografías claras de ambas referencias antes de realizar el envío.'
+    cases: [
+      ['/ford-mustang-ecu-clonada.html', 'Ford Mustang · suministro de ECU donante clonada desde Cuenca'],
+      ['/casos/opel-combo-md1cs003-recuperacion-arranque', 'Opel Combo MD1CS003 · recuperación electrónica tras fallo de arranque'],
+      ['/casos/volvo-s60-2011-cem-recuperada', 'Volvo S60 · recuperación de módulo CEM']
+    ],
+    related: [
+      ['/reparacion-centralitas-ecu', 'Diagnóstico y reparación de ECU'],
+      ['/ecu-no-comunica', 'ECU que no comunica con diagnosis'],
+      ['/coche-no-arranca-despues-cambiar-centralita', 'No arranca tras sustituir centralita'],
+      ['/reparacion-centralita-por-envio', 'Servicio de laboratorio por envío']
+    ],
+    ctaTitle: '¿Tienes una centralita averiada o necesitas otra ECU clonada?',
+    ctaText: 'Envíanos una foto de la etiqueta de la ECU original, marca, modelo y síntomas. Valoramos la compatibilidad y la posibilidad de donante antes de solicitar el envío.'
   },
   'bmw-fem-bdc': {
     title: 'BMW FEM / BDC: Reparación, Programación y Llaves | Autokeys',
@@ -134,11 +157,12 @@ function faqHtml(items) { return items.map(([q, a]) => `<article><h3>${esc(q)}</
 
 function render(slug, page) {
   const canonical = `${SITE}/${slug}`;
+  const formUrl = page.formUrl || '/enviar-reparacion.html';
   const schemas = [
     {
       '@context': 'https://schema.org', '@type': 'Service', name: page.serviceName, description: page.description, url: canonical, image: IMAGE,
       areaServed: page.area.map((name) => ({ '@type': name === 'España' ? 'Country' : 'AdministrativeArea', name })),
-      provider: { '@type': 'AutomotiveBusiness', '@id': BUSINESS_ID, name: 'Autokeys Remaps Pro', url: `${SITE}/`, telephone: '+34953852778', address: { '@type': 'PostalAddress', streetAddress: 'Av. Andalucía 125, Bajo', postalCode: '23350', addressLocality: 'Puente de Génave', addressRegion: 'Jaén', addressCountry: 'ES' } }
+      provider: { '@type': 'AutomotiveBusiness', '@id': BUSINESS_ID, name: 'Autokeys Remaps Pro', url: `${SITE}/`, telephone: '+34632982646', address: { '@type': 'PostalAddress', streetAddress: 'Av. Andalucía 125, Bajo', postalCode: '23350', addressLocality: 'Puente de Génave', addressRegion: 'Jaén', addressCountry: 'ES' } }
     },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: page.h1, item: canonical }] },
     { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: page.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
@@ -150,13 +174,13 @@ function render(slug, page) {
 <meta property="og:type" content="website"><meta property="og:site_name" content="Autokeys Remaps Pro"><meta property="og:locale" content="es_ES"><meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.description)}"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${IMAGE}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}"><meta name="twitter:description" content="${esc(page.description)}"><meta name="twitter:image" content="${IMAGE}"><link rel="stylesheet" href="/assets/css/style.css"><link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#0a0a0c">${schemas.map((s) => `<script type="application/ld+json">${json(s)}</script>`).join('')}</head>
 <body><a class="skip-link" href="#main">Saltar al contenido</a><header id="site-header"></header><main id="main"><nav class="breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a><span>›</span><span class="current">${esc(page.h1)}</span></nav>
-<section class="section" style="padding-bottom:18px"><div class="eyebrow">${esc(page.eyebrow)}</div><h1>${esc(page.h1)}</h1><p class="section-desc">${esc(page.intro)}</p><div class="btn-row" style="margin-top:22px"><a class="btn btn-primary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Consultar por WhatsApp</a><a class="btn btn-secondary" href="tel:+34953852778">Llamar al laboratorio</a></div></section>
+<section class="section" style="padding-bottom:18px"><div class="eyebrow">${esc(page.eyebrow)}</div><h1>${esc(page.h1)}</h1><p class="section-desc">${esc(page.intro)}</p><div class="btn-row" style="margin-top:22px"><a class="btn btn-primary" href="${esc(formUrl)}">Solicitar valoración</a><a class="btn btn-secondary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Consultar por WhatsApp</a></div></section>
 <section class="section"><div class="eyebrow">SERVICIO AUTOKEYS</div><h2>Qué incluye este servicio</h2><ul>${page.highlights.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>
 ${page.sections.map(([t, x]) => `<section class="section"><h2>${esc(t)}</h2><p class="section-desc">${esc(x)}</p></section>`).join('')}
 <section class="section"><div class="eyebrow">CASOS REALES AUTOKEYS</div><h2>Trabajos y contenidos relacionados</h2><p class="section-desc">Casos reales y páginas técnicas relacionadas con este servicio.</p><div class="cat-grid">${linkGrid(page.cases)}</div></section>
 <section class="section"><div class="eyebrow">PREGUNTAS FRECUENTES</div><h2>Dudas habituales</h2><div class="product-grid cols-2">${faqHtml(page.faq)}</div></section>
 <section class="section"><div class="eyebrow">SERVICIOS RELACIONADOS</div><h2>Más soluciones Autokeys</h2><div class="cat-grid">${linkGrid(page.related)}</div></section>
-<section class="section"><div class="eyebrow">AUTOKEYS REMAPS PRO</div><h2>${esc(page.ctaTitle)}</h2><p class="section-desc">${esc(page.ctaText)}</p><div class="btn-row" style="margin-top:22px"><a class="btn btn-primary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Enviar consulta</a><a class="btn btn-secondary" href="/enviar-reparacion.html">Enviar una unidad</a></div></section></main>
+<section class="section"><div class="eyebrow">AUTOKEYS REMAPS PRO</div><h2>${esc(page.ctaTitle)}</h2><p class="section-desc">${esc(page.ctaText)}</p><div class="btn-row" style="margin-top:22px"><a class="btn btn-primary" href="${esc(formUrl)}">Solicitar valoración</a><a class="btn btn-secondary" href="tel:+34632982646">Llamar a oficina</a></div></section></main>
 <footer id="site-footer"></footer><script defer src="/assets/js/catalog.js"></script><script defer src="/assets/js/cart.js"></script><script defer src="/assets/js/app.js"></script><script defer src="/_vercel/insights/script.js"></script></body></html>`;
 }
 
