@@ -139,7 +139,7 @@ function akHeaderHTML(active) {
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/contacto.html', 'contacto', 'CONTACTO') +
-      '<li class="mobile-nav-actions"><a class="mobile-nav-primary" href="/enviar-reparacion.html">' + akIcon('file') + ' Solicitar reparación</a><a href="/mi-solicitud.html">' + akIcon('checkCircle') + ' Consultar mi solicitud</a></li>' +
+      '<li class="mobile-nav-actions"><a class="mobile-nav-primary" href="/enviar-reparacion.html">' + akIcon('file') + ' Solicitar reparación</a><a href="/mi-solicitud.html">' + akIcon('checkCircle') + ' Seguir reparación</a><a href="/tienda.html">' + akIcon('search') + ' Buscar en la tienda</a></li>' +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
@@ -240,8 +240,7 @@ const AK_RED_LABEL = { facebook: 'Facebook', instagram: 'Instagram', youtube: 'Y
 
 async function akAplicarEmpresaEnFooter() {
   const social = document.getElementById('footer-social');
-  const direccion = document.getElementById('footer-direccion');
-  if (!social && !direccion) return;
+  if (!social) return;
   try {
     const empresa = await akEmpresaReady();
     if (!empresa) return;
