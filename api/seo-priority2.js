@@ -85,7 +85,7 @@ const PAGES = {
       ['¿Atendéis talleres fuera de Jaén?', 'Sí. Recibimos centralitas de talleres y particulares de diferentes provincias mediante mensajería, tras revisar los datos del caso.']
     ],
     cases: [
-      ['/ford-mustang-ecu-clonada.html', 'Ford Mustang · suministro de ECU donante clonada desde Cuenca'],
+      ['/ford-mustang-ecu-clonada.html', 'Ford Mustang 2019 MG1CS019 · ECU dañada y clonación desde Cuenca'],
       ['/casos/opel-combo-md1cs003-recuperacion-arranque', 'Opel Combo MD1CS003 · recuperación electrónica tras fallo de arranque'],
       ['/casos/volvo-s60-2011-cem-recuperada', 'Volvo S60 · recuperación de módulo CEM']
     ],
