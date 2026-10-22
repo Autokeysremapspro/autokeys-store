@@ -70,7 +70,7 @@ test('privacidad: el borrador no guarda VIN, matrícula o datos de contacto',()=
 
 test('portada: ruta de solicitud clara y caso real accesible',()=>{
   assert.match(home,/href="\/enviar-reparacion\.html"[^>]*>.*Solicitar valoración del módulo/);
-  assert.match(home,/Ver clonación y reparación ECU/);
+  assert.match(home,/Explorar servicios/);
   for(const p of ['casos-reales.html','jaguar-xf-2013-rfa-reparacion.html','ford-mustang-ecu-clonada.html']){
     const html=fs.readFileSync(p,'utf8');
     assert.match(html,/data-active="casos"/);
