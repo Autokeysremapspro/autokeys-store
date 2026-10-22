@@ -57,7 +57,9 @@ test('caso real de Mustang: sin datos personales y con datos estructurados váli
   assert.match(html, /Ford Mustang/);
   assert.match(html, /Cuenca/);
   assert.match(html, /se suministró otra unidad compatible clonada|otra centralita clonada/i);
-  assert.match(html, /no publicamos la referencia exacta/i);
+  assert.match(html, /MG1CS019/);
+  assert.match(html, /MG1CS019 indica la familia de la ECU/);
+  assert.match(html, /cuatro cilindros/);
   assert.doesNotMatch(html, /Carlos Orea|[0-9]{8}[A-Z]/);
   const schemas = jsonScripts(html);
   assert.ok(schemas.some((item) => item['@type'] === 'Article'));
