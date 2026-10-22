@@ -95,9 +95,9 @@ function akHeaderHTML(active) {
     '<li class="' + (active === id ? 'active' : '') + '"><a href="' + href + '">' + label + '</a></li>';
 
   const dropdown = (id, label, items) =>
-    '<li class="' + (active === id ? 'active' : '') + '">' +
-      '<button type="button">' + label + akIcon('chevDown', 'chev') + '</button>' +
-      '<div class="dropdown">' + items.map((i) => '<a href="' + i.href + '"' + (i.external ? ' target="_blank" rel="noopener"' : '') + '>' + i.label + (i.external ? akIcon('arrowRight', 'ext') : '') + '</a>').join('') + '</div>' +
+    '<li class="has-dropdown ' + (active === id ? 'active' : '') + '">' +
+      '<button type="button" class="nav-dropdown-toggle" aria-controls="ak-dropdown-' + id + '" aria-expanded="false">' + label + akIcon('chevDown', 'chev') + '</button>' +
+      '<div class="dropdown" id="ak-dropdown-' + id + '">' + items.map((i) => '<a href="' + i.href + '"' + (i.external ? ' target="_blank" rel="noopener"' : '') + '>' + i.label + (i.external ? akIcon('arrowRight', 'ext') : '') + '</a>').join('') + '</div>' +
     '</li>';
 
   return '' +
@@ -110,7 +110,8 @@ function akHeaderHTML(active) {
     '<a class="brand" href="/">' +
       '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
     '</a>' +
-    '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav">' +
+    '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav" id="ak-main-navigation">' +
+      '<li class="mobile-nav-top"><span>EXPLORAR AUTOKEYS</span><button type="button" data-nav-close aria-label="Cerrar menú">' + akIcon('close') + '</button></li>' +
       dropdown('tienda', 'TIENDA', [
         { href: '/tienda.html', label: 'Ver todo el catálogo' },
         { href: '/categorias/reparacion-ecu', label: 'Reparación ECU — catálogo' },
@@ -146,6 +147,7 @@ function akHeaderHTML(active) {
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/contacto.html', 'contacto', 'CONTACTO') +
+      '<li class="mobile-nav-actions"><a class="mobile-nav-primary" href="/enviar-reparacion.html">' + akIcon('file') + ' Solicitar reparación</a><a href="/mi-solicitud.html">' + akIcon('checkCircle') + ' Consultar mi solicitud</a></li>' +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
@@ -153,11 +155,11 @@ function akHeaderHTML(active) {
     '</form>' +
     '<div class="head-actions">' +
       '<a class="search-icon-btn" href="/tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
-      '<a class="head-action head-action-cta" href="/reservar-cita.html">' + akIcon('calendar') + '<span>Reservar cita</span></a>' +
+      '<a class="head-action head-action-cta" href="/enviar-reparacion.html" aria-label="Solicitar reparación de módulo">' + akIcon('file') + '<span>Solicitar reparación</span></a>' +
       '<a class="head-action" href="/login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
       '<button class="head-action" id="logout-link" data-action="logout" style="display:none;border:0;background:transparent">' + akIcon('close') + '<span>Salir</span></button>' +
       '<a class="head-action" href="/carrito.html">' + akIcon('cart') + '<span>Carrito</span><span class="badge" data-cart-badge>0</span></a>' +
-      '<button class="burger" type="button" data-nav-toggle aria-label="Menú">' + akIcon('plus') + '</button>' +
+      '<button class="burger" type="button" data-nav-toggle aria-controls="ak-main-navigation" aria-expanded="false" aria-label="Abrir menú">' + akIcon('menu') + '</button>' +
     '</div>' +
   '</div></header>';
 }
@@ -438,17 +440,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const navigation = document.getElementById('ak-main-navigation');
+  const burger = document.querySelector('[data-nav-toggle]');
+  const closeNavigation = (focusBurger = false) => {
+    if (!navigation || !burger) return;
+    const wasOpen = navigation.classList.contains('mobile-open');
+    navigation.classList.remove('mobile-open');
+    document.body.classList.remove('ak-nav-open');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Abrir menú');
+    burger.innerHTML = akIcon('menu');
+    navigation.querySelectorAll('.has-dropdown.is-expanded').forEach((li) => {
+      li.classList.remove('is-expanded');
+      li.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+    });
+    if (wasOpen && focusBurger) burger.focus();
+  };
   document.addEventListener('click', (e) => {
     const toggle = e.target.closest('[data-nav-toggle]');
     if (toggle) {
-      const open = document.querySelector('.main-nav').classList.toggle('mobile-open');
-      toggle.innerHTML = akIcon(open ? 'close' : 'plus');
+      if (navigation?.classList.contains('mobile-open')) closeNavigation(true);
+      else if (navigation) {
+        navigation.classList.add('mobile-open');
+        document.body.classList.add('ak-nav-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Cerrar menú');
+        toggle.innerHTML = akIcon('close');
+        navigation.querySelector('[data-nav-close]')?.focus();
+      }
       return;
+    }
+    if (e.target.closest('[data-nav-close]')) { closeNavigation(true); return; }
+    const submenu = e.target.closest('.nav-dropdown-toggle');
+    if (submenu && navigation?.contains(submenu)) {
+      const item = submenu.closest('.has-dropdown');
+      const opening = !item.classList.contains('is-expanded');
+      navigation.querySelectorAll('.has-dropdown').forEach((li) => {
+        li.classList.remove('is-expanded');
+        li.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+      });
+      item.classList.toggle('is-expanded', opening);
+      submenu.setAttribute('aria-expanded', String(opening));
+      return;
+    }
+    if (e.target.closest('.main-nav a')) { closeNavigation(); }
+    else if (navigation && !navigation.contains(e.target)) {
+      navigation.querySelectorAll('.has-dropdown').forEach((li) => {
+        li.classList.remove('is-expanded');
+        li.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+      });
     }
     if (e.target.closest('[data-action="logout"]')) {
       akLogout();
       return;
     }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navigation?.classList.contains('mobile-open')) closeNavigation(true);
+    else if (e.key === 'Escape' && navigation) {
+      navigation.querySelectorAll('.has-dropdown.is-expanded').forEach((li) => {
+        li.classList.remove('is-expanded');
+        li.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1280 && navigation?.classList.contains('mobile-open')) closeNavigation();
   });
 });
 
