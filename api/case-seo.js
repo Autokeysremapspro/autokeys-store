@@ -5,7 +5,7 @@ const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 const CASES = {
   'volvo-s60-2011-cem-recuperada': {
     title: 'Volvo S60 2011: CEM dañada y recuperación con donante',
-    meta: 'Caso real Volvo S60 2011: CEM Delphi BG9T-14C256-GA dañada, recuperación de información y montaje de donante compatible. Arranque con dos llaves, sin DTC.',
+    meta: 'Volvo S60 2011: CEM Delphi BG9T-14C256-GA, Volvo 31314116 AA dañada. Recuperación de datos y donante compatible, dos llaves, sin DTC.',
     category: 'CASO REAL · VOLVO S60 2011 · CEM',
     intro: 'En este Volvo S60 de 2011 el problema estaba en la CEM, el módulo electrónico central del vehículo. La unidad original presentaba daños y el vehículo tenía incidencias de comunicación y arranque. Trabajamos con la CEM original y una donante compatible para recuperar la información necesaria y devolver el funcionamiento del coche.',
     facts: [
