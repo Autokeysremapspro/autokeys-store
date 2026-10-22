@@ -1,6 +1,5 @@
 /* Conversion UX layer — no cambia precios, pagos, permisos ni lógica de negocio. */
 (function () {
-  const HOME_PATH = /^\/(?:index\.html)?$/i;
   const SERVICE_PATHS = {
     '/reparacion-centralitas-ecu': {
       title: '¿La ECU no comunica, está dañada o falló una escritura?',
@@ -62,146 +61,6 @@
       queued = true;
       setTimeout(() => { queued = false; run(); }, 60);
     }).observe(document.body, { childList: true, subtree: true });
-  }
-
-  function normalizeBrandConsistency() {
-    const run = () => {
-      const topbarItems = document.querySelectorAll('.topbar .tb-item');
-      if (topbarItems[1]) {
-        const span = topbarItems[1].querySelector('span');
-        if (span) span.textContent = 'Atención técnica L-V · 09:30–13:30 · 17:00–20:30';
-      }
-      if (topbarItems[2]) {
-        const span = topbarItems[2].querySelector('span');
-        if (span) span.textContent = 'Servicio por envío a toda España';
-      }
-
-      const features = document.querySelectorAll('.feature-strip > div');
-      const featureCopy = [
-        ['Laboratorio especializado', 'Electrónica del automóvil'],
-        ['Casos reales documentados', 'Procesos y resultados publicados'],
-        ['Equipamiento profesional', 'Diagnosis, programación y banco'],
-        ['Atención personalizada', 'Te acompañamos en el proceso'],
-        ['Garantía según servicio', 'Condiciones claras antes del trabajo']
-      ];
-      features.forEach((item, index) => {
-        const title = item.querySelector('b');
-        const text = item.querySelector('span');
-        if (featureCopy[index] && title) title.textContent = featureCopy[index][0];
-        if (featureCopy[index] && text) text.textContent = featureCopy[index][1];
-      });
-
-      const footerBrand = document.querySelector('.footer-brand p');
-      if (footerBrand) {
-        footerBrand.textContent = 'Laboratorio y tienda especializada en electrónica del automóvil. Servicios técnicos y trabajos por envío para particulares y profesionales.';
-      }
-
-      document.querySelectorAll('.contact-list li span').forEach((span) => {
-        if (/Lun\s*-\s*Dom/i.test(span.textContent || '')) span.textContent = 'Lun - Vie · 09:30–13:30 · 17:00–20:30';
-      });
-
-      const quickLinks = Array.from(document.querySelectorAll('.site-footer a'));
-      const software = quickLinks.find((link) => /^Software$/i.test((link.textContent || '').trim()));
-      if (software) software.setAttribute('href', '/categorias/software');
-
-      const quickList = Array.from(document.querySelectorAll('.site-footer h4')).find((h) => /ENLACES RÁPIDOS/i.test(h.textContent || ''));
-      const ul = quickList && quickList.nextElementSibling;
-      if (ul && !ul.querySelector('a[href="/profesionales.html"]')) {
-        const li = document.createElement('li');
-        li.innerHTML = '<a href="/profesionales.html">Servicio para profesionales</a>';
-        const about = ul.querySelector('a[href$="quienes-somos.html"]');
-        if (about && about.parentElement) about.parentElement.insertAdjacentElement('afterend', li);
-        else ul.prepend(li);
-      }
-
-      document.querySelectorAll('.pay-icons span').forEach((item) => {
-        if (/Bizum/i.test(item.textContent || '')) item.remove();
-      });
-    };
-
-    run();
-    setTimeout(run, 120);
-  }
-
-  function enhanceHome() {
-    if (!HOME_PATH.test(location.pathname) || document.documentElement.dataset.akGrowthHome === '1') return;
-    const hero = document.querySelector('main .hero');
-    if (!hero) return;
-    document.documentElement.dataset.akGrowthHome = '1';
-
-    const kicker = hero.querySelector('.kicker');
-    const h1 = hero.querySelector('h1');
-    const lead = hero.querySelector('.lead');
-    const buttons = hero.querySelectorAll('.btn-row a');
-    if (kicker) kicker.textContent = 'LABORATORIO DE ELECTRÓNICA · JAÉN + TODA ESPAÑA';
-    if (h1) h1.innerHTML = '¿Tu coche no arranca o falla una centralita?<br><em>Primero revisamos el caso. Después te decimos qué enviar.</em>';
-    if (lead) lead.textContent = 'ECU que no comunica, escritura fallida, clonación, BMW FEM/BDC, Mercedes EZS/ELV y pérdida total de llaves. Trabajamos en laboratorio y por envío desde toda España.';
-    if (buttons[0]) {
-      buttons[0].setAttribute('href', '/enviar-reparacion.html');
-      buttons[0].innerHTML = '<span data-icon="file"></span>Revisar mi caso';
-    }
-    if (buttons[1]) {
-      buttons[1].setAttribute('href', '/enviar-reparacion.html?envio=recogida');
-      buttons[1].innerHTML = '<span data-icon="truck"></span>Solicitar recogida';
-    }
-
-    const badges = hero.querySelectorAll('.hero-badge');
-    const badgeCopy = [
-      ['Diagnóstico previo', 'No envíes nada sin confirmar'],
-      ['Laboratorio técnico', 'Electrónica especializada'],
-      ['Servicio nacional', 'Unidades desde toda España'],
-      ['Proceso trazable', 'Solicitud, revisión y seguimiento']
-    ];
-    badges.forEach((badge, i) => {
-      const b = badge.querySelector('b');
-      const spans = badge.querySelectorAll('span span');
-      if (b && badgeCopy[i]) b.textContent = badgeCopy[i][0];
-      if (spans.length && badgeCopy[i]) spans[spans.length - 1].textContent = badgeCopy[i][1];
-    });
-
-    if (!document.getElementById('growth-problems')) {
-      const section = document.createElement('section');
-      section.className = 'section';
-      section.id = 'growth-problems';
-      section.innerHTML =
-        '<div class="eyebrow">¿QUÉ TE ESTÁ PASANDO?</div>' +
-        '<h2>Entra por el problema, no por el nombre del módulo</h2>' +
-        '<p class="section-desc">No necesitas saber qué servicio contratar. Elige lo que más se parece a tu caso y te explicamos el siguiente paso.</p>' +
-        '<div class="cat-grid">' +
-          '<a class="cat-item" href="/reparacion-centralitas-ecu"><span class="icon">' + icon('ecu') + '</span><span><b>La ECU no comunica o falló una escritura</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Recuperación, diagnóstico y reparación antes de sustituir.</p></span></a>' +
-          '<a class="cat-item" href="/clonacion-centralitas-ecu"><span class="icon">' + icon('ecu') + '</span><span><b>Necesito copiar una ECU a una donante</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Comprobamos compatibilidad y datos antes de clonar.</p></span></a>' +
-          '<a class="cat-item" href="/bmw-fem-bdc"><span class="icon">' + icon('module') + '</span><span><b>BMW con fallo FEM / BDC</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Arranque, recuperación, sustitución y llaves según sistema.</p></span></a>' +
-          '<a class="cat-item" href="/mercedes-ezs-elv"><span class="icon">' + icon('lock') + '</span><span><b>Mercedes sin contacto o ELV bloqueado</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">EZS/EIS, ELV/ESL y problemas de reconocimiento de llave.</p></span></a>' +
-          '<a class="cat-item" href="/perdida-total-llaves-coche"><span class="icon">' + icon('key') + '</span><span><b>He perdido todas las llaves</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Identificamos el inmovilizador y el procedimiento correcto.</p></span></a>' +
-          '<a class="cat-item" href="/electronica-maquinaria-agricola-industrial.html"><span class="icon">' + icon('gear') + '</span><span><b>Falla una ECU de maquinaria</b><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Agrícola, industrial y maquinaria especializada.</p></span></a>' +
-        '</div>' +
-        '<div class="btn-row" style="margin-top:22px">' +
-          '<a class="btn btn-primary" href="/enviar-reparacion.html">' + icon('file') + 'No sé cuál es: revisar mi caso</a>' +
-          '<a class="btn btn-secondary" href="/tienda.html">' + icon('search') + 'Ver todos los servicios</a>' +
-        '</div>' +
-        '<p class="section-desc" style="margin-top:12px">Con marca, modelo, año, referencia o foto de la etiqueta y una descripción de los síntomas podemos orientarte antes de que desmontes o envíes nada.</p>';
-      hero.insertAdjacentElement('afterend', section);
-    }
-
-    if (!document.getElementById('growth-professionals')) {
-      const target = document.getElementById('proceso') || document.querySelector('main section:last-of-type');
-      if (target) {
-        const section = document.createElement('section');
-        section.className = 'section';
-        section.id = 'growth-professionals';
-        section.innerHTML =
-          '<div class="eyebrow">PARA TALLERES Y PROFESIONALES</div>' +
-          '<h2>Tu laboratorio externo cuando la electrónica se complica</h2>' +
-          '<p class="section-desc">Puedes derivarnos ECU, TCU, inmovilizadores y módulos electrónicos sin montar toda la infraestructura de laboratorio en tu taller. Primero revisamos referencias y síntomas; después te indicamos qué enviar.</p>' +
-          '<div class="btn-row" style="margin-top:20px">' +
-            '<a class="btn btn-primary" href="/profesionales.html">' + icon('diag') + 'Servicio para talleres</a>' +
-            '<a class="btn btn-secondary" href="/enviar-reparacion.html?tipo=taller">' + icon('file') + 'Abrir caso profesional</a>' +
-          '</div>';
-        target.insertAdjacentElement('afterend', section);
-        fillIcons(section);
-      }
-    }
-    fillIcons(hero);
   }
 
   function enhanceServiceLanding() {
@@ -300,7 +159,9 @@
     if (/tienda\.html$|^\/categorias\//i.test(path)) {
       return { eyebrow: '¿NO SABES QUÉ ELEGIR?', text: 'Te orientamos antes de contratar o enviar nada', label: 'Cuéntanos el caso', icon: 'file', href: '/enviar-reparacion.html', key: 'sticky_catalog_review' };
     }
-    return { eyebrow: 'PRIMERO REVISAMOS EL CASO', text: 'Respuesta técnica en horario laboral', label: 'Solicitar valoración', icon: 'file', href: '/enviar-reparacion.html', key: 'sticky_home_review' };
+    // En portada, contacto, páginas legales y reserva no se superpone otra
+    // barra a los botones propios de cada pantalla.
+    return null;
   }
 
   function addConversionDock() {
@@ -351,8 +212,6 @@
 
   function init() {
     setupCleanInternalLinks();
-    normalizeBrandConsistency();
-    enhanceHome();
     enhanceServiceLanding();
     enhanceRepairForm();
     enhanceCheckoutGate();
