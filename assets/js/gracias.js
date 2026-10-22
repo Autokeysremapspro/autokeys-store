@@ -30,6 +30,10 @@
     } else if (data.tipo === 'reparacion') {
       message = 'Tu solicitud ya aparece en nuestro panel.' + emailText + ' No envíes la unidad hasta recibir nuestras indicaciones.';
       steps = '<span>1. Revisamos los datos y archivos.</span><span>2. Te confirmamos qué debes enviar.</span><span>3. Podrás consultar el estado y el presupuesto.</span>';
+      if (data.recogidaPendiente) {
+        message += ' La recogida está solicitada pero NO reservada; confirmaremos disponibilidad, importe definitivo y fecha antes de tramitarla.';
+        steps = '<span>1. Revisamos tu solicitud y la dirección de recogida.</span><span>2. Te confirmamos manualmente disponibilidad, precio y fecha.</span><span>3. Solo después de tu confirmación tramitaremos la recogida.</span>';
+      }
       if (data.uploadWarning) message += ' Algún archivo no pudo adjuntarse; te lo pediremos si es necesario.';
     } else if (data.tipo === 'calculadora') {
       message = 'Hemos recibido tu consulta. Te contactaremos para concretar el caso y confirmar el siguiente paso.';
