@@ -57,6 +57,10 @@ test('Jaguar XF X250 2013: corrupción de datos, RFA y SDD sin afirmar KVM/llave
   assert.match(html,/DX23-14C256-AC/);
   assert.match(html,/DX23-14C184-AF/);
   assert.match(html,/JLR SDD|SDD/);
+  assert.match(html,/DX23-14B476-AG/);
+  assert.match(html,/DPLA-19H440-BF/);
+  assert.match(html,/referencias leídas durante la diagnosis/i);
+  assert.match(html,/no representan necesariamente averías presentes después de la reparación/i);
   assert.doesNotMatch(html,/<h1>[^<]*X260/);
   assert.doesNotMatch(html,/programaron nuevas llaves|pérdida total de llaves/i);
   assert.ok(schemas(html).some(x=>x['@type']==='Article'));
