@@ -4,95 +4,98 @@ const IMAGE = `${SITE}/assets/img/hero-taller.webp`;
 
 const PAGES = {
   'inmovilizador-coche': {
-    title: 'Inmovilizador del Coche | Diagnóstico y Programación',
-    description: 'Diagnóstico de fallos de inmovilizador, llaves no reconocidas y problemas de arranque. Programación y recuperación de sistemas en Autokeys Remaps Pro.',
-    eyebrow: 'INMOVILIZADOR · LLAVES · ARRANQUE',
-    h1: 'Inmovilizador del coche: diagnóstico, programación y reparación',
-    intro: 'Si el vehículo muestra inmovilizador activo, no reconoce la llave, arranca y se para o directamente no autoriza el arranque, primero hay que identificar qué parte del sistema está fallando. En Autokeys Remaps Pro diagnosticamos llaves, inmovilizadores y módulos de autorización de arranque antes de programar o sustituir componentes.',
-    serviceName: 'Diagnóstico y programación de inmovilizador de coche',
+    title: 'Fallo de Inmovilizador del Coche | Diagnóstico y Reparación',
+    description: '¿Tu coche no reconoce la llave o no autoriza el arranque? Diagnóstico de inmovilizadores, UCH, BCM, CAS, EZS y módulos relacionados. Laboratorio en Jaén.',
+    eyebrow: 'INMOVILIZADOR · LLAVES · AUTORIZACIÓN DE ARRANQUE',
+    h1: 'Fallo de inmovilizador: diagnóstico de llave y arranque',
+    intro: 'Cuando un coche no reconoce la llave, muestra inmovilizador activo o deja de arrancar después de cambiar un módulo, hay que identificar qué componente bloquea realmente la autorización. Revisamos llaves, comunicaciones y sistemas como UCH, BCM, CAS, FEM, BDC, EZS o ELV según la marca y arquitectura del vehículo.',
+    serviceName: 'Diagnóstico, reparación y programación de inmovilizadores',
     area: ['Jaén', 'España'],
+    formUrl: '/enviar-reparacion.html',
     highlights: [
-      'Diagnóstico cuando el coche no reconoce la llave',
-      'Comprobación de inmovilizador activo y autorización de arranque',
-      'Programación y aprendizaje de llaves cuando el sistema lo permite',
-      'Recuperación de sincronización entre módulos según arquitectura',
-      'Trabajo de laboratorio sobre módulos cuando la diagnosis por vehículo no es suficiente'
+      'Diagnóstico de llave no reconocida o inmovilizador activo',
+      'Comprobación de alimentación y comunicaciones entre módulos',
+      'Valoración de pérdidas de sincronización tras cambiar una ECU',
+      'Programación de llaves cuando la arquitectura lo permite',
+      'Estudio de fallos UCH, BCM, CAS, EWS, FEM, BDC, EZS y ELV',
+      'Reparaciones de laboratorio por envío cuando no es imprescindible el vehículo'
     ],
     sections: [
-      ['Qué significa que el inmovilizador esté activo', 'El inmovilizador es parte del sistema antirrobo del vehículo y autoriza o bloquea el arranque según la información intercambiada entre llave, antena, cuadro, BCM, UCH, CAS, FEM, BDC, EZS u otros módulos según la marca. Un mensaje de inmovilizador activo no significa automáticamente que la llave esté averiada: puede existir un problema de alimentación, comunicación, sincronización o datos.'],
-      ['Síntomas habituales de un fallo de inmovilizador', 'Los síntomas más frecuentes son llave no reconocida, testigo de inmovilizador encendido o parpadeando, motor que gira pero no arranca, arranque durante uno o dos segundos y parada inmediata, ausencia de autorización de arranque o pérdida de sincronización después de sustituir o programar un módulo. El patrón exacto cambia según fabricante y generación.'],
-      ['Diagnóstico antes de codificar una llave', 'Codificar una llave sin saber por qué el vehículo no la reconoce puede no resolver la avería. Revisamos diagnosis, estado de la llave, alimentación, comunicaciones y módulos implicados. Cuando el sistema requiere acceso a memoria o trabajo en banco, la intervención se plantea desde laboratorio conservando los datos originales siempre que sea posible.'],
-      ['Programación, recuperación y sustitución', 'Según el vehículo, la solución puede ser programar una nueva llave, recuperar una sincronización, reparar un módulo, adaptar una unidad donante o reconstruir información del sistema. No aplicamos un procedimiento genérico: primero identificamos la arquitectura y la compatibilidad de cada componente.'],
-      ['Servicio en Jaén y trabajos de laboratorio por envío', 'Los trabajos que necesitan el vehículo se realizan en nuestro laboratorio de Puente de Génave, Jaén. Cuando la intervención puede hacerse sobre módulos concretos, también recibimos unidades de talleres y profesionales de otras provincias previa identificación del sistema y del material necesario.']
+      ['El inmovilizador no es una sola centralita', 'La autorización de arranque puede depender de la llave o transponder, antena lectora, cuadro, UCH, BCM, CAS, FEM, BDC, EZS, ELV y ECU de motor. Los elementos implicados cambian según marca y generación, por lo que una solución genérica puede no resolver el fallo.'],
+      ['Síntomas que necesitan un diagnóstico diferencial', 'Un testigo de llave, mensaje de inmovilizador activo, contacto que no se habilita, motor que gira pero no arranca o arranque que se interrumpe pueden deberse a causas distintas. Identificamos en qué punto deja de autorizarse el arranque antes de cambiar componentes.'],
+      ['Coche que no arranca después de sustituir la ECU', 'Una centralita donante puede necesitar transferencia de datos o adaptación al sistema de inmovilizador del vehículo. La compatibilidad física de conectores no es suficiente. Revisamos referencias y antecedentes del cambio antes de recomendar clonación, programación o recuperación.'],
+      ['Llave, módulo o alimentación: qué comprobar primero', 'Si existe una segunda llave funcional, su respuesta ayuda a orientar el diagnóstico. También importan voltaje de batería, alimentaciones del módulo, códigos de avería y comunicación entre unidades. Programar una nueva llave sin estas comprobaciones puede no solucionar el problema.'],
+      ['¿Se puede resolver con módulos enviados al laboratorio?', 'En determinados sistemas sí: después de estudiar el caso podemos pedir la UCH, ECU, EZS, ELV u otros elementos necesarios. Hay trabajos de aprendizaje de llaves que requieren el vehículo completo; lo indicaremos antes de aceptar una recogida.']
     ],
     faq: [
-      ['¿Qué significa inmovilizador activo?', 'Significa que el sistema de autorización de arranque no está validando correctamente una de las condiciones necesarias. Puede deberse a llave, comunicación, alimentación, sincronización o a un módulo implicado en el arranque.'],
-      ['¿Cómo saber si falla la llave o el inmovilizador?', 'La forma correcta es diagnosticar el sistema. Si hay otra llave funcional, su comportamiento ayuda a orientar el fallo, pero la diagnosis y las comunicaciones entre módulos son las que permiten confirmar el origen.'],
-      ['¿Se puede programar una llave nueva si el coche no reconoce ninguna?', 'En muchos vehículos sí, aunque el procedimiento depende de la arquitectura. En algunos casos basta con diagnosis y en otros es necesario trabajar sobre módulos electrónicos.'],
-      ['¿Un inmovilizador averiado siempre obliga a cambiar la centralita?', 'No. El inmovilizador puede estar gestionado por distintos módulos y un fallo de arranque no implica necesariamente que la ECU de motor esté dañada. Primero se identifica el elemento que está bloqueando la autorización.']
+      ['¿Inmovilizador activo significa que la ECU está rota?', 'No. La incidencia puede estar en la llave, un módulo de carrocería, una desincronización o en alimentación y comunicaciones.'],
+      ['¿Mi coche puede no arrancar por un ELV o bloqueo de dirección?', 'Sí, en arquitecturas que integran el bloqueo electrónico en la autorización de contacto o arranque; debe comprobarse la unidad correspondiente.'],
+      ['¿Puedo montar una centralita usada?', 'En algunos sistemas sí, tras verificar compatibilidad y realizar la transferencia o adaptación necesaria. No suele bastar con conectar una donante cualquiera.'],
+      ['¿Se puede programar otra llave si se han perdido todas?', 'Existen procedimientos para diversos vehículos, pero dependen de la generación del inmovilizador y de los módulos disponibles.'],
+      ['¿Puedo enviar los módulos desde otra provincia?', 'Si el trabajo puede realizarse en banco, sí. Confirmaremos qué elementos necesitas enviar; en otros casos será imprescindible el vehículo.']
     ],
     cases: [
-      ['/casos/renault-megane-2008-perdida-total-llaves', 'Renault Megane 2008 · recuperación de llave e inmovilizador'],
-      ['/casos/renault-kangoo-2007-uch-reparada', 'Renault Kangoo · recuperación electrónica UCH'],
-      ['/bmw-fem-bdc', 'BMW FEM / BDC · autorización de arranque y llaves'],
-      ['/mercedes-ezs-elv', 'Mercedes EZS / ELV · sistema de arranque']
+      ['/casos/renault-kangoo-2007-uch-reparada', 'Renault Kangoo · reparación electrónica UCH'],
+      ['/casos/renault-megane-2008-perdida-total-llaves', 'Renault Mégane · recuperación de llave'],
+      ['/casos/mercedes-2008-2009-ezs-inoperativo-dos-llaves', 'Mercedes · recuperación de EZS y llaves']
     ],
     related: [
-      ['/programacion-llaves-coche', 'Programación de llaves de coche'],
-      ['/perdida-total-llaves-coche', 'Pérdida total de llaves'],
-      ['/duplicado-llaves-coche-jaen', 'Duplicado de llaves de coche en Jaén'],
-      ['/reparacion-centralitas-ecu', 'Reparación de centralitas ECU']
+      ['/clonacion-centralitas-ecu', 'Clonación de ECU donante'],
+      ['/coche-no-arranca-despues-cambiar-centralita', 'No arranca después de cambiar ECU'],
+      ['/mercedes-ezs-elv', 'Mercedes EZS / ELV'],
+      ['/programacion-llaves-coche', 'Programación de llaves']
     ],
-    ctaTitle: '¿Tu coche muestra fallo de inmovilizador o no reconoce la llave?',
-    ctaText: 'Envíanos marca, modelo, año, síntomas y los códigos de diagnosis si los tienes. Revisamos primero la arquitectura antes de indicarte el procedimiento.'
+    ctaTitle: '¿Tu coche no reconoce la llave o no autoriza el arranque?',
+    ctaText: 'Envíanos marca, modelo, año, síntomas y códigos de diagnosis. Te indicaremos si hay que revisar el vehículo o si se puede estudiar un módulo por envío.'
   },
 
   'reparacion-centralitas-ecu': {
-    title: 'Reparación de Centralitas ECU por Envío | Autokeys',
-    description: 'Reparación y diagnóstico de centralitas ECU de coche. Recuperación, clonación y servicio por envío desde toda España en Autokeys Remaps Pro.',
+    title: 'Reparación de Centralitas ECU por Envío | Autokeys Remaps Pro',
+    description: 'Diagnóstico y reparación de ECU que no comunica, falla al arrancar o presenta daños electrónicos. Recuperación de datos y servicio por mensajería en España.',
     eyebrow: 'REPARACIÓN ECU · DIAGNÓSTICO · SERVICIO NACIONAL',
-    h1: 'Reparación de centralitas ECU de coche por envío',
-    intro: 'Reparamos y diagnosticamos centralitas de motor con fallos internos, ausencia de comunicación, daños de alimentación, corrupción de memoria o problemas después de una intervención previa. Trabajamos desde nuestro laboratorio en Puente de Génave, Jaén, y recibimos unidades por envío desde toda España.',
-    serviceName: 'Reparación y diagnóstico de centralitas ECU de coche',
+    h1: 'Reparación y recuperación de centralitas ECU',
+    intro: 'Un fallo de arranque o de comunicación no significa necesariamente que haya que sustituir la centralita. En nuestro laboratorio de Puente de Génave (Jaén) diagnosticamos daños electrónicos y estudiamos la reparación de la ECU original, la recuperación de sus datos o el uso de una donante compatible. Recibimos unidades de talleres y particulares de toda España.',
+    serviceName: 'Diagnóstico y reparación electrónica de centralitas ECU',
     area: ['España', 'Jaén'],
+    formUrl: '/enviar-reparacion.html?unidad=ecu&trabajo=Diagn%C3%B3stico%20%2F%20comprobaci%C3%B3n',
     highlights: [
-      'Diagnóstico y peritación técnica antes de reparar cuando es necesario',
-      'Reparación electrónica a nivel de componente cuando es viable',
-      'Recuperación de memorias y unidades con escritura fallida',
-      'Clonación a una ECU donante compatible cuando procede',
-      'Servicio por envío para particulares, talleres y profesionales de toda España'
+      'Comprobaciones de alimentación, masas y comunicaciones antes de condenar la ECU',
+      'Diagnóstico de fallo interno, daños electrónicos y memorias',
+      'Estudio de recuperación tras fallos de escritura o intervención previa',
+      'Reparación de componentes cuando técnicamente corresponde',
+      'Valoración de transferencia de datos a una ECU donante compatible',
+      'Recepción de centralitas por mensajería desde toda España'
     ],
     sections: [
-      ['Cómo saber si una centralita de coche está realmente averiada', 'Una ECU que no comunica, provoca fallos internos o impide el arranque no siempre es la causa primaria. Antes de sustituir revisamos alimentación, masas, comunicaciones, códigos de avería, daños físicos, estado de memorias y antecedentes de manipulación para separar una avería real de la centralita de un fallo externo del vehículo.'],
-      ['Diagnóstico y valoración antes de la reparación', 'Cuando el caso lo requiere realizamos una valoración técnica de la unidad antes de confirmar la intervención. La referencia, la familia electrónica, el daño y las manipulaciones previas determinan si conviene reparar la ECU original, recuperar sus datos o estudiar una unidad donante.'],
-      ['Familias de ECU que trabajamos en laboratorio', 'El procedimiento depende de cada familia. Trabajamos con numerosas unidades Bosch EDC15, EDC16, EDC17, MED y MED17, además de plataformas MD1 y MG1, Siemens/Continental SID, Delphi y otras familias habituales de electrónica de motor. La referencia exacta es la que determina el método de lectura, comprobación y reparación.'],
-      ['Reparar, recuperar o clonar una ECU', 'Si el daño es reparable intervenimos sobre la propia centralita. Cuando la unidad original no puede seguir trabajando pero conserva información útil, estudiamos la recuperación y transferencia de datos a una donante compatible. No todas las ECU físicamente iguales son intercambiables, por lo que comprobamos hardware, software y referencias antes de clonar.'],
-      ['Precio de reparar una centralita de coche', 'No existe un precio único porque el trabajo cambia mucho entre una avería de alimentación, una memoria dañada, una ECU sin comunicación, una clonación o una recuperación compleja. La referencia exacta y los síntomas permiten orientar el caso antes de enviar la unidad y evitar presupuestos genéricos que luego no corresponden al trabajo real.'],
-      ['Reparación de ECU por envío desde toda España', 'Antes de enviar una centralita, facilítanos marca, modelo, motor, referencia de la ECU y síntomas. Te indicamos qué necesitamos recibir y registramos el trabajo asociado a esa referencia. De esta forma evitamos desmontajes y envíos innecesarios y mantenemos trazabilidad durante el proceso.']
+      ['Síntomas que pueden indicar un problema de ECU', 'La ausencia de comunicación, fallos de alimentación, errores internos, motor que no arranca o problemas surgidos tras una escritura son motivos para investigar. Sin embargo, también pueden estar causados por instalación, fusibles, masas, sensores o la red del vehículo. Por eso la diagnosis previa es fundamental.'],
+      ['Cómo diferenciamos un fallo interno de un problema externo', 'Antes de intervenir revisamos la historia de la avería, alimentación, comunicaciones y referencias. Cuando la centralita se estudia desmontada realizamos comprobaciones de laboratorio acordes a su arquitectura. No damos por averiada una ECU basándonos únicamente en un código de error.'],
+      ['Centralitas que han dejado de comunicar tras una reprogramación', 'Una escritura interrumpida o un archivo incompatible puede dejar una unidad sin responder al método habitual. La posibilidad de recuperación depende del microcontrolador, el estado de las memorias, el acceso físico y la disponibilidad de información válida de la unidad. No existe una recuperación universal.'],
+      ['Bosch, Continental, Delphi y otras familias', 'Cada ECU exige métodos distintos. Valoramos unidades Bosch EDC16, EDC17, MED17, MD1 y MG1; Siemens/Continental SID; Delphi y otras familias, siempre a partir de referencia de fabricante, hardware, software y síntomas comprobados. Mencionar una familia no implica que todas sus variantes sean reparables.'],
+      ['¿Reparar la ECU original o sustituirla?', 'Si la avería permite reparar la unidad, podemos conservar la ECU original. Cuando existe un daño que impide su reutilización, estudiamos clonación o transferencia de datos a una donante adecuada. La decisión depende del presupuesto, del acceso a los datos y de la compatibilidad.'],
+      ['Cómo solicitar diagnóstico por envío', 'Facilítanos marca, modelo, motor, referencia de la centralita, síntomas, códigos de avería y manipulaciones anteriores. Confirmaremos qué material enviar y las condiciones de valoración. Una vez recibido el módulo, concretaremos la intervención viable.']
     ],
     faq: [
-      ['¿Cómo puedo saber si tengo que reparar la centralita del coche?', 'La diagnosis del vehículo y la comprobación de alimentaciones y comunicaciones son el punto de partida. Una avería registrada en la ECU no siempre significa que el módulo esté físicamente dañado.'],
-      ['¿Cuánto cuesta reparar una centralita de coche?', 'Depende de la referencia, la avería y el procedimiento necesario. Con fotografías de la etiqueta, datos del vehículo y síntomas podemos orientar el trabajo antes del envío.'],
-      ['¿Puedo enviar solo la ECU?', 'En muchos casos sí. Antes de desmontar confirmamos si necesitamos únicamente la centralita o también algún módulo, llave o unidad donante.'],
-      ['¿Se puede recuperar una ECU después de una escritura fallida?', 'En determinadas familias sí. La viabilidad depende del estado de la unidad, del método utilizado y de si todavía es posible acceder a las memorias necesarias.'],
-      ['¿Trabajáis reparación de ECU para talleres de toda España?', 'Sí. Recibimos unidades de talleres, profesionales y clientes de distintas provincias mediante servicio por envío.']
+      ['¿Cómo sé si falla la ECU o el cableado?', 'Una diagnosis del vehículo, la comprobación de alimentaciones y el estado de comunicaciones son necesarios antes de atribuir el fallo a la centralita.'],
+      ['¿Reparáis centralitas que no comunican?', 'Las estudiamos, pero no todas se pueden recuperar. Primero hay que comprobar la causa y el estado de sus memorias y componentes.'],
+      ['¿Se puede recuperar una ECU con una escritura fallida?', 'En algunas familias es posible mediante métodos de laboratorio. Depende del estado de la unidad y de si se conserva la información necesaria.'],
+      ['¿Podéis suministrar una ECU donante si la original está irrecuperable?', 'Podemos estudiar esa posibilidad por referencia y disponibilidad, siempre verificando compatibilidad y viabilidad de transferencia o adaptación.'],
+      ['¿Qué debo enviar al laboratorio?', 'Depende del caso: a menudo la ECU desmontada es suficiente para empezar. Si necesitamos donante, llaves u otros módulos lo indicaremos antes de solicitar el envío.'],
+      ['¿Cuánto cuesta una reparación?', 'Se presupuesta según referencia, avería y procedimiento. No se puede dar un precio único sin identificar la unidad y el problema.']
     ],
     cases: [
-      ['/casos/opel-combo-md1cs003-recuperacion-arranque', 'Opel Combo MD1CS003 · recuperación de arranque'],
-      ['/casos/bosch-edc17cp54-stage-1-plus-malaga', 'Bosch EDC17CP54 · unidad trabajada desde Málaga'],
-      ['/casos/golf-6-gti-med17-5-electronica-corregida', 'Volkswagen Golf GTI MED17.5 · electrónica de motor'],
-      ['/clonacion-centralitas-ecu', 'Clonación de centralitas ECU']
+      ['/casos/opel-combo-md1cs003-recuperacion-arranque', 'Opel Combo Bosch MD1CS003 · recuperación de arranque'],
+      ['/casos/volvo-s60-2011-cem-recuperada', 'Volvo S60 · recuperación electrónica de un módulo CEM'],
+      ['/ford-mustang-ecu-clonada.html', 'Ford Mustang · sustitución mediante ECU donante clonada']
     ],
     related: [
-      ['/clonacion-centralitas-ecu', 'Clonación de centralitas ECU'],
-      ['/reparacion-centralita-por-envio', 'Reparación de módulos por envío'],
-      ['/enviar-reparacion.html', 'Enviar una unidad al laboratorio'],
+      ['/clonacion-centralitas-ecu', 'Clonación y sustitución de ECU'],
+      ['/ecu-no-comunica', 'Diagnóstico de ECU que no comunica'],
+      ['/reparacion-centralita-por-envio', 'Recepción de unidades por mensajería'],
       ['/inmovilizador-coche', 'Diagnóstico de inmovilizador de coche']
     ],
-    ctaTitle: '¿Necesitas reparar o diagnosticar una centralita ECU?',
-    ctaText: 'Envíanos una fotografía de la etiqueta, marca, modelo, motor y síntomas. Te indicamos qué material necesitamos antes de realizar el envío.'
+    ctaTitle: '¿La ECU no comunica, no arranca o ha sufrido una escritura fallida?',
+    ctaText: 'Envíanos la referencia y los síntomas. Revisaremos si corresponde reparar la unidad, recuperar sus datos o estudiar una donante antes de que envíes material.'
   },
-
   'reparacion-airbag-srs': {
     title: 'Reparación Airbag SRS y Testigo Encendido | Autokeys',
     description: 'Diagnóstico y reparación electrónica de módulos Airbag SRS. Testigo de airbag encendido, crash data y servicio de laboratorio en Autokeys Remaps Pro.',
@@ -157,6 +160,7 @@ function renderLinks(items, className = 'cat-item') {
 
 function renderPage(slug, page) {
   const canonical = `${SITE}/${slug}`;
+  const formUrl = page.formUrl || '/enviar-reparacion.html';
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -179,7 +183,7 @@ function renderPage(slug, page) {
       '@id': BUSINESS_ID,
       name: 'Autokeys Remaps Pro',
       url: `${SITE}/`,
-      telephone: '+34953852778',
+      telephone: '+34632982646',
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Av. Andalucía 125, Bajo',
@@ -206,7 +210,7 @@ function renderPage(slug, page) {
     name: page.title,
     description: page.description,
     inLanguage: 'es-ES',
-    dateModified: '2026-09-01',
+    dateModified: ['inmovilizador-coche', 'reparacion-centralitas-ecu'].includes(slug) ? '2026-10-22' : '2026-09-01',
     isPartOf: { '@id': `${SITE}/#website` },
     about: { '@id': BUSINESS_ID },
     primaryImageOfPage: { '@type': 'ImageObject', url: IMAGE }
@@ -250,8 +254,8 @@ function renderPage(slug, page) {
   <h1>${esc(page.h1)}</h1>
   <p class="section-desc">${esc(page.intro)}</p>
   <div class="btn-row" style="margin-top:22px">
-    <a class="btn btn-primary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Consultar por WhatsApp</a>
-    <a class="btn btn-secondary" href="tel:+34953852778">Llamar al laboratorio</a>
+    <a class="btn btn-primary" href="${esc(formUrl)}">Solicitar valoración</a>
+    <a class="btn btn-secondary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Consultar por WhatsApp</a>
   </div>
 </section>
 
@@ -287,8 +291,8 @@ ${page.sections.map((section) => `<section class="section"><h2>${esc(section[0])
   <h2>${esc(page.ctaTitle)}</h2>
   <p class="section-desc">${esc(page.ctaText)}</p>
   <div class="btn-row" style="margin-top:22px">
-    <a class="btn btn-primary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Enviar consulta</a>
-    <a class="btn btn-secondary" href="/enviar-reparacion.html">Enviar una unidad</a>
+    <a class="btn btn-primary" href="${esc(formUrl)}">Enviar mi caso</a>
+    <a class="btn btn-secondary" href="tel:+34632982646">Llamar a oficina</a>
   </div>
 </section>
 </main>
