@@ -57,7 +57,7 @@ test('formulario: botones accesibles, pasos anunciados y recogida por teclado',(
   assert.match(repair,/focusStepHeading/);
   assert.match(repair,/card\.classList\.toggle\('active', Boolean\(radio\?\.checked\)\)/);
   assert.match(styles,/\.method-card input\[type="radio"\]/);
-  assert.doesNotMatch(styles,/\.method-card input\{display:none\}/);
+  assert.match(styles,/\.method-card input\[type="radio"\]\{[\s\S]*?position:absolute/);
 });
 
 test('privacidad: el borrador no guarda VIN, matrícula o datos de contacto',()=>{
