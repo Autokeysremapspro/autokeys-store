@@ -5,13 +5,14 @@ const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 const CASES = {
   'volvo-s60-2011-cem-recuperada': {
     title: 'Volvo S60 2011: CEM dañada y recuperación con donante',
-    meta: 'Caso real Volvo S60 2011: CEM Delphi BG9T-14C256-GA dañada, recuperación de información y montaje de donante compatible. Arranque con dos llaves, sin DTC.',
+    meta: 'Volvo S60 2011: CEM Delphi BG9T-14C256-GA, Volvo 31314116 AA dañada. Recuperación de datos y donante compatible, dos llaves, sin DTC.',
     category: 'CASO REAL · VOLVO S60 2011 · CEM',
     intro: 'En este Volvo S60 de 2011 el problema estaba en la CEM, el módulo electrónico central del vehículo. La unidad original presentaba daños y el vehículo tenía incidencias de comunicación y arranque. Trabajamos con la CEM original y una donante compatible para recuperar la información necesaria y devolver el funcionamiento del coche.',
     facts: [
       'Volvo S60 · año 2011',
-      'CEM Delphi · referencia BG9T-14C256-GA / Volvo 31314116',
-      'Microcontrolador R5F64524KFD',
+      'CEM Delphi BG9T-14C256-GA',
+      'Volvo 31314116 AA · Delphi 28261901-IGEE1',
+      'Microcontrolador Renesas R5F64524KFD',
       'CEM original dañada y unidad donante',
       'Dos llaves comprobadas tras el trabajo',
       'Arranque y diagnosis final sin DTC'
@@ -19,9 +20,14 @@ const CASES = {
     datePublished: '2026-09-26',
     dateModified: '2026-10-22',
     sections: [
+      { title: 'Referencias de los módulos intervenidos', paragraphs: [
+        'CEM original Delphi BG9T-14C256-GA, referencia Volvo 31314116 AA y código Delphi 28261901-IGEE1. El microcontrolador identificado para este trabajo fue Renesas R5F64524KFD.',
+        'La unidad donante también se documentó con referencia Delphi BG9T-14C256-GA, Volvo 31314116 AA y código Delphi 28261901-IGEE1. La coincidencia de la etiqueta fue parte de la comprobación de compatibilidad; no implica que todas las CEM de Volvo sean intercambiables.',
+        'Estas son referencias de pieza y de microcontrolador, no bastidor, número de serie personal ni identificadores del propietario.'
+      ] },
       { title: 'Problema inicial: CEM dañada', paragraphs: [
         'La avería estaba localizada en la CEM. Esta unidad interviene en comunicaciones y autorizaciones del vehículo; por tanto, antes de adaptar otra centralita era necesario recuperar los datos específicos de la unidad original. El caso se abordó como una reparación electrónica, no como un simple cambio de pieza.',
-        'La identificación documentada del módulo para este S60 es Delphi BG9T-14C256-GA / Volvo 31314116, con microcontrolador R5F64524KFD. Estas referencias corresponden al caso estudiado: no todas las CEM de Volvo S60 usan la misma electrónica.'
+        'La identificación documentada del módulo para este S60 es Delphi BG9T-14C256-GA / Volvo 31314116 AA / Delphi 28261901-IGEE1, con microcontrolador Renesas R5F64524KFD. Estas referencias corresponden al caso estudiado: no todas las CEM de Volvo S60 usan la misma electrónica.'
       ] },
       { title: 'Trabajo realizado en laboratorio', paragraphs: [
         'Se realizaron lecturas de las memorias disponibles y se trabajó con una CEM donante. El proceso consistió en preservar los datos originales y transferir la información necesaria para que la unidad compatible conservara la configuración del vehículo.',
