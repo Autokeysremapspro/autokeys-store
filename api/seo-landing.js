@@ -210,7 +210,7 @@ function page(slug, data) {
       '@id': `${SITE}/#business`,
       name: 'Autokeys Remaps Pro',
       url: SITE,
-      telephone: '+34953852778',
+      telephone: '+34632982646',
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Av. Andalucía 125, Bajo',
