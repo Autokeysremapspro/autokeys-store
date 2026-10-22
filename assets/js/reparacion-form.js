@@ -25,7 +25,10 @@
     otro: ['Diagnóstico', 'Reparación', 'Clonación', 'Programación / adaptación', 'No lo sé, necesito asesoramiento'],
   };
   const SEND_ITEMS = ['Solo módulo original', 'Original y donante', 'Módulo y llave', 'Módulo, llave y clausor', 'Juego completo', 'Todavía no lo sé'];
-  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','referencia-donante','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
+  // El borrador local solo almacena información técnica, nunca matrícula, VIN,
+  // domicilio, correo electrónico ni teléfono del cliente.
+  const IDS = ['trabajo','marca','modelo','anio','motor','referencia','referencia-donante','averia','arranca','manipulado','dtcs','peso-recogida','tipo-cliente'];
+  const PERSONAL_IDS = new Set(['matricula','vin','nombre','email','telefono','direccion','cp','poblacion','provincia','contacto-recogida']);
   let step = 1;
   let selectedUnit = '';
   let hasAccount = false;
@@ -224,7 +227,10 @@
     try {
       const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (!draft || (draft.savedAt && Date.now() - draft.savedAt > 7 * 86400000)) return;
       if (draft.selectedUnit && WORKS[draft.selectedUnit]) selectUnit(draft.selectedUnit);
-      Object.entries(draft.fields || {}).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
+      Object.entries(draft.fields || {}).forEach(([id, val]) => {
+        if (!IDS.includes(id) || PERSONAL_IDS.has(id)) return;
+        const el = document.getElementById(id); if (el) el.value = val;
+      });
       if (draft.selectedUnit && draft.fields && draft.fields.trabajo) document.getElementById('trabajo').value = draft.fields.trabajo;
       if (draft.sendItems) document.querySelectorAll('#send-items input').forEach((x) => { x.checked = draft.sendItems.includes(x.value); });
       if (draft.metodoEnvio) { const radio = document.querySelector('input[name="metodo_envio"][value="' + draft.metodoEnvio + '"]'); if (radio) { radio.checked = true; radio.closest('.method-card').click(); } }
