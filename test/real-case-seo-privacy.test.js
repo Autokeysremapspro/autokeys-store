@@ -23,7 +23,8 @@ test('Volvo S60 2011: CEM concreta, dos llaves, sin VIN ni claves',()=>{
   assert.match(html,/31314116/);
   assert.match(html,/R5F64524KFD/);
   assert.match(html,/31314116 AA/);
-  assert.match(html,/28261901-IGEE1/);
+  assert.match(html,/Delphi · 28261901/);
+  assert.doesNotMatch(html,/28261901-IGEE1/);
   assert.match(html,/dos llaves/i);
   assert.match(html,/sin DTC/);
   assert.doesNotMatch(html,/YV1FS5250B2012618|2618|PIN 0891414272/);
@@ -41,7 +42,7 @@ test('Mustang: año, MG1CS019, funcionamiento a cuatro cilindros y clonación',(
   assert.match(html,/clonada/);
   assert.match(html,/precio|potencia/);
   assert.ok(schemas(html).some(x=>x['@type']==='Article'));
-  assert.match(html,/No publicamos fotografías del Mustang/);
+  assert.match(html,/MG1CS019 indica la familia de la ECU/);
 });
 
 test('Jaguar XF X250 2013: corrupción de datos, RFA y SDD sin afirmar KVM/llaves',()=>{
@@ -51,11 +52,11 @@ test('Jaguar XF X250 2013: corrupción de datos, RFA y SDD sin afirmar KVM/llave
   assert.match(html,/corrupción de datos/);
   assert.match(html,/RFA dañado/);
   assert.match(html,/DPLA-19H440-BF/);
-  assert.match(html,/DPLA-14C250-BA/);
-  assert.match(html,/DPLA-14C104-CB/);
+  assert.doesNotMatch(html,/DPLA-14C250-BA/);
+  assert.doesNotMatch(html,/DPLA-14C104-CB/);
   assert.match(html,/DX23-14B476-AG/);
-  assert.match(html,/DX23-14C256-AC/);
-  assert.match(html,/DX23-14C184-AF/);
+  assert.doesNotMatch(html,/DX23-14C256-AC/);
+  assert.doesNotMatch(html,/DX23-14C184-AF/);
   assert.match(html,/JLR SDD|SDD/);
   assert.doesNotMatch(html,/<h1>[^<]*X260/);
   assert.doesNotMatch(html,/programaron nuevas llaves|pérdida total de llaves/i);
@@ -81,4 +82,18 @@ test('las páginas de casos no exponen imágenes reales de coches ni datos ident
   assert.doesNotMatch(jag, /6185HTF|275713|43214965N/i);
   assert.match(jag,/assets\/img\/logo.png/);
   assert.match(must,/assets\/img\/logo.png/);
+});
+
+test('tarifa CEM Volvo: presupuesto sin importes propuestos sin aprobar', () => {
+  const page=load('volvo-cem-recuperacion.html');
+  assert.match(page,/Presupuesto personalizado para cada CEM/);
+  assert.match(page,/comunicamos por escrito el precio/);
+  assert.doesNotMatch(page,/desde\\s*<strong>(?:90|350|490)\\s*€|28261901-IGEE1/);
+});
+test('Jaguar: referencias comprobadas y CTA a reparación preseleccionada', () => {
+  const page=load('jaguar-xf-2013-rfa-reparacion.html');
+  assert.match(page,/DX23-14B476-AG/);
+  assert.match(page,/DPLA-19H440-BF/);
+  assert.match(page,/unidad=otro&amp;trabajo=Reparaci%C3%B3n/);
+  assert.doesNotMatch(page,/RFA \\u00b7 Core Assembly|DPLA-19H440-AC/);
 });
