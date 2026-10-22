@@ -219,13 +219,13 @@ function akFooterHTML() {
         '<li><a href="/politica-cookies.html">Cookies</a></li>' +
       '</ul></div>' +
       '<div><h4>CONTACTO</h4><ul class="contact-list">' +
-        '<li><a href="tel:+34953852778">' + akIcon('phone') + '<span>+34 953 85 27 78</span></a></li>' +
+        '<li><a href="tel:+34632982646">' + akIcon('phone') + '<span>+34 632 98 26 46</span></a></li>' +
         '<li><a href="https://wa.me/34632982646" target="_blank" rel="noopener">' + akIcon('whatsapp') + '<span>+34 632 98 26 46 (WhatsApp)</span></a></li>' +
         '<li><a href="mailto:info@autokeysremapspro.es">' + akIcon('mail') + '<span>info@autokeysremapspro.es · Tienda y pedidos</span></a></li>' +
         '<li><a href="mailto:laboratorio@autokeysremapspro.com">' + akIcon('mail') + '<span>laboratorio@autokeysremapspro.com · Soporte técnico</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es · Administración</span></a></li>' +
         '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
-        '<li>' + akIcon('clock') + '<span>L-V · 09:30–13:30 · 17:00–20:30 · Cita previa</span></li>' +
+        '<li>' + akIcon('clock') + '<span>L-V · 09:30–13:30 · 17:00–20:00 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +
