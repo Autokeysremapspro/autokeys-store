@@ -187,7 +187,7 @@
   function updatePickupQuote() {
     const quote = pickupQuote();
     document.getElementById('pickup-price').textContent = quote.price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-    document.getElementById('pickup-rate-detail').textContent = quote.detail;
+    document.getElementById('pickup-rate-detail').textContent = quote.detail + ' · orientativo y sujeto a confirmación';
     document.getElementById('pickup-zone-warning').hidden = !/^(07|35|38|51|52)/.test(value('cp'));
   }
 
@@ -218,7 +218,11 @@
   }
 
   async function loadSession() {
-    const { data: { session } } = await akSupabase().auth.getSession(); const notice = document.getElementById('auth-notice');
+    const notice = document.getElementById('auth-notice');
+    let session = null;
+    try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {
+      // La solicitud pública sigue disponible aunque la autenticación no responda.
+    }
     document.getElementById('archivos').disabled = !session;
     if (!session) { notice.hidden = false; notice.innerHTML = akIcon('user') + '<span><b>No hace falta crear una cuenta.</b> Puedes enviar tu solicitud ahora y recibirás un enlace privado para seguirla. Para adjuntar archivos desde el formulario, <a href="' + loginUrl() + '">inicia sesión</a>; también puedes enviarnos las fotografías por WhatsApp.</span>'; return; }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social,direccion,codigo_postal,ciudad,provincia').eq('id', session.user.id).maybeSingle();
@@ -238,8 +242,8 @@
     const unitLabel = (UNIT_TYPES.find((u) => u[0] === selectedUnit) || [,'',''])[2];
     document.getElementById('request-summary').innerHTML = '<h3>Resumen de la solicitud</h3><div>' +
       '<span><small>Unidad</small><b>' + akEscapeHtml(unitLabel) + '</b></span><span><small>Trabajo</small><b>' + akEscapeHtml(value('trabajo')) + '</b></span>' +
-      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Recogida · ' + pickupQuote().price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })) + '</b></span>' +
-      '</div><p>Revisaremos los datos antes de indicarte que envíes la unidad. Esta solicitud no es todavía un presupuesto ni una orden del laboratorio.</p>';
+      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Recogida pendiente · estimación ' + pickupQuote().price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })) + '</b></span>' +
+      '</div><p>Revisaremos los datos antes de indicarte que envíes la unidad. Esta solicitud no es todavía un presupuesto, una orden del laboratorio ni una recogida de transporte confirmada.</p>';
   }
 
   async function submitRequest(e) {
@@ -256,7 +260,7 @@
       motorizacion: value('motor') || null, matricula: value('matricula') || null, vin: value('vin') || null, referencia_modulo: value('referencia') || null, descripcion_averia: cemIntent ? ('Servicio: CEM Volvo. ' + value('averia') + (value('referencia-donante') ? '\nReferencia CEM donante: ' + value('referencia-donante') : '')).slice(0, 4000) : value('averia'), vehiculo_arranca: value('arranca') === '' ? null : value('arranca') === 'true', codigos_averia: value('dtcs') || null,
       manipulado_antes: value('manipulado') === 'true', elementos_envio: Array.from(document.querySelectorAll('#send-items input:checked')).map((x) => x.value), metodo_envio: shippingMethod(), direccion_recogida: shippingMethod() === 'recogida_autokeys' ? value('direccion') : null, codigo_postal: shippingMethod() === 'recogida_autokeys' ? value('cp') : null,
       poblacion: shippingMethod() === 'recogida_autokeys' ? value('poblacion') : null, provincia: shippingMethod() === 'recogida_autokeys' ? value('provincia') : null, persona_contacto_recogida: shippingMethod() === 'recogida_autokeys' ? value('contacto-recogida') || value('nombre') : null, telefono_recogida: shippingMethod() === 'recogida_autokeys' ? value('telefono') : null,
-      peso_recogida_kg: shippingMethod() === 'recogida_autokeys' ? quote.weight : null, precio_recogida: shippingMethod() === 'recogida_autokeys' ? quote.price : null, tarifa_recogida_codigo: shippingMethod() === 'recogida_autokeys' ? quote.code : null,
+      peso_recogida_kg: shippingMethod() === 'recogida_autokeys' ? quote.weight : null,
       acepta_diagnostico: document.getElementById('acepta-diagnostico').checked, acepta_condiciones: document.getElementById('acepta-condiciones').checked, acepta_privacidad: document.getElementById('acepta-privacidad').checked,
     };
     let response;
@@ -293,7 +297,7 @@
     }).catch(()=>{});
     try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     const portalHref = request.seguimiento_token ? 'mi-solicitud.html#token=' + encodeURIComponent(request.seguimiento_token) : '';
-    try { sessionStorage.setItem('ak_ultima_confirmacion', JSON.stringify({ tipo: 'reparacion', numero: request.numero, emailEnviado: Boolean(request.email_enviado), uploadWarning, portalHref })); } catch (_) {}
+    try { sessionStorage.setItem('ak_ultima_confirmacion', JSON.stringify({ tipo: 'reparacion', numero: request.numero, emailEnviado: Boolean(request.email_enviado), uploadWarning, portalHref, recogidaPendiente: Boolean(request.recogida_pendiente) })); } catch (_) {}
     window.location.assign('/gracias');
   }
 })();
