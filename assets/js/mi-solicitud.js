@@ -112,14 +112,23 @@
     }
   }
 
-  function renderError() {
+  function renderError(noToken = false) {
     document.getElementById('portal-root').className = 'portal-card';
-    document.getElementById('portal-root').innerHTML = '<div class="empty-state">' + akIcon('shield') + '<h2>El enlace no es válido</h2><p>Abre el enlace completo que recibiste por email. Si sigue sin funcionar, te ayudamos por WhatsApp.</p><a class="btn btn-primary" target="_blank" rel="noopener" href="https://wa.me/34632982646">Pedir ayuda</a></div>';
+    document.getElementById('portal-root').innerHTML = '<div class="empty-state">' + akIcon('shield') +
+      '<h2>' + (noToken ? 'Seguimiento de reparación' : 'No podemos abrir este enlace') + '</h2>' +
+      '<p>' + (noToken
+        ? 'Para proteger tus datos necesitas el enlace privado enviado al correo de tu solicitud. Ábrelo desde ese mensaje para consultar el estado y, cuando corresponda, el presupuesto.'
+        : 'Comprueba que estás abriendo el enlace privado completo enviado por email. Si el problema continúa, contacta con nuestro equipo indicando tu número de solicitud.') + '</p>' +
+      '<div class="btn-row" style="justify-content:center">' +
+        '<a class="btn btn-primary" href="/enviar-reparacion.html">Nueva solicitud de reparación</a>' +
+        '<a class="btn btn-secondary" href="/cuenta.html">Seguir un pedido de tienda</a>' +
+        '<a class="btn btn-secondary" target="_blank" rel="noopener" href="https://wa.me/34632982646">Solicitar ayuda</a>' +
+      '</div></div>';
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
     token = readToken();
-    if (!token) return renderError();
+    if (!token) return renderError(true);
     try {
       const returned = new URLSearchParams(location.search).get('pago') === 'retorno';
       const data = await call(returned ? 'confirmar_pago' : 'consultar');
