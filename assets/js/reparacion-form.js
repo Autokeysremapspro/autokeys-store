@@ -109,21 +109,6 @@
     clearTimeout(incompleteTimer);
     incompleteTimer = setTimeout(() => {
       if (!selectedUnit || !value('trabajo') || !value('nombre') || !value('email') || !value('telefono') || !document.getElementById('acepta-privacidad').checked) return;
-      if (!session) {
-      for (const file of Array.from(document.getElementById('archivos').files || [])) {
-        try {
-          const base64 = await readFileBase64(file);
-          const response = await fetch('/api/adjuntar-foto-solicitud', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              solicitud_id: request.id, seguimiento_token: request.seguimiento_token,
-              nombre: file.name, mime_type: file.type, base64
-            })
-          });
-          if (!response.ok) { uploadWarning = true; break; }
-        } catch (_) { uploadWarning = true; break; }
-      }
-    }
     fetch('/api/lead-incompleto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ session_id:conversionSessionId(), nombre:value('nombre'), email:value('email'), telefono:value('telefono'), tipo_unidad:selectedUnit, problema:value('trabajo'), marca:value('marca'), modelo:value('modelo'), privacidad:true }), keepalive:true }).catch(()=>{});
     }, 4000);
   }
@@ -308,6 +293,21 @@
         if (upError) { uploadWarning = true; continue; }
         const { error: metaError } = await akSupabase().from('tienda_solicitud_reparacion_archivos').insert({ solicitud_id: request.id, cliente_id: session.user.id, nombre: file.name, storage_path: path, mime_type: file.type, size_bytes: file.size });
         if (metaError) uploadWarning = true;
+      }
+    }
+    if (!session) {
+      for (const file of Array.from(document.getElementById('archivos').files || [])) {
+        try {
+          const base64 = await readFileBase64(file);
+          const response = await fetch('/api/adjuntar-foto-solicitud', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              solicitud_id: request.id, seguimiento_token: request.seguimiento_token,
+              nombre: file.name, mime_type: file.type, base64
+            })
+          });
+          if (!response.ok) { uploadWarning = true; break; }
+        } catch (_) { uploadWarning = true; break; }
       }
     }
     fetch('/api/lead-incompleto', {
