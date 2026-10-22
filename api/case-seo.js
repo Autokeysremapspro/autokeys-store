@@ -274,7 +274,7 @@ function renderPage(slug, item) {
 </head>
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
-<header id="site-header" data-active="blog"></header>
+<header id="site-header" data-active="casos"></header>
 <main id="main">
 <nav class="breadcrumb" aria-label="Migas de pan"><a href="/">Inicio</a><span>›</span><a href="/casos-reales.html">Casos reales</a><span>›</span><span class="current">${esc(item.title)}</span></nav>
 <article class="section">
