@@ -121,7 +121,8 @@ test('interfaz corrige estimaciones no confirmadas, emails y permite fotos invit
   assert.doesNotMatch(js,/document\.getElementById\('archivos'\)\.disabled = !session/);
   assert.doesNotMatch(form,/14,90 €|17,90 €/);
   assert.doesNotMatch(home,/Calcula el coste en 30 segundos/);
-  assert.match(home,/Orienta tu avería en menos de 1 minuto/);
+  assert.match(home,/Solicitar valoración del módulo/);
+  assert.match(home,/Nos explicas el problema antes del envío/);
   assert.match(pro,/gestión manual/);
   assert.match(shipping,/administración gestionará manualmente/);
   const footer=fs.readFileSync('assets/js/app.js','utf8');

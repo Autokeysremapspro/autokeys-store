@@ -113,33 +113,24 @@ function akHeaderHTML(active) {
     '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav" id="ak-main-navigation">' +
       '<li class="mobile-nav-top"><span>EXPLORAR AUTOKEYS</span><button type="button" data-nav-close aria-label="Cerrar menú">' + akIcon('close') + '</button></li>' +
       dropdown('tienda', 'TIENDA', [
-        { href: '/tienda.html', label: 'Ver todo el catálogo' },
-        { href: '/categorias/reparacion-ecu', label: 'Reparación ECU — catálogo' },
-        { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU — catálogo' },
-        { href: '/categorias/herramientas', label: 'Herramientas profesionales' },
-        { href: '/categorias/software', label: 'Software y licencias' },
-        { href: '/tienda.html?brand=bmw', label: 'BMW' },
-        { href: '/tienda.html?brand=mercedes', label: 'Mercedes-Benz' },
-        { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
+        { href: '/tienda.html', label: 'Todo el catálogo' },
+        { href: '/tienda.html?ver=productos', label: 'Productos y herramientas' },
+        { href: '/tienda.html?ver=software', label: 'Software y licencias' },
+        { href: '/categorias/herramientas', label: 'Programadores y accesorios' },
       ]) +
       dropdown('servicios', 'SERVICIOS', [
-        { href: '/programacion-llaves-coche', label: 'Programación de llaves' },
+        { href: '/programacion-llaves-coche', label: 'Programación y duplicado de llaves' },
         { href: '/perdida-total-llaves-coche', label: 'Pérdida total de llaves' },
-        { href: '/duplicado-llaves-coche-jaen', label: 'Duplicado de llaves en Jaén' },
-        { href: '/reprogramacion-centralitas-jaen', label: 'Reprogramación de centralitas en Jaén' },
-        { href: '/reparacion-airbag-srs', label: 'Airbag / SRS' },
-        { href: '/reservar-cita.html', label: 'Reservar cita presencial' },
+        { href: '/reprogramacion-centralitas-jaen', label: 'Reprogramación del motor' },
+        { href: '/reparacion-airbag-srs', label: 'Airbag y cuadros' },
         { href: '/electronica-maquinaria-agricola-industrial.html', label: 'Maquinaria agrícola e industrial' },
-        { href: '/electronica-automovil-jaen.html', label: 'Electrónica del automóvil en Jaén' },
-        { href: '/calculadora-reparacion.html', label: 'Valoración rápida online' },
-        { href: '/enviar-reparacion.html', label: 'Enviar una unidad a reparar' },
-        { href: '/blog.html', label: 'Guías y blog técnico' },
-        { href: '/envios-garantias.html', label: 'Envíos, garantías e incidencias' },
+        { href: '/reservar-cita.html', label: 'Solicitar cita presencial' },
+        { href: '/envios-garantias.html', label: 'Envíos y garantías' },
       ]) +
       dropdown('ecu', 'ECU Y MÓDULOS', [
-        { href: '/reparacion-centralitas-ecu', label: 'Reparación ECU' },
-        { href: '/clonacion-centralitas-ecu', label: 'Clonación ECU' },
-        { href: '/reparacion-centralita-por-envio', label: 'Reparación por envío' },
+        { href: '/reparacion-centralitas-ecu', label: 'Diagnóstico y reparación ECU' },
+        { href: '/clonacion-centralitas-ecu', label: 'Clonación y sustitución ECU' },
+        { href: '/reparacion-centralita-por-envio', label: 'Enviar centralita al laboratorio' },
         { href: '/bmw-fem-bdc', label: 'BMW FEM / BDC' },
         { href: '/servicios/bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
         { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
@@ -148,14 +139,14 @@ function akHeaderHTML(active) {
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/contacto.html', 'contacto', 'CONTACTO') +
-      '<li class="mobile-nav-actions"><a class="mobile-nav-primary" href="/enviar-reparacion.html">' + akIcon('file') + ' Solicitar reparación</a><a href="/mi-solicitud.html">' + akIcon('checkCircle') + ' Consultar mi solicitud</a></li>' +
+      '<li class="mobile-nav-actions"><a class="mobile-nav-primary" href="/enviar-reparacion.html">' + akIcon('file') + ' Solicitar reparación</a><a href="/mi-solicitud.html">' + akIcon('checkCircle') + ' Seguir reparación</a><a href="/tienda.html">' + akIcon('search') + ' Buscar en la tienda</a></li>' +
     '</ul></nav>' +
     '<form class="search-form" action="/tienda.html" method="get">' +
       '<input type="text" name="q" placeholder="Buscar productos, servicios..." aria-label="Buscar">' +
       '<button type="submit" aria-label="Buscar">' + akIcon('search') + '</button>' +
     '</form>' +
     '<div class="head-actions">' +
-      '<a class="search-icon-btn" href="/tienda.html" aria-label="Buscar">' + akIcon('search') + '</a>' +
+      '<a class="search-icon-btn" href="/tienda.html" aria-label="Buscar productos y servicios">' + akIcon('search') + '</a>' +
       '<a class="head-action head-action-cta" href="/enviar-reparacion.html" aria-label="Solicitar reparación de módulo">' + akIcon('file') + '<span>Solicitar reparación</span></a>' +
       '<a class="head-action" href="/login.html" id="account-link">' + akIcon('user') + '<span>Mi cuenta</span></a>' +
       '<button class="head-action" id="logout-link" data-action="logout" style="display:none;border:0;background:transparent">' + akIcon('close') + '<span>Salir</span></button>' +
@@ -188,7 +179,7 @@ function akFooterHTML() {
     '<div class="footer-grid">' +
       '<div class="footer-brand">' +
         '<a class="brand" href="/" style="margin-bottom:12px">' +
-          '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+          '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro" width="330" height="132">' +
         '</a>' +
         '<p>Laboratorio de electrónica del automóvil y tienda especializada. Reparación, programación y soluciones por envío desde Puente de Génave (Jaén).</p>' +
         '<div class="footer-social" id="footer-social"></div>' +
@@ -216,6 +207,8 @@ function akFooterHTML() {
         '<li><a href="/blog.html">Blog</a></li>' +
         '<li><a href="/contacto.html">Contacto</a></li>' +
         '<li><a href="/envios-garantias.html">Envíos y garantías</a></li>' +
+        '<li><a href="/mi-solicitud.html">Consultar solicitud de reparación</a></li>' +
+        '<li><a href="/cuenta.html">Consultar pedido de tienda</a></li>' +
         '<li><a href="/aviso-legal.html">Aviso legal</a></li>' +
         '<li><a href="/condiciones-venta.html">Condiciones de venta</a></li>' +
         '<li><a href="/politica-privacidad.html">Privacidad</a></li>' +
@@ -227,19 +220,18 @@ function akFooterHTML() {
         '<li><a href="mailto:info@autokeysremapspro.es">' + akIcon('mail') + '<span>info@autokeysremapspro.es · Tienda y pedidos</span></a></li>' +
         '<li><a href="mailto:laboratorio@autokeysremapspro.com">' + akIcon('mail') + '<span>laboratorio@autokeysremapspro.com · Soporte técnico</span></a></li>' +
         '<li><a href="mailto:info@autokeyspro.es">' + akIcon('mail') + '<span>info@autokeyspro.es · Administración</span></a></li>' +
-        '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · Puente de Génave (Jaén)</span></li>' +
+        '<li id="footer-direccion">' + akIcon('mapPin') + '<span>Av. Andalucía 125, Bajo · 23350 Puente de Génave (Jaén)</span></li>' +
         '<li>' + akIcon('clock') + '<span>L-V · 09:30–13:30 · 17:00–20:00 · Cita previa</span></li>' +
       '</ul></div>' +
       '<div><h4>ACEPTAMOS</h4>' +
         '<div class="pay-icons">' +
           '<span>' + akIcon('cart') + 'Visa · Mastercard</span>' +
           '<span>' + akIcon('cart') + 'PayPal</span>' +
-          '<span>' + akIcon('cart') + 'Bizum</span>' +
           '<span>' + akIcon('lock') + 'SumUp seguro</span>' +
         '</div>' +
       '</div>' +
     '</div>' +
-    '<div class="footer-bottom">© 2026 AUTOKEYS REMAPS PRO STORE. Todos los derechos reservados.</div>' +
+    '<div class="footer-bottom">© 2026 AUTOKEYS REMAPS PRO. Todos los derechos reservados.</div>' +
   '</div></footer>';
 }
 
@@ -248,8 +240,7 @@ const AK_RED_LABEL = { facebook: 'Facebook', instagram: 'Instagram', youtube: 'Y
 
 async function akAplicarEmpresaEnFooter() {
   const social = document.getElementById('footer-social');
-  const direccion = document.getElementById('footer-direccion');
-  if (!social && !direccion) return;
+  if (!social) return;
   try {
     const empresa = await akEmpresaReady();
     if (!empresa) return;
@@ -260,9 +251,8 @@ async function akAplicarEmpresaEnFooter() {
         .map((k) => '<a href="' + redes[k] + '" target="_blank" rel="noopener" aria-label="' + AK_RED_LABEL[k] + '">' + akIcon(AK_RED_ICON[k]) + '</a>')
         .join('');
     }
-    if (direccion && (empresa.ciudad || empresa.provincia)) {
-      direccion.querySelector('span').textContent = [empresa.ciudad, empresa.provincia].filter(Boolean).join(', ');
-    }
+    // Mantenemos visible la dirección postal completa confirmada del laboratorio.
+    // La configuración pública puede incluir solo ciudad y provincia, y no debe ocultarla.
   } catch (e) { /* si falla, se queda el fallback estático */ }
 }
 

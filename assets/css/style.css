@@ -219,7 +219,7 @@ img{max-width:100%;display:block}
 .hero h1 em{font-style:normal;color:var(--red)}
 .hero .lead{max-width:620px;color:#9c9ca4;line-height:1.65;font-size:16px;margin:0 0 26px}
 .hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
-.proof-metrics{max-width:1180px;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;border:1px solid var(--line);background:var(--line);border-radius:14px;overflow:hidden}.proof-metrics>div,.proof-metrics>a{min-height:92px;padding:18px;background:linear-gradient(145deg,var(--panel),#101013);display:flex;flex-direction:column;justify-content:center}.proof-metrics strong{font-size:20px;color:#fff}.proof-metrics span{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}.proof-metrics a:hover{background:#211114}.proof-metrics a span span{color:var(--red-text);margin-left:4px}
+.proof-metrics{max-width:1180px;margin:0 auto;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;border:1px solid var(--line);background:var(--line);border-radius:14px;overflow:hidden}.proof-metrics>div,.proof-metrics>a{min-height:92px;padding:18px;background:linear-gradient(145deg,var(--panel),#101013);display:flex;flex-direction:column;justify-content:center}.proof-metrics strong{font-size:20px;color:#fff}.proof-metrics span{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}.proof-metrics a:hover{background:#211114}.proof-metrics a span span{color:var(--red-text);margin-left:4px}
 .hero-badge{display:flex;align-items:center;gap:9px;font-size:11.5px;color:#c9c9d0}
 .hero-badge svg{width:19px;height:19px;color:var(--red);flex:none}
 .hero-badge b{display:block;color:#fff;font-size:12.5px}
@@ -1105,4 +1105,29 @@ input[type=range]{width:100%;accent-color:var(--red)}
   html{scroll-behavior:auto}
   .btn,.unit-card,.cat-item,.catalog-entry,.product-card,.main-nav .chev{transition:none!important}
   .btn-primary:hover,.unit-card:hover{transform:none}
+}
+
+
+/* Identidad premium de Autokeys: ritmo visual, lectura y claridad comercial. */
+@media(min-width:761px){
+  .proof-metrics>div,.proof-metrics>a{min-height:104px}
+}
+.hero .kicker{letter-spacing:2px}
+.hero .lead{max-width:610px;line-height:1.72}
+.proof-metrics strong{letter-spacing:-.4px}
+.proof-metrics span{font-size:12px;line-height:1.55}
+.section-head .section-desc{max-width:540px}
+.product-card .product-body{min-height:160px}
+.product-card .product-body h3{line-height:1.36}
+.product-card .product-body p{font-size:13px;line-height:1.6}
+.cat-item b{line-height:1.4}
+.cat-item p{font-size:13px;line-height:1.55}
+.site-footer .footer-grid a{line-height:1.6}
+.footer-grid .contact-list a{overflow-wrap:anywhere}
+.mobile-nav-actions .mobile-nav-primary{border-color:#cf1c29}
+@media(max-width:760px){
+  .product-card .product-body{min-height:0}
+  .proof-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .proof-metrics span{font-size:12px}
+  .site-footer .footer-grid{row-gap:30px}
 }
