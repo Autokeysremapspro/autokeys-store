@@ -82,11 +82,11 @@ const CONSOLIDATED_CATEGORY_IDS = new Set([
 ]);
 
 const STATIC_LASTMOD = {
-  '/': '2026-09-22',
+  '/': '2026-10-22',
   '/casos-reales.html': '2026-09-26',
   '/casos/volvo-s60-2011-cem-recuperada': '2026-09-26',
   '/volvo-cem-recuperacion': '2026-09-26',
-  '/enviar-reparacion.html': '2026-08-25',
+  '/enviar-reparacion.html': '2026-10-22',
   '/calculadora-reparacion.html': '2026-09-08',
   '/ecu-no-comunica': '2026-09-08',
   '/coche-no-arranca-despues-cambiar-centralita': '2026-09-08',
@@ -94,7 +94,7 @@ const STATIC_LASTMOD = {
   '/profesionales.html': '2026-08-25',
   '/distribucion-profesional.html': '2026-09-22',
   '/distribution-partners.html': '2026-09-22',
-  '/contacto.html': '2026-09-22',
+  '/contacto.html': '2026-10-22',
   '/quienes-somos.html': '2026-09-22',
   '/condiciones-venta.html': '2026-09-22',
   '/electronica-automovil-jaen.html': '2026-08-24',
