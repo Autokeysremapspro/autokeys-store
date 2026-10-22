@@ -88,12 +88,12 @@ test('tarifa CEM Volvo: presupuesto sin importes propuestos sin aprobar', () => 
   const page=load('volvo-cem-recuperacion.html');
   assert.match(page,/Presupuesto personalizado para cada CEM/);
   assert.match(page,/comunicamos por escrito el precio/);
-  assert.doesNotMatch(page,/desde\\s*<strong>(?:90|350|490)\\s*€|28261901-IGEE1/);
+  assert.doesNotMatch(page,/desde\s*<strong>(?:90|350|490)\s*€|28261901-IGEE1/);
 });
 test('Jaguar: referencias comprobadas y CTA a reparación preseleccionada', () => {
   const page=load('jaguar-xf-2013-rfa-reparacion.html');
   assert.match(page,/DX23-14B476-AG/);
   assert.match(page,/DPLA-19H440-BF/);
   assert.match(page,/unidad=otro&amp;trabajo=Reparaci%C3%B3n/);
-  assert.doesNotMatch(page,/RFA \\u00b7 Core Assembly|DPLA-19H440-AC/);
+  assert.doesNotMatch(page,/Core Assembly|DPLA-19H440-AC/);
 });
