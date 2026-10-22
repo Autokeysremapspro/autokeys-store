@@ -38,7 +38,7 @@ test('Mustang: año, MG1CS019, funcionamiento a cuatro cilindros y clonación',(
   assert.match(html,/clonada/);
   assert.match(html,/precio|potencia/);
   assert.ok(schemas(html).some(x=>x['@type']==='Article'));
-  assert.doesNotMatch(html,/fotografías del Mustang,/);
+  assert.match(html,/No publicamos fotografías del Mustang/);
 });
 
 test('Jaguar XF X250 2013: corrupción de datos, RFA y SDD sin afirmar KVM/llaves',()=>{
