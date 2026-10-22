@@ -10,7 +10,7 @@ const home = fs.readFileSync('index.html','utf8');
 
 function renderHeader(active) {
   const document={querySelector:()=>({}),addEventListener:()=>{}};
-  const context={document,window:{},console};
+  const context={document,window:{addEventListener:()=>{}},console};
   vm.runInNewContext(app,context,{filename:'app.js'});
   return context.akHeaderHTML(active);
 }
