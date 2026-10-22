@@ -103,8 +103,8 @@ test('interfaz distingue una solicitud de recogida de una reserva confirmada',()
   const form=fs.readFileSync('enviar-reparacion.html','utf8');
   const thankyou=fs.readFileSync('assets/js/gracias.js','utf8');
   const script=fs.readFileSync('assets/js/reparacion-form.js','utf8');
-  assert.match(form,/MRW pendiente de integración/);
-  assert.match(form,/Importe orientativo/);
+  assert.match(form,/Hasta recibir la API, administración gestiona la solicitud mediante MRW APC/);
+  assert.match(form,/Recogida gestionada manualmente/);
   assert.match(form,/sin reserva automática/);
   assert.match(script,/recogidaPendiente/);
   assert.match(thankyou,/NO reservada/);
