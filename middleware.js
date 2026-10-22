@@ -1,4 +1,5 @@
 export const config = {
+  runtime: 'nodejs',
   matcher: ['/producto.html', '/blog-post.html'],
 };
 
