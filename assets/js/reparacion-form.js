@@ -25,7 +25,10 @@
     otro: ['Diagnóstico', 'Reparación', 'Clonación', 'Programación / adaptación', 'No lo sé, necesito asesoramiento'],
   };
   const SEND_ITEMS = ['Solo módulo original', 'Original y donante', 'Módulo y llave', 'Módulo, llave y clausor', 'Juego completo', 'Todavía no lo sé'];
-  const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','referencia-donante','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
+  // El borrador local solo almacena información técnica, nunca matrícula, VIN,
+  // domicilio, correo electrónico ni teléfono del cliente.
+  const IDS = ['trabajo','marca','modelo','anio','motor','referencia','referencia-donante','averia','arranca','manipulado','dtcs','peso-recogida','tipo-cliente'];
+  const PERSONAL_IDS = new Set(['matricula','vin','nombre','email','telefono','direccion','cp','poblacion','provincia','contacto-recogida']);
   let step = 1;
   let selectedUnit = '';
   let hasAccount = false;
@@ -38,7 +41,7 @@
   async function init() {
     renderProgress();
     document.getElementById('unit-grid').innerHTML = UNIT_TYPES.map(([id, icon, label]) =>
-      '<button class="unit-card" type="button" data-unit="' + id + '">' + akIcon(icon) + '<span>' + label + '</span></button>'
+      '<button class="unit-card" type="button" data-unit="' + id + '" aria-pressed="false">' + akIcon(icon) + '<span>' + label + '</span></button>'
     ).join('');
     document.getElementById('send-items').innerHTML = SEND_ITEMS.map((label, i) =>
       '<label><input type="checkbox" value="' + label + '"' + (i === 0 ? ' checked' : '') + '><span>' + label + '</span></label>'
@@ -85,7 +88,7 @@
   function wireEvents() {
     document.querySelectorAll('[data-unit]').forEach((btn) => btn.addEventListener('click', () => selectUnit(btn.dataset.unit)));
     document.getElementById('next-step').addEventListener('click', nextStep);
-    document.getElementById('prev-step').addEventListener('click', () => { step = Math.max(1, step - 1); showStep(); window.scrollTo({ top: 140, behavior: 'smooth' }); });
+    document.getElementById('prev-step').addEventListener('click', () => { step = Math.max(1, step - 1); showStep(); focusStepHeading(); window.scrollTo({ top: 140, behavior: 'smooth' }); });
     document.getElementById('repair-request-form').addEventListener('submit', submitRequest);
     document.getElementById('averia').addEventListener('input', updateCount);
     document.getElementById('archivos').addEventListener('change', renderFiles);
@@ -115,7 +118,7 @@
 
   function selectUnit(id) {
     selectedUnit = id;
-    document.querySelectorAll('[data-unit]').forEach((b) => b.classList.toggle('active', b.dataset.unit === id));
+    document.querySelectorAll('[data-unit]').forEach((b) => { const chosen = b.dataset.unit === id; b.classList.toggle('active', chosen); b.setAttribute('aria-pressed', String(chosen)); });
     const select = document.getElementById('trabajo');
     const oldValue = select.value;
     select.innerHTML = '<option value="">Selecciona una opción</option>' + WORKS[id].map((w) => '<option value="' + w + '">' + w + '</option>').join('');
@@ -126,7 +129,9 @@
   function renderProgress() {
     const names = ['Tu caso', 'Datos opcionales', 'Contacto y envío'];
     document.getElementById('request-progress').innerHTML = names.map((name, i) =>
-      '<div class="' + (i + 1 < step ? 'done' : i + 1 === step ? 'active' : '') + '"><span>' + (i + 1 < step ? akIcon('check') : i + 1) + '</span><b>' + name + '</b></div>'
+      '<div class="' + (i + 1 < step ? 'done' : i + 1 === step ? 'active' : '') + '"' +
+      (i + 1 === step ? ' aria-current="step"' : '') + ' aria-label="Paso ' + (i + 1) + ' de 3: ' + name + '">' +
+      '<span>' + (i + 1 < step ? akIcon('check') : i + 1) + '</span><b>' + name + '</b></div>'
     ).join('');
   }
 
@@ -139,10 +144,15 @@
     renderProgress();
   }
 
+  function focusStepHeading() {
+    const heading = document.querySelector('.request-step.active h2');
+    if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+  }
+
   function nextStep() {
     if (step >= 3 || !validateStep(step)) return;
     if (typeof akTrack === 'function') akTrack('repair_step', { carrito: false, metadata: { label: 'paso_' + step + '_completado' } });
-    saveDraft(); step++; showStep(); window.scrollTo({ top: 140, behavior: 'smooth' });
+    saveDraft(); step++; showStep(); focusStepHeading(); window.scrollTo({ top: 140, behavior: 'smooth' });
   }
 
   function validateStep(n) {
@@ -162,7 +172,14 @@
   function value(id) { return document.getElementById(id).value.trim(); }
   function loginUrl() { return 'login.html?redirect=' + encodeURIComponent('enviar-reparacion.html' + (cemIntent ? '?servicio=cem-volvo' : '')); }
   function shippingMethod() { return document.querySelector('input[name="metodo_envio"]:checked').value; }
-  function togglePickup() { document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys'; updatePickupQuote(); saveDraft(); }
+  function togglePickup() {
+    document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys';
+    document.querySelectorAll('.method-card').forEach((card) => {
+      const radio = card.querySelector('input[name="metodo_envio"]');
+      card.classList.toggle('active', Boolean(radio?.checked));
+    });
+    updatePickupQuote(); saveDraft();
+  }
   function updateCount() { document.getElementById('averia-count').textContent = value('averia').length + ' / 4000 caracteres'; }
 
   function pickupQuote() {
@@ -210,7 +227,10 @@
     try {
       const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (!draft || (draft.savedAt && Date.now() - draft.savedAt > 7 * 86400000)) return;
       if (draft.selectedUnit && WORKS[draft.selectedUnit]) selectUnit(draft.selectedUnit);
-      Object.entries(draft.fields || {}).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
+      Object.entries(draft.fields || {}).forEach(([id, val]) => {
+        if (!IDS.includes(id) || PERSONAL_IDS.has(id)) return;
+        const el = document.getElementById(id); if (el) el.value = val;
+      });
       if (draft.selectedUnit && draft.fields && draft.fields.trabajo) document.getElementById('trabajo').value = draft.fields.trabajo;
       if (draft.sendItems) document.querySelectorAll('#send-items input').forEach((x) => { x.checked = draft.sendItems.includes(x.value); });
       if (draft.metodoEnvio) { const radio = document.querySelector('input[name="metodo_envio"][value="' + draft.metodoEnvio + '"]'); if (radio) { radio.checked = true; radio.closest('.method-card').click(); } }
