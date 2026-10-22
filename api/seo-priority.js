@@ -202,7 +202,7 @@ function renderPage(slug, page) {
       '@id': BUSINESS_ID,
       name: 'Autokeys Remaps Pro',
       url: `${SITE}/`,
-      telephone: '+34953852778',
+      telephone: '+34632982646',
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Av. Andalucía 125, Bajo',
@@ -273,7 +273,7 @@ function renderPage(slug, page) {
   <p class="section-desc">${esc(page.intro)}</p>
   <div class="btn-row" style="margin-top:22px">
     <a class="btn btn-primary" href="https://wa.me/34632982646" target="_blank" rel="noopener">Consultar por WhatsApp</a>
-    <a class="btn btn-secondary" href="tel:+34953852778">Llamar al laboratorio</a>
+    <a class="btn btn-secondary" href="tel:+34632982646">Llamar al laboratorio</a>
   </div>
 </section>
 
