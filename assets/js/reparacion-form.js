@@ -2,7 +2,9 @@
    solo el admin puede decidir posteriormente si crea una orden interna en el ERP. */
 (function () {
   const DRAFT_KEY = 'ak_repair_request_draft_v1';
-  const PICKUP_DEFAULTS = { hasta5: 14.90, hasta10: 17.90, adicional: 1.50 };
+  const GUEST_MAX_FILES = 3;
+  const GUEST_MAX_SIZE = 3 * 1024 * 1024;
+  const GUEST_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic']);
   const UNIT_TYPES = [
     ['ecu', 'ecu', 'ECU / centralita motor'], ['tcu', 'gear', 'TCU / cambio automático'],
     ['abs_esp', 'diag', 'ABS / ESP'], ['airbag_srs', 'shield', 'Airbag / SRS'],
@@ -26,7 +28,7 @@
   const IDS = ['trabajo','marca','modelo','anio','motor','matricula','vin','referencia','referencia-donante','averia','arranca','manipulado','dtcs','direccion','cp','poblacion','provincia','contacto-recogida','peso-recogida','tipo-cliente','nombre','email','telefono'];
   let step = 1;
   let selectedUnit = '';
-  let pickupRates = { ...PICKUP_DEFAULTS };
+  let hasAccount = false;
   const openedAt = Date.now();
   let incompleteTimer = null;
   const cemIntent = new URLSearchParams(window.location.search).get('servicio') === 'cem-volvo';
@@ -41,7 +43,7 @@
     document.getElementById('send-items').innerHTML = SEND_ITEMS.map((label, i) =>
       '<label><input type="checkbox" value="' + label + '"' + (i === 0 ? ' checked' : '') + '><span>' + label + '</span></label>'
     ).join('');
-    restoreDraft(); wireEvents(); applyUrlIntent(); await Promise.allSettled([loadSession(), loadPickupRates()]); updatePickupQuote(); showStep();
+    restoreDraft(); wireEvents(); applyUrlIntent(); await loadSession(); updatePickupQuote(); showStep();
   }
 
   function applyUrlIntent() {
@@ -107,7 +109,22 @@
     clearTimeout(incompleteTimer);
     incompleteTimer = setTimeout(() => {
       if (!selectedUnit || !value('trabajo') || !value('nombre') || !value('email') || !value('telefono') || !document.getElementById('acepta-privacidad').checked) return;
-      fetch('/api/lead-incompleto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ session_id:conversionSessionId(), nombre:value('nombre'), email:value('email'), telefono:value('telefono'), tipo_unidad:selectedUnit, problema:value('trabajo'), marca:value('marca'), modelo:value('modelo'), privacidad:true }), keepalive:true }).catch(()=>{});
+      if (!session) {
+      for (const file of Array.from(document.getElementById('archivos').files || [])) {
+        try {
+          const base64 = await readFileBase64(file);
+          const response = await fetch('/api/adjuntar-foto-solicitud', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              solicitud_id: request.id, seguimiento_token: request.seguimiento_token,
+              nombre: file.name, mime_type: file.type, base64
+            })
+          });
+          if (!response.ok) { uploadWarning = true; break; }
+        } catch (_) { uploadWarning = true; break; }
+      }
+    }
+    fetch('/api/lead-incompleto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ session_id:conversionSessionId(), nombre:value('nombre'), email:value('email'), telefono:value('telefono'), tipo_unidad:selectedUnit, problema:value('trabajo'), marca:value('marca'), modelo:value('modelo'), privacidad:true }), keepalive:true }).catch(()=>{});
     }, 4000);
   }
 
@@ -163,40 +180,39 @@
   function togglePickup() { document.getElementById('pickup-fields').hidden = shippingMethod() !== 'recogida_autokeys'; updatePickupQuote(); saveDraft(); }
   function updateCount() { document.getElementById('averia-count').textContent = value('averia').length + ' / 4000 caracteres'; }
 
-  async function loadPickupRates() {
-    try {
-      const response = await fetch('/api/tarifas-recogida');
-      if (!response.ok) return;
-      const data = await response.json();
-      pickupRates = {
-        hasta5: Number(data.hasta5) || PICKUP_DEFAULTS.hasta5,
-        hasta10: Number(data.hasta10) || PICKUP_DEFAULTS.hasta10,
-        adicional: Number(data.adicional) || PICKUP_DEFAULTS.adicional,
-      };
-    } catch (_) {}
-  }
-
   function pickupQuote() {
-    const weight = Math.max(0.1, Number(document.getElementById('peso-recogida').value) || 1);
-    if (weight <= 5) return { weight, price: pickupRates.hasta5, code: 'RECOGIDA_PENINSULA_HASTA_5KG', detail: 'Hasta 5 kg · IVA incluido' };
-    if (weight <= 10) return { weight, price: pickupRates.hasta10, code: 'RECOGIDA_PENINSULA_HASTA_10KG', detail: 'De 5 a 10 kg · IVA incluido' };
-    const price = pickupRates.hasta10 + Math.ceil(weight - 10) * pickupRates.adicional;
-    return { weight, price, code: 'RECOGIDA_PENINSULA_MAS_10KG', detail: 'Más de 10 kg · IVA incluido' };
+    const raw = Number(document.getElementById('peso-recogida').value);
+    return { weight: Number.isFinite(raw) && raw >= 0.1 && raw <= 30 ? raw : 1 };
   }
-
   function updatePickupQuote() {
-    const quote = pickupQuote();
-    document.getElementById('pickup-price').textContent = quote.price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-    document.getElementById('pickup-rate-detail').textContent = quote.detail + ' · orientativo y sujeto a confirmación';
+    document.getElementById('pickup-price').textContent = 'A confirmar';
+    document.getElementById('pickup-rate-detail').textContent = 'Confirmaremos disponibilidad, importe definitivo y fecha antes de tramitar la recogida.';
     document.getElementById('pickup-zone-warning').hidden = !/^(07|35|38|51|52)/.test(value('cp'));
   }
 
   function renderFiles() {
-    const input = document.getElementById('archivos'); let files = Array.from(input.files || []);
-    if (files.length > 5) { akToast('Puedes adjuntar un máximo de 5 archivos'); input.value = ''; files = []; }
-    const bad = files.find((f) => f.size > 5 * 1024 * 1024);
-    if (bad) { akToast(bad.name + ' supera el máximo de 5 MB'); input.value = ''; files = []; }
-    document.getElementById('file-list').innerHTML = files.map((f) => '<span>' + akIcon('file') + akEscapeHtml(f.name) + '<small>' + (f.size / 1024 / 1024).toFixed(1) + ' MB</small></span>').join('');
+    const input = document.getElementById('archivos');
+    const files = Array.from(input.files || []);
+    const limit = hasAccount ? 5 : GUEST_MAX_FILES;
+    const maxSize = hasAccount ? 5 * 1024 * 1024 : GUEST_MAX_SIZE;
+    let error = '';
+    if (files.length > limit) error = 'Puedes adjuntar un máximo de ' + limit + ' archivos';
+    else if (files.some((file) => file.size > maxSize)) error = 'Cada archivo puede ocupar como máximo ' + Math.round(maxSize / 1024 / 1024) + ' MB';
+    else if (!hasAccount && files.some((file) => !GUEST_MIME.has(file.type))) error = 'Sin cuenta se admiten imágenes JPG, PNG, WebP o HEIC. Para otros documentos, inicia sesión.';
+    if (error) { akToast(error); input.value = ''; }
+    document.getElementById('file-list').innerHTML = Array.from(input.files || []).map((file) =>
+      '<span>' + akIcon('file') + akEscapeHtml(file.name) + '<small>' + (file.size / 1024 / 1024).toFixed(1) + ' MB</small></span>'
+    ).join('');
+    return !error;
+  }
+
+  function readFileBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('lectura_imagen'));
+      reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
+      reader.readAsDataURL(file);
+    });
   }
 
   function saveDraft() {
@@ -223,8 +239,12 @@
     try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {
       // La solicitud pública sigue disponible aunque la autenticación no responda.
     }
-    document.getElementById('archivos').disabled = !session;
-    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('user') + '<span><b>No hace falta crear una cuenta.</b> Puedes enviar tu solicitud ahora y recibirás un enlace privado para seguirla. Para adjuntar archivos desde el formulario, <a href="' + loginUrl() + '">inicia sesión</a>; también puedes enviarnos las fotografías por WhatsApp.</span>'; return; }
+    hasAccount = Boolean(session);
+    const upload = document.getElementById('archivos');
+    upload.disabled = false;
+    upload.accept = hasAccount ? 'image/jpeg,image/png,image/webp,image/heic,application/pdf' : 'image/jpeg,image/png,image/webp,image/heic';
+    renderFiles();
+    if (!session) { notice.hidden = false; notice.innerHTML = akIcon('user') + '<span><b>No necesitas cuenta.</b> Puedes enviar la solicitud y hasta 3 fotografías del módulo (3 MB cada una). Recibirás un enlace privado para consultar el estado. Para adjuntar PDF o archivos mayores, <a href="' + loginUrl() + '">inicia sesión</a>.</span>'; return; }
     const { data: profile } = await akSupabase().from('tienda_clientes').select('nombre,apellidos,email,telefono,tipo_cliente,razon_social,direccion,codigo_postal,ciudad,provincia').eq('id', session.user.id).maybeSingle();
     if (profile) {
       if (!value('nombre')) document.getElementById('nombre').value = profile.razon_social || [profile.nombre, profile.apellidos].filter(Boolean).join(' ');
@@ -242,7 +262,7 @@
     const unitLabel = (UNIT_TYPES.find((u) => u[0] === selectedUnit) || [,'',''])[2];
     document.getElementById('request-summary').innerHTML = '<h3>Resumen de la solicitud</h3><div>' +
       '<span><small>Unidad</small><b>' + akEscapeHtml(unitLabel) + '</b></span><span><small>Trabajo</small><b>' + akEscapeHtml(value('trabajo')) + '</b></span>' +
-      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Recogida pendiente · estimación ' + pickupQuote().price.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })) + '</b></span>' +
+      '<span><small>Vehículo</small><b>' + akEscapeHtml(value('marca') + ' ' + value('modelo')) + '</b></span><span><small>Envío</small><b>' + (shippingMethod() === 'cuenta_cliente' ? 'Por cuenta del cliente' : 'Recogida pendiente de confirmación') + '</b></span>' +
       '</div><p>Revisaremos los datos antes de indicarte que envíes la unidad. Esta solicitud no es todavía un presupuesto, una orden del laboratorio ni una recogida de transporte confirmada.</p>';
   }
 
@@ -251,6 +271,7 @@
     if (step !== 3) { nextStep(); return; }
     if (!validateStep(1)) { step = 1; showStep(); return; }
     if (!validateStep(3) || !document.getElementById('repair-request-form').checkValidity()) { document.getElementById('repair-request-form').reportValidity(); return; }
+    if (!renderFiles()) return;
     let session = null;
     try { session = (await akSupabase().auth.getSession()).data.session; } catch (_) {}
     const btn = document.getElementById('submit-request'); btn.disabled = true; btn.textContent = 'Enviando solicitud…';
@@ -278,7 +299,7 @@
       const message = response.status === 429 ? 'Ya hemos recibido varias solicitudes con este email. Escríbenos por WhatsApp si necesitas añadir información.' : 'No se pudo enviar la solicitud. Revisa los datos o inténtalo de nuevo.';
       btn.disabled = false; btn.innerHTML = 'Solicitar valoración' + akIcon('check'); akToast(message); return;
     }
-    let uploadWarning = !session && document.getElementById('archivos').files.length > 0;
+    let uploadWarning = false;
     if (session) {
       for (const file of Array.from(document.getElementById('archivos').files || [])) {
         const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(-120);
