@@ -4,48 +4,42 @@ const FALLBACK_IMAGE = `${SITE}/assets/img/logo.png`;
 
 const CASES = {
   'volvo-s60-2011-cem-recuperada': {
-    title: 'Volvo S60 2011: CEM dañada y recuperación con donante',
-    meta: 'Volvo S60 2011: CEM Delphi BG9T-14C256-GA, Volvo 31314116 AA dañada. Recuperación de datos y donante compatible, dos llaves, sin DTC.',
+    title: 'Volvo S60 2011: recuperación de CEM',
+    meta: 'Volvo S60 2011 con CEM dañada: recuperación de información y adaptación de unidad donante. Arranque con dos llaves y diagnosis final sin averías.',
     category: 'CASO REAL · VOLVO S60 2011 · CEM',
-    intro: 'En este Volvo S60 de 2011 el problema estaba en la CEM, el módulo electrónico central del vehículo. La unidad original presentaba daños y el vehículo tenía incidencias de comunicación y arranque. Trabajamos con la CEM original y una donante compatible para recuperar la información necesaria y devolver el funcionamiento del coche.',
+    intro: 'La CEM de este Volvo S60 de 2011 estaba dañada y el vehículo presentaba problemas de arranque y comunicación. En nuestro laboratorio trabajamos con la información recuperable de la unidad original y una CEM donante compatible para devolver el vehículo al servicio.',
     facts: [
-      'Volvo S60 · año 2011',
-      'CEM Delphi BG9T-14C256-GA',
-      'Volvo 31314116 AA · Delphi 28261901-IGEE1',
-      'Microcontrolador Renesas R5F64524KFD',
-      'CEM original dañada y unidad donante',
-      'Dos llaves comprobadas tras el trabajo',
-      'Arranque y diagnosis final sin DTC'
+      'Volvo S60 · 2011',
+      'CEM Delphi · BG9T-14C256-GA',
+      'Volvo · 31314116 AA',
+      'Delphi · 28261901',
+      'Renesas R5F64524KFD',
+      'Recuperación con unidad donante',
+      'Arranque con dos llaves y diagnosis sin DTC'
     ],
     datePublished: '2026-09-26',
     dateModified: '2026-10-22',
     sections: [
-      { title: 'Referencias de los módulos intervenidos', paragraphs: [
-        'CEM original Delphi BG9T-14C256-GA, referencia Volvo 31314116 AA y código Delphi 28261901-IGEE1. El microcontrolador identificado para este trabajo fue Renesas R5F64524KFD.',
-        'La unidad donante también se documentó con referencia Delphi BG9T-14C256-GA, Volvo 31314116 AA y código Delphi 28261901-IGEE1. La coincidencia de la etiqueta fue parte de la comprobación de compatibilidad; no implica que todas las CEM de Volvo sean intercambiables.',
-        'Estas son referencias de pieza y de microcontrolador, no bastidor, número de serie personal ni identificadores del propietario.'
+      { title: 'El problema: CEM dañada', paragraphs: [
+        'La avería afectaba al módulo electrónico central CEM, que participa en distintas funciones de comunicación y autorización del vehículo. La sustitución de este módulo no consiste simplemente en conectar una unidad de desguace: hay que estudiar referencias, compatibilidad y datos de configuración.',
+        'En la etiqueta de la CEM original se identificaron la referencia BG9T-14C256-GA, la referencia Volvo 31314116 AA y el código Delphi 28261901. El microcontrolador identificado durante el trabajo fue Renesas R5F64524KFD.'
       ] },
-      { title: 'Problema inicial: CEM dañada', paragraphs: [
-        'La avería estaba localizada en la CEM. Esta unidad interviene en comunicaciones y autorizaciones del vehículo; por tanto, antes de adaptar otra centralita era necesario recuperar los datos específicos de la unidad original. El caso se abordó como una reparación electrónica, no como un simple cambio de pieza.',
-        'La identificación documentada del módulo para este S60 es Delphi BG9T-14C256-GA / Volvo 31314116 AA / Delphi 28261901-IGEE1, con microcontrolador Renesas R5F64524KFD. Estas referencias corresponden al caso estudiado: no todas las CEM de Volvo S60 usan la misma electrónica.'
+      { title: 'Recuperación electrónica y CEM donante', paragraphs: [
+        'En el laboratorio se efectuaron lecturas de los datos disponibles de la unidad original y se preparó una CEM donante para mantener la información necesaria del vehículo. La viabilidad dependía del estado de las memorias y de la compatibilidad de la electrónica.',
+        'Se realizaron las comprobaciones correspondientes antes del montaje. La referencia de la donante debe verificarse por separado para cada trabajo; no basta con que dos unidades pertenezcan a la misma gama de vehículo.'
       ] },
-      { title: 'Trabajo realizado en laboratorio', paragraphs: [
-        'Se realizaron lecturas de las memorias disponibles y se trabajó con una CEM donante. El proceso consistió en preservar los datos originales y transferir la información necesaria para que la unidad compatible conservara la configuración del vehículo.',
-        'Durante la recuperación fue necesario distinguir entre datos del módulo original y de la donante. En este caso concreto se trabajó sobre la información de la zona DATA, conservando las lecturas originales para comprobar el resultado. No publicamos volcados, claves ni identificadores individuales del vehículo.'
+      { title: 'Resultado comprobado: arranque, llaves y diagnosis', paragraphs: [
+        'Con la unidad preparada y montada, el Volvo S60 volvió a arrancar con sus dos llaves. La comprobación final en el vehículo no mostró códigos de avería y dejó de apreciarse el funcionamiento brusco de la caja automática que se había observado durante la incidencia.',
+        'Este resultado pertenece al S60 documentado. La reparación de otras CEM se presupuesta tras comprobar los síntomas, las referencias y el estado de la unidad original.'
       ] },
-      { title: 'Resultado comprobado en el coche', paragraphs: [
-        'Después del montaje, el Volvo S60 arrancó con sus dos llaves. La comprobación final se realizó con el vehículo disponible en el laboratorio: la diagnosis quedó sin DTC y el funcionamiento de la caja automática dejó de presentar los golpes observados durante la avería.',
-        'Estos son los resultados documentados para este S60. En otros vehículos la viabilidad de recuperación depende del daño de la CEM, la integridad de sus datos, el estado de la donante y los módulos relacionados.'
-      ] },
-      { title: 'Valoración de otra CEM Volvo', paragraphs: [
-        'Para estudiar una CEM de Volvo necesitamos año, modelo, síntomas, fotografías de la etiqueta y, si existe una donante, la referencia de ambos módulos. La compatibilidad y el material necesario se confirman antes del envío.',
-        'Solo utilizaremos imágenes de la propia electrónica sin VIN, códigos personales ni etiquetas identificativas del cliente. No publicamos fotografías del vehículo de este expediente.'
+      { title: 'Cómo solicitar una valoración de CEM Volvo', paragraphs: [
+        'Indícanos modelo, año y síntomas. Adjunta las referencias o fotografías de las etiquetas de la CEM original y, si dispones de ella, de la donante. Nuestro laboratorio revisará la viabilidad y confirmará los siguientes pasos antes del envío.'
       ] }
     ],
     related: [
-      ['Recuperación y clonación de CEM Volvo', '/volvo-cem-recuperacion'],
+      ['Servicio de recuperación de CEM Volvo', '/volvo-cem-recuperacion'],
       ['Diagnóstico de inmovilizador y arranque', '/inmovilizador-coche'],
-      ['Servicio de electrónica por envío', '/reparacion-centralita-por-envio']
+      ['Envío de módulos al laboratorio', '/reparacion-centralita-por-envio']
     ]
   },
   'renault-megane-2008-perdida-total-llaves': {
