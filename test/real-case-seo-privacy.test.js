@@ -40,7 +40,8 @@ test('Mustang: año, MG1CS019, funcionamiento a cuatro cilindros y clonación',(
   assert.match(html,/cuatro cilindros/);
   assert.match(html,/Cuenca/);
   assert.match(html,/clonada/);
-  assert.match(html,/precio|potencia/);
+  assert.match(html,/motor funcionaba a cuatro cilindros/);
+  assert.match(html,/suministro y la clonación de la ECU se completaron/);
   assert.ok(schemas(html).some(x=>x['@type']==='Article'));
   assert.match(html,/MG1CS019 indica la familia de la ECU/);
 });
