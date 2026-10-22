@@ -132,5 +132,5 @@ test('interfaz corrige estimaciones no confirmadas, emails y permite fotos invit
 test('portada no publica un precio mínimo ECU no aprobado',()=>{
   const home=fs.readFileSync('index.html','utf8');
   assert.equal(home.includes('<small>DESDE</small><b>79 €</b>'), false);
-  assert.match(home,/<small>IMPORTE<\\/small><b>A consultar<\\/b>/);
+  assert.equal(home.includes('<small>IMPORTE</small><b>A consultar</b>'), true);
 });
