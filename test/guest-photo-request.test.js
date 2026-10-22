@@ -21,7 +21,7 @@ function mockFetch(opts={}) {
     const uri=String(url),method=init.method||'GET';
     requests.push({uri,method,headers:init.headers,body:init.body});
     if(uri.includes('/rest/v1/tienda_solicitudes_reparacion')) return {
-      ok:true,status:200,json:async()=> opts.request ? [opts.request] : [{id:requestId,cliente_id:null,estado:'pendiente_revision',created_at:new Date().toISOString()}]
+      ok:true,status:200,json:async()=> opts.request===false ? [] : [opts.request || {id:requestId,cliente_id:null,estado:'pendiente_revision',created_at:new Date().toISOString()}]
     };
     if(uri.includes('/rest/v1/tienda_solicitud_reparacion_archivos') && method==='GET') return {
       ok:true,status:200,json:async()=>new Array(opts.existing||0).fill({id:'some-id'})
@@ -65,10 +65,11 @@ test('sin token correcto no se suben archivos',async()=>{
   const wrong=await call({...payload(),seguimiento_token:'incorrect'});
   assert.equal(wrong.statusCode,400);
   assert.equal(reqs.length,0);
-  const noRequest=mockFetch({request:null});
-  const res=await call({...payload(),solicitud_id:'a288cc11-f35a-4b31-9b41-f8dc5d9cabc1'});
-  assert.equal(res.statusCode,201);
-  assert.ok(noRequest.length>0);
+  const unknown=mockFetch({request:false});
+  const res=await call(payload());
+  assert.equal(res.statusCode,403);
+  assert.ok(unknown.length>0);
+  assert.equal(unknown.filter(x=>x.uri.includes('/storage/')).length,0);
 });
 
 test('deniega fotos de solicitudes vinculadas a otra cuenta o con estado diferente',async()=>{
