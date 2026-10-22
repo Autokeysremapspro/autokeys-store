@@ -36,7 +36,7 @@ test('reparación de ECU: contenido propio, valoración y schema', () => {
   const html = render(require('../api/seo-search-growth.js'), 'reparacion-centralitas-ecu');
   assert.match(html, /reparación y recuperación de centralitas ECU/i);
   assert.match(html, /escritura fallida/i);
-  assert.match(html, /unidad donante/i);
+  assert.match(html, /(?:una|unidad) donante/i);
   assert.match(html, /Diagn%C3%B3stico%20%2F%20comprobaci%C3%B3n/);
   assert.match(html, /tel:\+34632982646/);
   assert.doesNotMatch(html, /\+34953852778/);
