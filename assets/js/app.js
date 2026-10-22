@@ -108,7 +108,7 @@ function akHeaderHTML(active) {
   '</div></div>' +
   '<header class="site-header"><div class="container">' +
     '<a class="brand" href="/">' +
-      '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro Store" width="330" height="132">' +
+      '<img class="logo-img" src="/assets/img/logo.png" alt="Autokeys Remaps Pro" width="330" height="132">' +
     '</a>' +
     '<nav class="main-nav-wrap" aria-label="Principal"><ul class="main-nav" id="ak-main-navigation">' +
       '<li class="mobile-nav-top"><span>EXPLORAR AUTOKEYS</span><button type="button" data-nav-close aria-label="Cerrar menú">' + akIcon('close') + '</button></li>' +
@@ -144,6 +144,7 @@ function akHeaderHTML(active) {
         { href: '/servicios/bmw-cas-ews-programacion', label: 'BMW CAS / EWS' },
         { href: '/mercedes-ezs-elv', label: 'Mercedes EZS / ELV' },
       ]) +
+      navLink('/casos-reales.html', 'casos', 'CASOS REALES') +
       '<li><a href="https://akcloud.es" target="_blank" rel="noopener">FILE SERVICE</a></li>' +
       navLink('/profesionales.html', 'profesionales', 'TALLERES') +
       navLink('/contacto.html', 'contacto', 'CONTACTO') +
@@ -496,6 +497,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && navigation?.classList.contains('mobile-open')) {
+      const focusables = Array.from(navigation.querySelectorAll('a[href], button:not([disabled])'))
+        .filter((element) => element.getClientRects().length);
+      if (focusables.length) {
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
     if (e.key === 'Escape' && navigation?.classList.contains('mobile-open')) closeNavigation(true);
     else if (e.key === 'Escape' && navigation) {
       navigation.querySelectorAll('.has-dropdown.is-expanded').forEach((li) => {
